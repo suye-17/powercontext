@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "async-python-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/async-python-patterns/SKILL.md",
+      "computedHash": "35bc80697c3ba879e32cee7e2728ed2db0d16499875bb718736fd1160fddc2d6"
+    },
     "documentation-writer": {
       "source": "github/awesome-copilot",
       "ref": "main",
@@ -33,6 +39,24 @@
       "sourceType": "github",
       "skillPath": "skills/piglet/SKILL.md",
       "computedHash": "a7adc8efc1fb003644573b886f7405e97e5d8c94a11bb2d607693f93e7cc6a86"
+    },
+    "python-performance-optimization": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-performance-optimization/SKILL.md",
+      "computedHash": "1263ae7d2cc7bc5e481c754df4033a44efaa028d5659171000465507544a0b74"
+    },
+    "python-testing-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-testing-patterns/SKILL.md",
+      "computedHash": "a0c0cd2841eb80fc082b360ebbee1ad69275234229e525a6da1baaee3f5a52bd"
+    },
+    "seekdb": {
+      "source": "oceanbase/oceanbase-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seekdb/SKILL.md",
+      "computedHash": "cd4cde556b2b21ead8285743135a96892c9590eb211510a8765e415c58350343"
     }
   }
 }
