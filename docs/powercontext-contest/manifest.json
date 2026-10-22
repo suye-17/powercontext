@@ -1,0 +1,113 @@
+{
+  "book_id": 81051108,
+  "docs": [
+    {
+      "file": "00-总览.md",
+      "slug": "gp9hi8ikdnef8ryc",
+      "title": "PowerContext",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/gp9hi8ikdnef8ryc",
+      "updated_at": "2026-08-17T12:27:43.000Z",
+      "words": null,
+      "chars": 368
+    },
+    {
+      "file": "01-fork仓库.md",
+      "slug": "ygfg2iskh62zntl5",
+      "title": "赛题一：Fork PowerContext 仓库",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/ygfg2iskh62zntl5",
+      "updated_at": "2026-10-19T12:11:12.000Z",
+      "words": null,
+      "chars": 1769
+    },
+    {
+      "file": "02-CSV行级采集与原始记录回查.md",
+      "slug": "yt9ctvr4n9lc0p1l",
+      "title": "赛题二：CSV 行级采集与原始记录回查",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/yt9ctvr4n9lc0p1l",
+      "updated_at": "2026-10-19T12:11:38.000Z",
+      "words": null,
+      "chars": 5082
+    },
+    {
+      "file": "03-Pi会话分支采集与断点恢复.md",
+      "slug": "oi71gg4g80uda2ls",
+      "title": "赛题三：Pi 会话分支采集与断点恢复",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/oi71gg4g80uda2ls",
+      "updated_at": "2026-10-19T12:12:17.000Z",
+      "words": null,
+      "chars": 4658
+    },
+    {
+      "file": "04-财报PDF全文解析与证据页检索.md",
+      "slug": "ohy6lqb9wshgmrar",
+      "title": "赛题四：财报 PDF 全文解析与证据页检索",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/ohy6lqb9wshgmrar",
+      "updated_at": "2026-10-19T12:12:42.000Z",
+      "words": null,
+      "chars": 4859
+    },
+    {
+      "file": "05-HTTP重排服务接入与跨批次排序.md",
+      "slug": "te7ynwpbeg0cbufs",
+      "title": "赛题五：HTTP 重排服务接入与跨批次排序",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/te7ynwpbeg0cbufs",
+      "updated_at": "2026-10-19T12:14:33.000Z",
+      "words": null,
+      "chars": 4442
+    },
+    {
+      "file": "06-上下文增量传输与完整重建.md",
+      "slug": "pw6pl9siofvh3h9k",
+      "title": "赛题六：上下文增量传输与完整重建",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/pw6pl9siofvh3h9k",
+      "updated_at": "2026-10-19T12:15:02.000Z",
+      "words": null,
+      "chars": 4986
+    },
+    {
+      "file": "07-按新增来源条目数触发记忆处理.md",
+      "slug": "kv2g0mm2fdfdda7x",
+      "title": "赛题七：按新增来源条目数触发记忆处理",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/kv2g0mm2fdfdda7x",
+      "updated_at": "2026-10-19T12:15:24.000Z",
+      "words": null,
+      "chars": 3789
+    },
+    {
+      "file": "08-Embedding并发合并与向量缓存.md",
+      "slug": "gt75mi3l407t2ccn",
+      "title": "赛题八：Embedding 并发请求合并与向量缓存",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/gt75mi3l407t2ccn",
+      "updated_at": "2026-10-19T12:15:48.000Z",
+      "words": null,
+      "chars": 3789
+    },
+    {
+      "file": "09-来源撤回后的记忆停用与恢复.md",
+      "slug": "vru5ymzl6lmi701c",
+      "title": "赛题九：来源撤回后的记忆停用与恢复",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/vru5ymzl6lmi701c",
+      "updated_at": "2026-10-19T12:16:07.000Z",
+      "words": null,
+      "chars": 4054
+    },
+    {
+      "file": "10-按查询和预算选择原文证据.md",
+      "slug": "kcgxoqb2h9up4ufu",
+      "title": "赛题十：按查询和预算选择原文证据",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/kcgxoqb2h9up4ufu",
+      "updated_at": "2026-10-19T12:16:28.000Z",
+      "words": null,
+      "chars": 4282
+    },
+    {
+      "file": "11-seekdb混合检索单SQL候选查询.md",
+      "slug": "hqkh5u47mf5nv8r5",
+      "title": "赛题十一：seekdb 混合检索的单 SQL 候选查询",
+      "url": "https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/hqkh5u47mf5nv8r5",
+      "updated_at": "2026-10-19T12:16:49.000Z",
+      "words": null,
+      "chars": 4157
+    }
+  ]
+}

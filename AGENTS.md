@@ -65,6 +65,8 @@ Write deliverables as self-contained, final-state artifacts. Incorporate request
 
 ## Commit & Pull Request Guidelines
 
+Always create new branches from `contest/base` (which tracks the contest frozen commit `9db17534`), not from `master`.
+
 Recent history uses short Conventional Commit-style subjects, such as `feat: init powercontext`, `feat(website): establish new site style and structure`, and `chore(github): add more templates for PRs and issues`. Keep the subject concise and scoped.
 
 Pull requests should link the relevant issue or RFC, explain the rationale, summarize behavior/API/docs/test changes, call out user-facing or breaking changes, list validation commands, and include the AI usage statement requested by `.github/pull_request_template.md`.
