@@ -168,7 +168,7 @@ def _as_event(session_id: str, record: dict[str, JsonValue]) -> PiEventInput | N
 
 
 def _session_id(record: dict[str, JsonValue]) -> str:
-    if record.get("type") != "session" or record.get("version") != 3:
+    if record.get("type") != "session" or type(record.get("version")) is not int or record["version"] != 3:
         raise ValueError("Pi session header must have version 3")  # noqa: TRY003
     session_id = record.get("id")
     if not isinstance(session_id, str) or not session_id.strip():

@@ -140,6 +140,11 @@ def test_whitespace_text_is_preserved_as_original_visible_content() -> None:
         (_session(_message("a", None, "user", "x"), _message("a", None, "user", "y")), None),
         (_session(_message("a", None, "user", "x")), "missing"),
         (b'{"type":"session","version":2,"id":"s"}\n', None),
+        (
+            b'{"type":"session","version":3.0,"id":"s"}\n'
+            b'{"type":"message","id":"e","parentId":null,"message":{"role":"user","content":"hi"}}\n',
+            None,
+        ),
         (b'{"type":"session","version":3,"id":""}\n', None),
     ],
 )
