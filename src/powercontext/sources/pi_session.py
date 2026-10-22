@@ -122,7 +122,10 @@ def _message_body(message: dict[str, JsonValue], role: str) -> str | None:
         name, call_id = message.get("toolName"), message.get("toolCallId")
         if not isinstance(name, str) or not isinstance(call_id, str):
             return None
-        return f"[tool_result {name} {call_id}] {_visible_text(message.get('content'))}"
+        result_text = _visible_text(message.get("content"))
+        if not result_text:
+            return None
+        return f"[tool_result {name} {call_id}] {result_text}"
     if role == "bashExecution":
         command = message.get("command")
         output = message.get("output")

@@ -118,6 +118,24 @@ def test_whitespace_text_is_preserved_as_original_visible_content() -> None:
     assert [event.content for event in events] == ["user:   \n"]
 
 
+def test_image_only_tool_result_connects_the_branch_without_text_evidence() -> None:
+    image_result: dict[str, object] = {
+        "type": "message",
+        "id": "image-result",
+        "parentId": None,
+        "message": {
+            "role": "toolResult",
+            "toolName": "read",
+            "toolCallId": "call-1",
+            "content": [{"type": "image", "data": "opaque"}],
+        },
+    }
+    events = parse_pi_session(
+        PiSessionInput(content=_session(image_result, _message("after", "image-result", "user", "continue")))
+    )
+    assert [event.event_id for event in events] == ["after"]
+
+
 @pytest.mark.parametrize(
     "content,leaf_id",
     [
