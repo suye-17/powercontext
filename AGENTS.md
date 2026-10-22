@@ -23,6 +23,8 @@ Use an available skill only when it matches the current task, and read its `SKIL
 
 Target Python 3.11+. Use PEP 8 naming: modules and functions in `snake_case`, classes in `PascalCase`, constants in `UPPER_SNAKE_CASE`. Ruff enforces formatting and linting with a 120-character line length; run `uv run prek run -a` before committing if you do not use the installed hooks. Keep comments focused on non-obvious intent rather than restating code.
 
+Do not emit an Apache license header or copyright notice when creating or editing source files. Headers are managed centrally; AI-generated code should not prepend them.
+
 ## Design and Implementation
 
 - Start from the current contract and relevant RFC. Change public APIs only as required by the task and avoid unrelated refactors. Do not weaken behavior tests to accommodate an implementation shortcut.
