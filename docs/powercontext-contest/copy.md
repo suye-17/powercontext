@@ -1,4 +1,4 @@
-请使用仓库中的 $powercontext-contest-workflow skill 完成赛题。
+请使用仓库中的 $powercontext-contest-workflow skill 完成赛题。根据它的路由表选择适用技能，并在应用前读取对应的 SKILL.md。
 
 赛题：<编号和名称>
 题目文件：docs/powercontext-contest/<对应题目文件>.md
