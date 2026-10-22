@@ -1,7 +1,10 @@
 docs/source
 
-# Agent skills are restored from skills-lock.json.
-.agents/skills/
+# Agent skills are restored from skills-lock.json. Keep the repository's
+# contest workflow skill while ignoring installed skills.
+.agents/skills/*
+!.agents/skills/powercontext-contest-workflow/
+!.agents/skills/powercontext-contest-workflow/**
 
 # Local visual brainstorming sessions.
 .superpowers/
