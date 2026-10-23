@@ -1,24 +1,30 @@
 # Skill and Tool Routing
 
-Choose by task stage and observable need. This list records skills visible in the 2026-10-22 session; the active skill catalog may change, so re-check it when using this workflow. Do not load every listed skill for every contest task.
+Follow the current workflow stage and observable need. This list records skills visible in the 2026-10-22 session; the active skill catalog may change, so re-check it when using this workflow. Do not load every listed skill for every contest task. A routed skill must be invoked/read and followed before its stage begins; merely listing its name or writing `$skill-name` in a plan does not mean it has been applied. If a routed skill is unavailable, say so and use the closest available guidance without claiming that skill was used.
 
 ## Contest workflow routing
 
-| Stage or condition | Use |
+| Workflow phase | Load and apply |
 | --- | --- |
-| Start a task in Codex | `superpowers:using-superpowers` |
-| New behavior, public contract, or non-obvious implementation choice | `superpowers:brainstorming` |
-| Multi-step implementation with a spec or requirements | `superpowers:writing-plans`; use `superpowers:executing-plans` when executing an approved plan inline |
-| Isolated implementation requested or needed | `superpowers:using-git-worktrees`; create a normal feature branch when that is the user's selected isolation |
-| Behavior change or bug fix | `superpowers:test-driven-development`; use `python-testing-patterns` for pytest-specific fixtures and coverage design |
-| Independent tasks can proceed without shared state | `superpowers:dispatching-parallel-agents`; use `superpowers:subagent-driven-development` when executing an approved implementation plan with agents |
-| A failure or unexpected result appears | `superpowers:systematic-debugging`; use `diagnosing-superpowers` only when the Superpowers process itself caused trouble |
-| Async/concurrency design | `async-python-patterns` |
-| A measured performance bottleneck or explicit cost gate | `python-performance-optimization` |
+| Every new task, before inspecting or acting | `superpowers:using-superpowers`, then this `powercontext-contest-workflow` skill |
+| Project/contest inspection | No additional skill by default; follow this skill, `AGENTS.md`, and the challenge contract |
+| Design has meaningful ambiguity, new behavior, or a public-contract choice | `superpowers:brainstorming` before settling the approach |
+| Every multi-step implementation, after analysis and before coding | `superpowers:writing-plans`; save the plan to `docs/superpowers/plans/YYYY-MM-DD-<challenge-id>-<slug>.md`, present it, and wait for approval |
+| User requests or repository policy requires a worktree | `superpowers:using-git-worktrees` before creating the worktree; base new contest work on `contest/base` |
+| Approved plan, inline execution | `superpowers:executing-plans` before the first implementation task |
+| Approved plan, user-selected/delegated agent execution | `superpowers:subagent-driven-development`; also load `superpowers:dispatching-parallel-agents` only when tasks are independent and can proceed without shared state |
+| Behavior change or bug fix | `superpowers:test-driven-development` before changing implementation; add `python-testing-patterns` when pytest fixtures, parametrization, or test structure need design |
+| Async/concurrency behavior is part of the change | `async-python-patterns` during design and implementation |
+| Measured performance bottleneck or explicit cost gate | `python-performance-optimization` before proposing or measuring optimization |
+| Failure or unexpected result during implementation/verification | `superpowers:systematic-debugging` before changing code; `diagnosing-superpowers` only if the Superpowers process itself caused trouble |
 | Before claiming completion | `superpowers:verification-before-completion` |
-| Major change or pre-merge review | `superpowers:requesting-code-review`; use `superpowers:receiving-code-review` before acting on review feedback |
+| Substantial change or pre-merge review | `superpowers:requesting-code-review`; load `superpowers:receiving-code-review` before acting on review feedback |
 | Verified branch is ready for integration | `superpowers:finishing-a-development-branch` |
-| Creating or updating a skill | `skill-creator` for scope and structure; `superpowers:writing-skills` for skill authoring and validation |
+| Creating or updating a skill | `skill-creator` for scope/structure and `superpowers:writing-skills` for authoring/validation; read their required supporting references |
+
+### Plan approval stop
+
+`superpowers:writing-plans` is used after repository and challenge analysis. The agent must produce the plan file and expose its link and summary to the user. It must stop there until the user approves the plan or gives corrections. Do not interpret the initial challenge request, time pressure, or a request to “just fix it” as approval of a plan the user has not seen. On approval, load the execution skill selected by the user or the workflow; do not silently skip the plan phase.
 
 ## All skills visible in this session
 
