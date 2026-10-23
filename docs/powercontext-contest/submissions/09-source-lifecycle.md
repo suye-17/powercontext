@@ -64,12 +64,12 @@ Topic 的 Head、发布时间、完整正文、chunk 和向量保留；精确历
 | 用户运行的全量 `make test` | 1 failed, 3718 passed, 138 skipped, 6 warnings；尚无全量全绿结果 |
 | 双语恢复清单与 MySQL schema 专项 | 5 passed；覆盖全部 48 张表及外键父表优先顺序 |
 | 仓库 `make check` | 通过；含 hooks、锁文件、类型检查和 30 项 integration manifest 测试 |
-| 独立 subagent 审查 | 实现提交审查无阻塞问题；独立专项复跑 115 passed, 1 skipped |
+| 独立 subagent 审查 | 实现与恢复清单均无阻塞问题；独立复跑分别为 115 passed, 1 skipped 和 5 passed |
 | 官方公开验收 | 未取得测评文件，未运行 |
 
 全量测试记录中的唯一失败为恢复文档清单覆盖检查；两份清单现已覆盖 48 张内置表，原有检查通过。
 全量结果中的 6 条警告均来自已有 LangGraph `create_react_agent` 弃用提示，不等同于测试失败。
-专项通过不替代用户运行的全量复验结果。
+恢复清单以完整 MySQL schema 专项和仓库 `make check` 作为验收依据。未再次执行全量测试，不宣称全量通过。
 
 20 节点样例测得撤回后 12 个节点可用，持久化状态为 5571 字节，产生 5 个 Memory 状态修订；
 相同事件重放新增修订为 0，正文版本保持不变。该测量仅代表此样例，不构成大图性能保证。
