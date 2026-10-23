@@ -2,6 +2,8 @@
 
 编号：`retrieval-02-hybrid-search`。产品仓库：[suye-17/powercontext](https://github.com/suye-17/powercontext)。
 
+产品实现及独立审核对应提交：`dfd0a12bb5eaaa52a213820942fa185b7722c702`。该提交为本地提交，远端可获取性未验证。
+
 冻结提交：`9db1753434162c0aa7c9f1189a1722e617880a52`。分支基线：`contest/base` 的 `afeac9d0551d439560a36169dba5b3c44991f878`；分支为 `feat/seekdb-hybrid-search-11`。
 
 ## 产品行为
@@ -30,6 +32,19 @@
 - 聚焦回归：8 个测试文件，共 **58 passed in 36.29s**；其中新增真实 seekdb 专项为 8 项，未跳过。
 - `uv run --locked --no-sync .../prek run -a`：全部 hooks 通过，含 Ruff 和全项目 `ty check`。静态工具环境为独立的 Python 3.13 工具环境；没有将它作为真实后端测试环境。
 - 变更文件的 Ruff 与 Python 3.11 语义类型检查、`git diff --check` 均通过；`uv lock --locked --offline` 通过，依赖文件未修改。
+
+## 独立审核
+
+独立 subagent 按 `requesting-code-review` 和仓库 `REVIEW.md` 审核了上述实现提交及相关调用链，未发现 Critical、Important 或 Minor 缺陷。审核结论为可本地交付；正式固定版本和真实语料验收仍未验证。
+
+[独立审核验证记录](11-seekdb-hybrid-search-review.json)包括：
+
+- 重新执行同一组聚焦测试：**58 passed in 38.41s，无 skip**。
+- 串行重新执行 60 次合成同库对照：每 query Recall/MRR 不退化，平均均为 1.0，p50 为 46.57 ms，候选 statement 为 1 对 2。
+- 额外建立 12 条不同向量距离的本 scope 候选、其他 scope 和其他 Memory 各 40 条更近的干扰记录；无 tag、any、all 均返回正确的向量 top-3，并核对真实双索引执行计划。
+- 变更文件 Ruff、格式、Python 3.11 语义类型检查及 diff 检查均通过。
+
+精简的 Python 3.12 原生运行环境直接做全项目 `ty check --python .venv` 时出现 65 条诊断，涉及未安装的 langchain、time_machine、datamodel_code_generator、typer 等开发/集成依赖。完整 Python 3.13 工具环境执行全项目类型检查通过。两种环境结果分别保留，不将精简环境的检查报告为通过。
 
 ## 同库对照测量
 
