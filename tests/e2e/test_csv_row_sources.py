@@ -97,34 +97,63 @@ def test_csv_row_memory_search_citation_reads_exact_original_record(tmp_path) ->
     async def scenario() -> None:
         config = BuiltinConfig(database=SQLiteConfig(url=f"sqlite+aiosqlite:///{tmp_path / 'csv-memory.db'}"))
         registry = SourceDefinitionRegistry((CSV_ROW_SOURCE_DEFINITION,))
-        row = parse_csv_document(
+        rows = parse_csv_document(
             CSVDocumentInput(
                 document_id="airports",
                 primary_key="id",
-                content=b"id,name,code\n001,Harbor Field,US\n",
+                content=b"id,name,code\n001,Harbor Field,US\n002,North Pier,CA\n",
             )
-        )[0]
+        )
+        expected = {
+            "csv:airports:001": {
+                "content": '{"id":"001","name":"Harbor Field","code":"US"}',
+                "metadata": {
+                    "document_id": "airports",
+                    "primary_key": "id",
+                    "primary_key_value": "001",
+                    "columns": ["id", "name", "code"],
+                    "row": {"id": "001", "name": "Harbor Field", "code": "US"},
+                },
+            },
+            "csv:airports:002": {
+                "content": '{"id":"002","name":"North Pier","code":"CA"}',
+                "metadata": {
+                    "document_id": "airports",
+                    "primary_key": "id",
+                    "primary_key_value": "002",
+                    "columns": ["id", "name", "code"],
+                    "row": {"id": "002", "name": "North Pier", "code": "CA"},
+                },
+            },
+        }
+
+        async with open_builtin_contexts(config) as contexts:
+            await contexts.register_source_definition(manifest_for_definition(CSV_ROW_SOURCE_DEFINITION))
+            for row in rows:
+                source = await registry.resolve(row)
+                observation = project_source_for_transport(registry, source)
+                await contexts.submit_source_observation(
+                    SubmitSourceObservation(scope_id="csv-memory", observation=observation)
+                )
 
         async with open_builtin_contexts(
             config,
             candidate_pipeline=_CSVMemoryCandidatePipeline(),
         ) as contexts:
-            await contexts.register_source_definition(manifest_for_definition(CSV_ROW_SOURCE_DEFINITION))
-            source = await registry.resolve(row)
-            observation = project_source_for_transport(registry, source)
-            receipt = await contexts.submit_source_observation(
-                SubmitSourceObservation(scope_id="csv-memory", observation=observation)
-            )
             scope = await contexts.get("csv-memory")
             persisted = await scope.sources.list()
-            assert len(persisted) == 1
-            stored_source = persisted[0]
-            assert isinstance(stored_source, SourceObservation)
-            assert scope.sources.catalog.as_ref(stored_source) == receipt.source_ref
+            assert {source.name for source in persisted} == set(expected)
+            for source in persisted:
+                assert isinstance(source, SourceObservation)
+                evidence = TextEvidence.model_validate(
+                    scope.sources.catalog.project(source, TEXT_EVIDENCE_PROJECTION_KEY)
+                )
+                assert evidence.content == expected[source.name]["content"]
+                assert evidence.metadata == expected[source.name]["metadata"]
 
             memory = await scope.artifacts.memory.remember(
                 memory=None,
-                sources=(stored_source,),
+                sources=persisted,
                 mode="extract",
             )
             assert memory is not None
@@ -141,10 +170,21 @@ def test_csv_row_memory_search_citation_reads_exact_original_record(tmp_path) ->
                 entry_version_id=hit.entry_version_id,
             )
             cited_entry = await scope.artifacts.memory.validate_citation(citation)
-            assert cited_entry.sources == (receipt.source_ref,)
+            assert len(cited_entry.sources) == 1
+            target_source_ref = cited_entry.sources[0]
+            assert target_source_ref.source_id == "csv:airports:001"
 
+        async with open_builtin_contexts(config) as contexts:
+            scope = await contexts.get("csv-memory")
+            cited_entry = await scope.artifacts.memory.validate_citation(citation)
+            assert cited_entry.sources == (target_source_ref,)
+            persisted = await scope.sources.list()
+            stored_source = next(
+                source for source in persisted if scope.sources.catalog.as_ref(source) == target_source_ref
+            )
+            assert isinstance(stored_source, SourceObservation)
             payload = await scope.sources.read(stored_source)
             restored_source = CSVRowSource.model_validate(payload)
-            assert await registry.read(restored_source) == row
+            assert await registry.read(restored_source) == rows[0]
 
     asyncio.run(scenario())

@@ -202,6 +202,40 @@ def test_parse_csv_document_compares_primary_key_values_without_trimming() -> No
     assert tuple(row.primary_key_value for row in rows) == ("001", " 001 ")
 
 
+def test_csv_row_identity_is_stable_when_document_rows_are_reordered() -> None:
+    registry = SourceDefinitionRegistry((CSV_ROW_SOURCE_DEFINITION,))
+    forward = parse_csv_document(
+        CSVDocumentInput(
+            document_id="airports",
+            primary_key="id",
+            content=b"id,name\n001,Harbor Field\n002,East Port\n003,North Pier\n",
+        )
+    )
+    reversed_rows = parse_csv_document(
+        CSVDocumentInput(
+            document_id="airports",
+            primary_key="id",
+            content=b"id,name\n003,North Pier\n002,East Port\n001,Harbor Field\n",
+        )
+    )
+
+    async def source_ids(rows: tuple[CSVRowInput, ...]) -> dict[str, str]:
+        identities = {}
+        for row in rows:
+            source = await registry.resolve(row)
+            assert isinstance(source, CSVRowSource)
+            identities[row.primary_key_value] = source.source_id
+        return identities
+
+    expected = {
+        "001": "csv:airports:001",
+        "002": "csv:airports:002",
+        "003": "csv:airports:003",
+    }
+    assert asyncio.run(source_ids(forward)) == expected
+    assert asyncio.run(source_ids(reversed_rows)) == expected
+
+
 def test_parse_csv_document_does_not_return_rows_before_later_validation_failure() -> None:
     with pytest.raises(ValueError):
         parse_csv_document(
@@ -351,5 +385,25 @@ def test_csv_row_definition_projects_complete_text_evidence() -> None:
             "columns",
             "row",
         }
+
+    asyncio.run(scenario())
+
+
+def test_csv_row_projection_preserves_empty_non_primary_key_fields() -> None:
+    async def scenario() -> None:
+        registry = SourceDefinitionRegistry((CSV_ROW_SOURCE_DEFINITION,))
+        row = parse_csv_document(
+            CSVDocumentInput(
+                document_id="airports",
+                primary_key="id",
+                content=b"id,name,code\n001,,US\n",
+            )
+        )[0]
+
+        source = await registry.resolve(row)
+        evidence = TextEvidence.model_validate(registry.project(source, TEXT_EVIDENCE_PROJECTION_KEY))
+
+        assert evidence.content == '{"id":"001","name":"","code":"US"}'
+        assert evidence.metadata["row"] == {"id": "001", "name": "", "code": "US"}
 
     asyncio.run(scenario())
