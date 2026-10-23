@@ -41,3 +41,47 @@ Topic Memory 有独立的处理与检索入口，包括 MCP 的 `search_topic_me
 基本的显式 Memory 写入不会启用 Topic Memory；相关设置和运行时能力见[配置](../operate/configuration.md)。
 
 交接当前任务边界使用 [Handoff](memory-and-handoff.md)，保留原始证据使用 [Sources](sources.md)。
+
+## 按来源依赖停用与恢复
+
+内置 Python Runtime 的 `runtime.lifecycle.for_scope(scope_id)` 支持显式注册 Source、Memory 和 Topic Memory
+的证据依赖。每个 Scope 使用单写者；父节点须先注册，绑定后不能更换引用、父节点或策略。
+`all` 表示所有父节点共同支持整份正文，`any` 表示任一父节点都能独立支持整份正文。
+
+```python
+from powercontext.builtin.runtime.source_lifecycle import SourceLifecycleEvent
+
+lifecycle = runtime.lifecycle.for_scope(scope_id)
+await lifecycle.register_source("source-a", captured.source_ref, revision=3)
+await lifecycle.register_memory(
+    "memory-a", saved.entry.citation, parents=("source-a",), policy="all"
+)
+await lifecycle.register_topic(
+    "topic-a", topic_ref, parents=("memory-a",), policy="any"
+)
+
+active_ids = await lifecycle.apply(
+    SourceLifecycleEvent(
+        node_id="source-a", revision=3, sequence=1,
+        available=False, reason="来源已撤回",
+    )
+)
+audit_reference = await lifecycle.resolve("memory-a", purpose="audit")
+```
+
+这里的 `runtime` 来自 `open_builtin_runtime()`；`scope_id` 已注册；`captured` 是该 Scope 的 Source 捕获结果，
+`saved` 是显式 Memory 写入结果且包含 `entry`，`topic_ref` 是已经发布、可精确读取的 Topic Memory ArtifactRef。
+生命周期版本 `revision` 由调用方指定，与 Memory 或 Topic 的正文版本无关。注册引用必须属于当前 Scope 并可读取。
+这个入口属于内置 Python Runtime，不增加 HTTP 或 MCP 操作。
+
+Source 注册时可用。派生节点注册时立即继承父节点的可用状态；撤回后再注册的节点也遵循同一规则。
+每个 Source 的事件序号独立且单调递增；版本不匹配、低序号、同序号不同内容都会报 `SourceLifecycleError`。
+同一个事件重放不会新增 Memory 修订。恢复时发送更大序号、`available=True` 的事件即可。
+
+一次注册或事件传播在同一数据库事务中更新图、原生 Memory 状态和 Topic 检索资格。写入失败或操作取消会回滚；
+调用方可以重试同一事件。注册、事件与资格跨重启保留，不同 Scope 互不影响。失败后不需要改正文或重新生成摘要。
+
+不可用 Memory 退出当前列表、搜索和 PreparedContext；使用 `include_inactive=True` 仍可检查其状态。
+不可用 Topic 退出当前浏览、原生搜索和 PreparedContext，但原始 ArtifactRef 仍可精确读取完整正文。
+`purpose="generation"` 拒绝不可用节点，`purpose="audit"` 返回保留的原始引用；恢复后生成用途也返回该原始引用。
+Memory 的状态修订可以前进，绑定的正文版本和历史 citation 保持不变。绑定期间不要从外部改写该 Memory 正文版本。

@@ -28,6 +28,7 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncConnection
 from sqlalchemy.schema import CreateTable
 
+from powercontext.artifacts import ArtifactRef
 from powercontext.builtin.artifacts.memory import EmbeddingProfile
 from powercontext.builtin.artifacts.topic_memory import (
     TopicMemoryContent,
@@ -41,6 +42,7 @@ from powercontext.builtin.persistence.oceanbase.topic_memory_index import (
     OceanBaseTopicMemoryFTSIndex,
     OceanBaseTopicMemoryVectorIndex,
 )
+from powercontext.builtin.persistence.source_lifecycle import SourceLifecycleRepository
 from powercontext.builtin.persistence.tables import (
     BUILTIN_TABLES,
     TOPIC_MEMORY_ACTIVE_CHUNKS_TABLE,
@@ -122,6 +124,9 @@ def test_oceanbase_fts_initializes_and_queries_both_current_projection_channels(
         assert "pc_topic_memory_active_topics.scope_id" in query_statements[0]
         assert "MATCH (pc_topic_memory_active_chunks.searchable_text) AGAINST" in query_statements[1]
         assert "pc_topic_memory_active_chunks.scope_id" in query_statements[1]
+        for statement in query_statements:
+            assert "pc_source_lifecycle_unavailable_topics" in statement
+            assert "NOT (EXISTS" in statement
         assert "row_number() OVER" in query_statements[1]
         assert "anon_1.topic_rank" in query_statements[1]
         assert result.topic_fts == ()
@@ -214,6 +219,38 @@ def test_live_oceanbase_topic_vector_hybrid_and_detail_search() -> None:
                         for hits in (channels.topic_vector, channels.detail_vector):
                             assert [hit.artifact_ref.artifact_id for hit in hits] == ["topic-alpha", "topic-zulu"]
                         assert [hit.chunk_ordinal for hit in channels.detail_vector] == [0, 0]
+                        lifecycle = SourceLifecycleRepository()
+                        withdrawn_ref = ArtifactRef(family="topic-memory", artifact_id="topic-alpha", revision=1)
+                        original = await repository.get_exact(connection, "scope-a", withdrawn_ref)
+                        await lifecycle.set_unavailable_topics(connection, "scope-a", (withdrawn_ref,))
+                        for mode in ("fts", "vector", "hybrid"):
+                            filtered = await repository.search(
+                                connection,
+                                "scope-a",
+                                "evidence",
+                                limit=1,
+                                mode=mode,
+                                query_vector=vector if mode != "fts" else None,
+                                embedding_profile=embedding_profile if mode != "fts" else None,
+                            )
+                            assert [hit.artifact_ref.artifact_id for hit in filtered.hits] == ["topic-zulu"]
+                        single = await vector_index.search(
+                            connection,
+                            "scope-a",
+                            TopicMemorySearchRequest(
+                                query="alpha",
+                                candidate_limit=1,
+                                mode="vector",
+                                query_vector=vector,
+                                embedding_profile=embedding_profile,
+                            ),
+                        )
+                        for hits in (single.topic_vector, single.detail_vector):
+                            assert [hit.artifact_ref.artifact_id for hit in hits] == ["topic-zulu"]
+                        assert await repository.get_exact(connection, "scope-a", withdrawn_ref) == original
+                        await lifecycle.set_unavailable_topics(connection, "scope-a", ())
+                        restored = await repository.search(connection, "scope-a", "alpha", limit=1, mode="fts")
+                        assert [hit.artifact_ref for hit in restored.hits] == [withdrawn_ref]
             finally:
                 if database_created:
                     async with server_profile.database.transaction() as connection:
@@ -260,6 +297,9 @@ def test_oceanbase_detail_vector_collapses_topics_before_the_channel_limit(mode)
             assert "JOIN" not in ann_selection
             assert "WHERE v.scope_id = :scope_id" in ann_selection
             assert "v.profile_fingerprint = :profile_fingerprint" in ann_selection
+            assert "NOT EXISTS" in ann_selection
+            assert "lifecycle.artifact_id = v.artifact_id" in ann_selection
+            assert "lifecycle.revision = v.revision" in ann_selection
             assert statement.index("JOIN pc_topic_memory_active_topics") > statement.index("APPROXIMATE")
             assert statement.rfind("ORDER BY distance, artifact_id, revision DESC") > statement.index("APPROXIMATE")
         assert statements[0].index("LIMIT :candidate_limit") < statements[0].rfind("ORDER BY distance")

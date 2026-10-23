@@ -646,6 +646,7 @@ async def open_builtin_runtime(
                 decision_model=configured_decision,
                 publication_application=contexts.publications,
                 scope_application=contexts.scopes,
+                source_lifecycle=contexts.source_lifecycle,
                 readiness=RuntimeReadinessChecks(readiness_probes),
                 tracing=tracing,
                 scheduled_source_runner=scheduled_source_runner,
