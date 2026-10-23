@@ -7,8 +7,8 @@
 - 冻结提交：`9db1753434162c0aa7c9f1189a1722e617880a52`。
 - 分支起点：`contest/base`，`bfd62d03f131a1324ca9d90e8d58b9576447a39d`；其产品源码、测试和依赖与冻结提交一致。
 - 实现分支：`feat/source-lifecycle-09`。
-- 本地工作树：`/tmp/powercontext-contest-09`。
-- 提交主题：`feat(memory): propagate source lifecycle availability`。
+- 本地工作树：`/home/enovo/work/wt-contest/powercontext-contest-09`。
+- 实现提交：`2e1dcf60400ab8b7c9976d6166ec25d53d3a27b3`，主题 `feat(memory): propagate source lifecycle availability`。
 
 ## 产品行为
 
@@ -41,6 +41,7 @@ Topic 的 Head、发布时间、完整正文、chunk 和向量保留；精确历
 - 每个 Scope 为单写者，注册后不改图；绑定期间不从外部修订 Memory 正文版本。
 - 生命周期状态使用版本化 JSON，不对 node_id 增加 SQL 主键长度限制；未知持久化 schema 明确拒绝。
 - 初始化新增两张表；旧库没有生命周期记录时，既有内容保持可用，无需改写原正文或历史证据。
+- 中英文 OBLOADER 恢复清单在第 2 层包含两张生命周期表，先恢复 Scope 与 Artifact 父表；源导出缺表时可省略对应表。
 - 图状态每次只读取/保存目标 Scope。拓扑计算与状态序列化为 O(V+E)，状态文档存在同 Scope 重写成本。
 - 原生 Memory 状态转换仍承担现有 manifest/检索投影成本。没有性能提升或大图成本保证；测试覆盖 20 节点图。
 - 不新增依赖、不修改 OpenAPI 或生成客户端，不新增 HTTP/MCP 操作。既有 HTTP/MCP 读取复用原生检索行为。
@@ -60,10 +61,19 @@ Topic 的 Head、发布时间、完整正文、chunk 和向量保留；精确历
 | 受影响 Runtime、Context、HTTP Topic、Memory 与持久化回归 | 201 passed, 27 skipped |
 | `uv run --locked ty check` | 通过 |
 | 改动文件 Ruff 检查 | 通过 |
-| 用户运行的全量 `make test` | 等待执行结果 |
+| 用户运行的全量 `make test` | 1 failed, 3718 passed, 138 skipped, 6 warnings；尚无全量全绿结果 |
+| 双语恢复清单与 MySQL schema 专项 | 5 passed；覆盖全部 48 张表及外键父表优先顺序 |
 | 仓库 `make check` | 通过；含 hooks、锁文件、类型检查和 30 项 integration manifest 测试 |
-| 独立 subagent 审查 | 等待审查结果 |
+| 独立 subagent 审查 | 实现提交审查无阻塞问题；独立专项复跑 115 passed, 1 skipped |
 | 官方公开验收 | 未取得测评文件，未运行 |
+
+全量测试记录中的唯一失败为恢复文档清单覆盖检查；两份清单现已覆盖 48 张内置表，原有检查通过。
+全量结果中的 6 条警告均来自已有 LangGraph `create_react_agent` 弃用提示，不等同于测试失败。
+专项通过不替代用户运行的全量复验结果。
+
+20 节点样例测得撤回后 12 个节点可用，持久化状态为 5571 字节，产生 5 个 Memory 状态修订；
+相同事件重放新增修订为 0，正文版本保持不变。该测量仅代表此样例，不构成大图性能保证。
+实际删除并重建 SQLite 全文检索投影后，撤回内容仍不进入搜索，精确历史正文保持可读。
 
 受影响回归曾出现一次 SQLAlchemy 连接清理警告；对应升级场景独立执行为 2 passed，新增/既有取消场景在每例强制
 GC 并将清理警告提升为错误后为 2 passed，未重现。未据此断言该间歇警告已消除。
@@ -90,7 +100,7 @@ uv run --locked python -m pytest -q \
 取得组织方文件后，在规定的 Python 3.12 和固定依赖环境中运行：
 
 ```bash
-export POWERCONTEXT_CANDIDATE=/tmp/powercontext-contest-09
+export POWERCONTEXT_CANDIDATE=/home/enovo/work/wt-contest/powercontext-contest-09
 export POWERCONTEXT_PUBLIC=/path/to/public-evaluation-checkout
 PYTHONPATH="$POWERCONTEXT_CANDIDATE/src:$POWERCONTEXT_PUBLIC" \
   python -m pytest -q -p no:cacheprovider \
