@@ -16,8 +16,8 @@
 
 ## 验证环境与证据边界
 
-- 实际运行：Linux x86_64，Python `3.12.3`，`pylibseekdb==1.3.0.post5`，SQLAlchemy `2.0.51`，pyobvector `0.2.28`，pytest `9.1.1`。运行依赖来自仓库 `uv.lock` 的 server 配置，pylibseekdb 单独安装，没有使用会升级它的 seekdb extra 同步。
-- 题目指定 `pylibseekdb==1.3.0.post4`。本地无该包，PyPI 与清华镜像的版本列表均未列出该版本，用户亦无该 wheel 或环境。因此下述真实后端执行属于 **post5 辅助验证**，不能证明 post4 兼容。
+- 实际运行：Linux x86_64，Python `3.12.3`，`pylibseekdb==1.3.0.post4`，SQLAlchemy `2.0.51`，pyobvector `0.2.28`，pytest `9.1.1`。运行依赖来自仓库 `uv.lock` 的 server 配置，pylibseekdb 单独安装，没有使用会升级它的 seekdb extra 同步。
+- 固定后端来自 [PyPI post4 历史页面](https://pypi.org/project/pylibseekdb/1.3.0.post4/#files)的[官方 Linux x86_64、CPython 3.12+ wheel](https://files.pythonhosted.org/packages/19/e9/49507c0859bf0898f99f2b0978baba6cfaca9563e4ba20242be014ee7e6c/pylibseekdb-1.3.0.post4-cp312-abi3-manylinux_2_28_x86_64.whl)。已完整下载并校验 SHA-256：`ee2700b5990e5e4f11c4b980b182cf7b066817ddd91c7b876152b88a7c24a7ea`，运行进程确认安装版本为 `1.3.0.post4`。下述功能与同库对照在真实 post4 后端执行。
 - 未取得组织方 `challenges/retrieval-02-hybrid-search/acceptance` 以及题述真实 173 文档、20 查询、固定向量和评分 qrels。正式公开验收及正式质量门未验证。
 - 没有执行全量测试；按用户要求留给用户手动运行。没有推送、创建 PR 或对外提交。
 
@@ -29,15 +29,22 @@
 
 已执行检查：
 
-- 聚焦回归：8 个测试文件，共 **58 passed in 36.29s**；其中新增真实 seekdb 专项为 8 项，未跳过。
+- 聚焦回归：8 个测试文件，共 **58 passed in 39.78s**；其中新增真实 seekdb 专项为 8 项，未跳过。
 - `uv run --locked --no-sync .../prek run -a`：全部 hooks 通过，含 Ruff 和全项目 `ty check`。静态工具环境为独立的 Python 3.13 工具环境；没有将它作为真实后端测试环境。
 - 变更文件的 Ruff 与 Python 3.11 语义类型检查、`git diff --check` 均通过；`uv lock --locked --offline` 通过，依赖文件未修改。
 
 ## 独立审核
 
-独立 subagent 按 `requesting-code-review` 和仓库 `REVIEW.md` 审核了上述实现提交及相关调用链，未发现 Critical、Important 或 Minor 缺陷。审核结论为可本地交付；正式固定版本和真实语料验收仍未验证。
+独立 subagent 按 `requesting-code-review` 和仓库 `REVIEW.md` 审核了上述实现提交及相关调用链，未发现 Critical、Important 或 Minor 缺陷。审核结论为可本地交付；正式真实语料验收仍未验证。
 
-[独立审核验证记录](11-seekdb-hybrid-search-review.json)包括：
+[post4 独立复验记录](11-seekdb-hybrid-search-post4-review.json)包含实际环境、完整测试命令、控制台结果及完整同库对照数据：
+
+- 独立重新执行同一组聚焦测试：**58 passed in 40.82s，无 skip**。
+- 173 篇合成文档、20 条查询、三个 scope 共 60 次测量，命中有效性全部通过，每 query Recall/MRR 均不退化，平均 Recall/MRR 均为 1.0。
+- 完整搜索 p50 为 **55.46 ms**，与冻结路径的 p50 比为 **1.0034**，完整 tuple 一致率为 0；候选 statement 为 1 对 2。
+- 三个 scope 的真实 EXPLAIN 均含 `TEXT RETRIEVAL SCAN` 和 `VECTOR INDEX ADAPTIVE SCAN (PRE-FILTER)`。
+
+[post5 辅助审核记录](11-seekdb-hybrid-search-review.json)明确记录运行版本，包括：
 
 - 重新执行同一组聚焦测试：**58 passed in 38.41s，无 skip**。
 - 串行重新执行 60 次合成同库对照：每 query Recall/MRR 不退化，平均均为 1.0，p50 为 46.57 ms，候选 statement 为 1 对 2。
@@ -48,7 +55,7 @@
 
 ## 同库对照测量
 
-[逐查询结果及 EXPLAIN 算子](11-seekdb-hybrid-search-synthetic.json)来自独立的合成语料：20 个主题，前 13 个主题各 9 篇、其余各 8 篇，共 173 篇；每个主题使用一个 384 维单位基向量，查询只包含该主题词。它覆盖规定的输入规模与候选访问成本，但主题区分容易，不能代表真实语料检索难度。
+[post4 逐查询结果及 EXPLAIN 算子](11-seekdb-hybrid-search-post4.json)来自独立的合成语料：20 个主题，前 13 个主题各 9 篇、其余各 8 篇，共 173 篇；每个主题使用一个 384 维单位基向量，查询只包含该主题词。它覆盖规定的输入规模与候选访问成本，但主题区分容易，不能代表真实语料检索难度。
 
 三个独立 scope 共 60 个测量查询。候选与冻结双查询策略共享同一数据库、Memory head、已入库身份和固定 embedding；逐 query 各预热一次，测量顺序交替。计时包含完整 `MemoryService.search`，精确回读与评分在计时外进行；没有与其他数据库测试并行计时。
 
@@ -59,21 +66,24 @@
 | 每 query Recall@10 / MRR@10 不退化 | 60/60 |
 | 平均 Recall@10 | 1.0 |
 | 平均 MRR@10 | 1.0 |
-| 完整搜索 p50 | 47.65 ms |
-| p50 / 冻结路径 p50 | 0.9712 |
+| 完整搜索 p50 | 45.59 ms |
+| p50 / 冻结路径 p50 | 0.9757 |
 | 完整身份、正文、通道、排序 tuple 一致率 | 0.0 |
 
 完整 tuple 一致率不是题目的通过门槛；原生向量同距离候选的排序变化会改变 RRF 分数。上述每 query 质量检查才是该合成输入上的不退化证据。延迟比仅作观测，不宣称端到端加速。
+
+[post5 辅助同库测量](11-seekdb-hybrid-search-synthetic.json)单独保留其实际环境与逐查询数据，不混入上表的 post4 指标。
 
 候选次数不包括既有 head 和向量完整性校验；完整性检查仍逐 Memory 读取活跃投影元数据，存在既有线性成本。带 tag 的资格聚合及向量查找成本随选中 tag 身份数增长，candidate limit 约束最终通道候选数，不代表数据库只处理这些条目。本文未证明更大集合的成本上界。
 
 ## 复现
 
-建立独立 Python 3.12 环境并安装锁定运行依赖及辅助后端：
+建立独立 Python 3.12 环境并安装锁定运行依赖及题目固定后端：
 
 ```bash
 uv sync --locked --no-default-groups --extra server --python 3.12
-uv pip install --python .venv/bin/python pytest==9.1.1 pylibseekdb==1.3.0.post5
+uv pip install --python .venv/bin/python pytest==9.1.1
+uv pip install --python .venv/bin/python "https://files.pythonhosted.org/packages/19/e9/49507c0859bf0898f99f2b0978baba6cfaca9563e4ba20242be014ee7e6c/pylibseekdb-1.3.0.post4-cp312-abi3-manylinux_2_28_x86_64.whl#sha256=ee2700b5990e5e4f11c4b980b182cf7b066817ddd91c7b876152b88a7c24a7ea"
 ```
 
 聚焦验证，不运行全量测试：
@@ -107,7 +117,7 @@ for number, theme in enumerate(themes):
 Path("/tmp/pc11-synthetic.json").write_text(json.dumps({"name": "synthetic-173-documents-20-topics", "documents": documents, "queries": queries}), encoding="utf-8")
 ```
 
-正式验收文件与固定 post4 环境可用后，运行题目公开命令；不能用上述合成结果代替：
+取得正式验收文件后，使用固定 post4 环境运行题目公开命令；不能用上述合成结果代替：
 
 ```bash
 export POWERCONTEXT_CANDIDATE=/path/to/product-checkout
