@@ -4,6 +4,7 @@ import asyncio
 import base64
 import hashlib
 import json
+import sys
 
 import pytest
 
@@ -126,6 +127,54 @@ def test_pack_decoder_rejects_forged_digest_with_valid_byte_count() -> None:
         ContextPack.from_bytes(wire)
 
 
+def test_pack_decoder_accepts_both_valid_self_inclusive_byte_count_fixed_points() -> None:
+    pack = ContextPack.build((b"x" * 512, b"y" * 106, b"a", b"a"))
+    payload = json.loads(pack.to_bytes())
+    assert pack.byte_count == 999
+    payload["byte_count"] = 1000
+    wire = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+
+    assert len(wire) == 1000
+    assert ContextPack.from_bytes(wire) == pack
+
+
+def test_pack_decoder_normalizes_oversized_json_integer() -> None:
+    digit_limit = sys.get_int_max_str_digits()
+    if digit_limit == 0:
+        pytest.skip("JSON integer conversion limit is disabled")
+    huge_integer = b"9" * (digit_limit + 1)
+    wire = (
+        b'{"byte_count":'
+        + huge_integer
+        + b',"digest":"sha256:'
+        + b"0" * 64
+        + b'","items":[],"schema":"powercontext.context-pack.v1"}'
+    )
+
+    with pytest.raises(ContextPackError):
+        ContextPack.from_bytes(wire)
+
+
+def test_delta_decoder_normalizes_oversized_json_integer() -> None:
+    digit_limit = sys.get_int_max_str_digits()
+    if digit_limit == 0:
+        pytest.skip("JSON integer conversion limit is disabled")
+    huge_integer = b"9" * (digit_limit + 1)
+    digest = b"sha256:" + b"0" * 64
+    wire = (
+        b'{"appended":[],"base_digest":"'
+        + digest
+        + b'","prefix_items":'
+        + huge_integer
+        + b',"schema":"powercontext.context-pack-delta.v1","target_digest":"'
+        + digest
+        + b'"}'
+    )
+
+    with pytest.raises(ContextPackError):
+        ContextPackDelta.from_bytes(wire)
+
+
 @pytest.mark.parametrize(
     "wire",
     [
@@ -241,9 +290,15 @@ def test_delta_rejects_wrong_base_digest_and_out_of_range_prefix() -> None:
         b'{"schema":"powercontext.context-pack-delta.v1","base_digest":"sha256:a","target_digest":"sha256:b","prefix_items":0,"appended":[],"extra":0}',
         b'{"schema":"powercontext.context-pack-delta.v1","base_digest":"sha256:a","target_digest":"sha256:b","appended":[]}',
         b'{"schema":"wrong","base_digest":"sha256:a","target_digest":"sha256:b","prefix_items":0,"appended":[]}',
-        b'{"schema":"powercontext.context-pack-delta.v1","base_digest":"sha256:a","target_digest":"sha256:b","prefix_items":true,"appended":[]}',
-        b'{"schema":"powercontext.context-pack-delta.v1","base_digest":"sha256:a","target_digest":"sha256:b","prefix_items":-1,"appended":[]}',
-        b'{"schema":"powercontext.context-pack-delta.v1","base_digest":"sha256:a","target_digest":"sha256:b","prefix_items":1.0,"appended":[]}',
+        b'{"schema":"powercontext.context-pack-delta.v1","base_digest":"sha256:'
+        b'0000000000000000000000000000000000000000000000000000000000000000","target_digest":"sha256:'
+        b'0000000000000000000000000000000000000000000000000000000000000000","prefix_items":true,"appended":[]}',
+        b'{"schema":"powercontext.context-pack-delta.v1","base_digest":"sha256:'
+        b'0000000000000000000000000000000000000000000000000000000000000000","target_digest":"sha256:'
+        b'0000000000000000000000000000000000000000000000000000000000000000","prefix_items":-1,"appended":[]}',
+        b'{"schema":"powercontext.context-pack-delta.v1","base_digest":"sha256:'
+        b'0000000000000000000000000000000000000000000000000000000000000000","target_digest":"sha256:'
+        b'0000000000000000000000000000000000000000000000000000000000000000","prefix_items":1.0,"appended":[]}',
         b'{"schema":"powercontext.context-pack-delta.v1","base_digest":"sha256:a","target_digest":"sha256:b","prefix_items":0,"appended":["%%%="]}',
     ],
 )

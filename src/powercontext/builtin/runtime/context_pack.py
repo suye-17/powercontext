@@ -43,8 +43,10 @@ def _decode_json(data: bytes) -> dict[str, Any]:
             object_pairs_hook=reject_duplicate_keys,
             parse_constant=lambda value: (_ for _ in ()).throw(ContextPackError(f"invalid JSON constant: {value}")),
         )
-    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as error:
-        raise ContextPackError("invalid UTF-8 JSON") from error
+    except ContextPackError:
+        raise
+    except (ValueError, RecursionError) as error:
+        raise ContextPackError("invalid JSON") from error
     if not isinstance(value, dict):
         raise ContextPackError("wire value must be a JSON object")
     return value
@@ -168,6 +170,8 @@ class ContextPack:
             raise ContextPackError("pack fields do not match the schema")
         if payload["schema"] != _PACK_SCHEMA:
             raise ContextPackError("unsupported pack schema")
+        if _canonical_json(payload) != data:
+            raise ContextPackError("pack JSON is not canonical")
         if isinstance(payload["byte_count"], bool) or not isinstance(payload["byte_count"], int):
             raise ContextPackError("byte_count must be an integer")
         items = _decode_items(payload["items"])
@@ -177,8 +181,6 @@ class ContextPack:
             raise ContextPackError("pack digest mismatch")
         if payload["byte_count"] != len(data):
             raise ContextPackError("pack byte_count mismatch")
-        if pack.to_bytes() != data:
-            raise ContextPackError("pack JSON is not canonical")
         return pack
 
 
