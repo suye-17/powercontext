@@ -110,7 +110,7 @@ qoder/
 | --- | --- | --- |
 | 网站可访问 | `site/` 静态站点，待由发布者使用个人 Qoder 账号发布为公开站点 | 发布步骤见 [site/PUBLISH.md](site/PUBLISH.md)；URL 与无痕截图由发布者补充 |
 | 项目能够运行 | `uv.lock`、`.env.example`、`RUNBOOK.md`、一键场景脚本 | `sample/scenario/steps.md` 与 `evidence/` |
-| Qoder 开发可核对 | 需求拆解、实现、调试与验证均在 Qoder 中完成 | [evidence/qoder/README.md](evidence/qoder/README.md) 记录对话材料、UID 与 commit 对应关系 |
+| Qoder 开发可核对 | 需求拆解、实现、调试与验证均在 Qoder 中完成 | [evidence/qoder/README.md](evidence/qoder/README.md) 记录对话材料与 commit 对应关系；UID 与发布截图待发布者补充 |
 | 技术结合有效 | seekdb 检索进入计划/速读/综述；PowerContext 记忆跨重启复用 | `evidence/seekdb/`、`evidence/powercontext/`、`evidence/llm/` |
 
 ## 已知限制

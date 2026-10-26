@@ -25,7 +25,8 @@ export PAPERDESK_LIBRARY="$LIBRARY"
 export PYTHONPATH="$APP_DIR/src${PYTHONPATH:+:$PYTHONPATH}"
 
 STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-rm -rf "$EVIDENCE"/{seekdb,powercontext,llm,eval,web}
+rm -rf "$EVIDENCE"/{seekdb,powercontext,llm,eval}
+rm -f "$EVIDENCE"/web/*.html "$EVIDENCE"/web/*.json "$EVIDENCE"/web/*.txt
 rm -f "$EVIDENCE/run-status.txt"
 mkdir -p "$EVIDENCE"/{seekdb,powercontext,llm,eval,qoder,web} "$DATA_DIR"
 
@@ -159,16 +160,22 @@ echo "== session 1: goal, profile, progress, answer =="
 
 "$PAPERDESK" plan --json >"$EVIDENCE/powercontext/plan-session1.json"
 
-retry "answer" 3 "$PAPERDESK" answer "rerank 在 RAG 里解决什么问题？" \
-  --evidence "$EVIDENCE/llm/answer-session1.json" \
-  | tee "$EVIDENCE/llm/answer-session1.txt"
-"$PY" - "$EVIDENCE/llm/answer-session1.json" <<'PY'
+answer_evidence() {
+  "$PAPERDESK" answer "rerank 在 RAG 里解决什么问题？" \
+    --evidence "$EVIDENCE/llm/answer-session1.json" \
+    | tee "$EVIDENCE/llm/answer-session1.txt"
+  "$PY" - "$EVIDENCE/llm/answer-session1.json" <<'PY'
 import json, sys
-synthesis = json.load(open(sys.argv[1], encoding="utf-8"))["synthesis"]
+report = json.load(open(sys.argv[1], encoding="utf-8"))
+synthesis = report["synthesis"]
 assert synthesis["mode"] == "llm", synthesis
 assert synthesis["coverage"] >= 0.5, synthesis
 assert not synthesis["fallback_reason"], synthesis
+assert report["hits"], report
+assert all(hit["vector_score"] is not None for hit in report["hits"]), report["hits"][0]
 PY
+}
+retry "answer" 3 answer_evidence
 
 retry "finish-session" 4 "$PAPERDESK" memory finish-session \
   --paper-id rag-survey \

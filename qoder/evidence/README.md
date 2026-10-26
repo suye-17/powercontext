@@ -77,13 +77,14 @@ scripts/run_scenario.sh
 | `http-status.txt` | 8 个页面路径与 HTTP 状态，全部为 200 |
 | `*.html` | 工作台、资料库、单篇、会话、检索调试、记忆页、提问页的实际响应 |
 | `health.json` | `papers=6`、`chunks=30`、`embeddings=30`、`llm_available=true`、`powercontext=true` |
+| `screenshots/` | 脚本完成后从同一轮运行的工作台与站点手工捕获，重跑脚本时保留 |
 
 ## 验收对照
 
 | 验收项 | 证据 |
 | --- | --- |
 | 技术结合有效 | `seekdb/` 的 DDL、导入与查询记录；`powercontext/` 的写入、重启复用与语义召回；`llm/` 的引用映射 |
-| 项目能够运行 | 本目录全部记录可由 `scripts/run_scenario.sh` 重新生成；`web/` 证明服务启动并可访问 |
+| 项目能够运行 | 除截图外的记录可由 `scripts/run_scenario.sh` 重新生成；截图在脚本成功后从运行中的工作台手工捕获，重跑不会删除已有截图；`web/` 证明服务启动并可访问 |
 | 验证样例 | 初始数据在 `sample/library/`，输入命令与期望结果在 `sample/scenario/steps.md`，实际结果在本目录 |
 | 网站可访问 | 站点内容在 `site/`；发布记录与无痕截图由发布者在 `evidence/qoder/` 补充 |
 
