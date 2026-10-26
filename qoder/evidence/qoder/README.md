@@ -35,8 +35,6 @@
 
 ## 代码对应关系
 
-提交后在此补充 commit 与功能范围的对应表，便于评审把对话记录、diff 和运行结果串起来：
-
 | commit | 范围 | 关键文件 |
 | --- | --- | --- |
 | `f07c724f` | PaperDesk 应用、样例、场景脚本、文档与站点 | `app/src/paperdesk/`、`app/tests/`、`scripts/`、`sample/`、`README.md`、`RUNBOOK.md`、`site/` |

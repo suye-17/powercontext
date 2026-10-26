@@ -38,7 +38,7 @@ write_status() {
     printf 'commit=%s\n' "$(git -C "$QODER_DIR/.." rev-parse --short HEAD 2>/dev/null || echo unknown)"
   } >"$EVIDENCE/run-status.txt"
 }
-trap 'write_status failed' ERR
+trap 'if [[ "${SCENARIO_OK:-0}" != "1" ]]; then write_status failed; fi' EXIT
 write_status running
 
 # The MiniMax free tier enforces a low requests-per-minute quota; PowerContext
@@ -99,10 +99,23 @@ PY
 "$PAPERDESK" schema --out "$EVIDENCE/seekdb/ddl.sql"
 cp "$QODER_DIR/sample/scenario/seekdb-queries.sql" "$EVIDENCE/seekdb/queries.sql"
 
-"$PAPERDESK" search "chunk boundaries" --json >"$EVIDENCE/seekdb/query-unfiltered.json"
-"$PAPERDESK" search "chunk boundaries" --year-min 2023 --json >"$EVIDENCE/seekdb/query-year-2023.json"
-"$PAPERDESK" search "rerank" --status reading --json >"$EVIDENCE/seekdb/query-status-reading.json"
-"$PAPERDESK" search "citation coverage" --tag citation --json >"$EVIDENCE/seekdb/query-tag-citation.json"
+search_evidence() {
+  local name="$1"
+  shift
+  "$PAPERDESK" search "$@" --json >"$EVIDENCE/seekdb/$name.json"
+  "$PY" - "$EVIDENCE/seekdb/$name.json" <<'PY'
+import json, sys
+report = json.load(open(sys.argv[1], encoding="utf-8"))
+assert report["note"] is None, report["note"]
+assert report["hits"], report
+assert all(hit["vector_score"] is not None for hit in report["hits"]), report["hits"][0]
+PY
+}
+retry "search-unfiltered" 4 search_evidence query-unfiltered "chunk boundaries"
+retry "search-year-2023" 4 search_evidence query-year-2023 "chunk boundaries" --year-min 2023
+retry "search-status-reading" 4 search_evidence query-status-reading "rerank" --status reading
+retry "search-tag-citation" 4 search_evidence query-tag-citation "citation coverage" --tag citation
+
 {
   echo "# chunk boundaries, no filters"
   cat "$EVIDENCE/seekdb/query-unfiltered.json"
@@ -349,7 +362,8 @@ PY
 curl -fsS "http://127.0.0.1:$WEB_PORT/health" | tee "$EVIDENCE/web/health.json"
 
 write_status complete
-trap - ERR
+SCENARIO_OK=1
+trap - EXIT
 
 echo
 echo "scenario complete"

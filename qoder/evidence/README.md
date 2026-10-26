@@ -37,7 +37,7 @@ scripts/run_scenario.sh
 | `ingest.json` / `ingest.log` | 导入结果：6 篇、30 块、30 个向量、无嵌入错误 | 论文与分块实际写入 seekdb |
 | `ddl.sql` | `SHOW CREATE TABLE` 输出 | `FULLTEXT KEY`、`VECTOR(1536)`、`VECTOR KEY ... DISTANCE=COSINE, TYPE=HNSW` 实际存在 |
 | `query-results.txt` | 4 组检索：无过滤、年份过滤、状态过滤、标签过滤，含 FTS 与向量得分 | seekdb 的 FULLTEXT、向量通道与结构化过滤结果；应用层再做加权 RRF |
-| `query-*.json` | 上述 4 组检索的逐条 JSON，供脚本断言 | 排名、过滤范围与得分可机器核对 |
+| `query-*.json` | 上述 4 组检索的逐条 JSON，供脚本断言 | 脚本要求每组查询 `note=null` 且 `vector_score` 非空；嵌入瞬时失败会重试，不会静默回退 |
 | `queries.sql` | 可手动执行的 SQL：全文查询、余弦距离查询、schema 与统计 | 评审可重跑同一查询 |
 
 ### `powercontext/`

@@ -77,7 +77,7 @@ cd app && .venv/bin/paperdesk ingest --json
 
 **期望**（`evidence/seekdb/query-results.txt` 与 4 个 `query-*.json`）：
 
-- 无过滤时 `chunking-notes` 的章节排在最前，并同时带 `fts_score` 与 `vector_score`；
+- 无过滤时 `chunking-notes` 的章节排在最前，并同时带 `fts_score` 与 `vector_score`；脚本要求 4 组查询都带向量分，嵌入瞬时失败会重试；
 - `--year-min 2023` 后 2022 年的 `chunking-notes` 不再出现；
 - `--status reading` 只返回 front matter 标记为 `reading` 的 `rerank-notes`；
 - `--tag citation` 只返回 `citation-grounding` 与 `eval-notes`。
