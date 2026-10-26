@@ -8,7 +8,8 @@ from io import BytesIO
 from typing import TYPE_CHECKING, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, StrictInt, field_validator
-from pypdf import PdfReader
+from pypdf import PageObject, PdfReader
+from pypdf.generic import ArrayObject, NullObject, StreamObject
 
 from powercontext.artifacts import MemoryCitation
 from powercontext.sources.definitions import AdapterSourceDefinition, SourceDefinition
@@ -62,6 +63,20 @@ class PDFPageInput(BaseModel):
         return value
 
 
+def _validate_page_contents(page: PageObject) -> None:
+    contents = page.get("/Contents")
+    if contents is None:
+        return
+    contents = contents.get_object()
+    if isinstance(contents, NullObject):
+        return
+    streams = contents if isinstance(contents, ArrayObject) else (contents,)
+    if any(not isinstance(stream.get_object(), StreamObject) for stream in streams):
+        raise ValueError("PDF page Contents must contain only streams")  # noqa: TRY003
+    # Decode after checking structure: pypdf otherwise skips invalid array members.
+    page.get_contents()
+
+
 def parse_pdf_document(value: PDFDocumentInput) -> tuple[PDFPageInput, ...]:
     """Extract all physical pages, or fail without returning a partial document."""
 
@@ -72,8 +87,7 @@ def parse_pdf_document(value: PDFDocumentInput) -> tuple[PDFPageInput, ...]:
             raise ValueError("PDF requires a password")  # noqa: TRY003, TRY301
         pages = []
         for number, page in enumerate(reader.pages, 1):
-            # extract_text can silently treat a malformed /Contents as blank.
-            page.get_contents()
+            _validate_page_contents(page)
             pages.append(
                 PDFPageInput(
                     document_id=value.document_id,

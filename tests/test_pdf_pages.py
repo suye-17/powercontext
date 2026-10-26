@@ -49,6 +49,23 @@ def test_late_unreadable_page_fails_the_whole_document() -> None:
         )
 
 
+def test_late_invalid_content_stream_array_fails_the_whole_document() -> None:
+    with pytest.raises(ValueError):
+        api.parse_pdf_document(
+            api.PDFDocumentInput(
+                document_id="broken-array",
+                content=make_pdf("Readable first page", "Second page", corrupt_last=True, content_array=True),
+            )
+        )
+
+
+def test_valid_content_stream_arrays_and_empty_arrays_preserve_pages() -> None:
+    pages = api.parse_pdf_document(
+        api.PDFDocumentInput(document_id="streams", content=make_pdf("Revenue 123", "", content_array=True))
+    )
+    assert [(page.page_number, page.text.strip()) for page in pages] == [(1, "Revenue 123"), (2, "")]
+
+
 @pytest.mark.parametrize("document_id", ["", " \t\n"])
 def test_document_ids_must_not_be_blank(document_id: str) -> None:
     with pytest.raises(ValueError):
