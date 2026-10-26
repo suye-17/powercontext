@@ -40,7 +40,7 @@
 | commit | 范围 | 关键文件 |
 | --- | --- | --- |
 | `f07c724f` | PaperDesk 应用、样例、场景脚本、文档与站点 | `app/src/paperdesk/`、`app/tests/`、`scripts/`、`sample/`、`README.md`、`RUNBOOK.md`、`site/` |
-| `待填写` | 提交后重跑的完整证据与最终截图 | `evidence/`、`site/assets/screenshots/` |
+| `61572947` | 提交后重跑的完整证据与最终截图 | `evidence/`、`site/assets/screenshots/` |
 
 本轮证据在 `f07c724f` 提交后由 `qoder/scripts/run_scenario.sh` 从空运行时重跑生成，`evidence/run-status.txt` 记录 `commit=f07c724f` 与 `status=complete`。
 
