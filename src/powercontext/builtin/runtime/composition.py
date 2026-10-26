@@ -21,6 +21,7 @@ import logging
 import os
 from collections.abc import AsyncIterator, Callable, Mapping, Sequence
 from contextlib import AsyncExitStack, asynccontextmanager, nullcontext
+from dataclasses import replace
 from datetime import timedelta
 from functools import partial
 from pathlib import Path
@@ -704,7 +705,16 @@ def _artifact_processing_bindings(  # noqa: C901 - validate and assemble one reg
     worker_security: dict[str, Any] | None = None,
     source_registry: SourceDefinitionRegistry = BUILTIN_SOURCE_REGISTRY,
 ) -> tuple[ArtifactProcessingBinding, ...]:
-    configured = list(bindings)
+    count_thresholds = {
+        "memory": config.runtime.memory_source_count_threshold,
+        "topic-memory": config.runtime.topic_memory_source_count_threshold,
+    }
+    configured = [
+        replace(binding, source_count_threshold=count_thresholds[binding.artifact_family])
+        if binding.artifact_family in count_thresholds and count_thresholds[binding.artifact_family] is not None
+        else binding
+        for binding in bindings
+    ]
     _validate_processing_registrations(configured)
     capabilities = processing_capabilities(config)
     canonical = {**FAMILY_BINDINGS, "topic-memory": TOPIC_MEMORY_SOURCE_WINDOW_BINDING}
@@ -779,6 +789,7 @@ def _artifact_processing_bindings(  # noqa: C901 - validate and assemble one reg
                 max_workers=getattr(config.runtime, f"{prefix}_max_workers"),
                 worker_timeout_seconds=getattr(config.runtime, f"{prefix}_worker_timeout_seconds"),
                 automatic_processing_interval=None if interval is None else timedelta(seconds=float(interval)),
+                source_count_threshold=count_thresholds.get(family),
                 cron=config.runtime.profile_cron
                 if family == "profile" and config.runtime.profile_schedule_enabled
                 else None,

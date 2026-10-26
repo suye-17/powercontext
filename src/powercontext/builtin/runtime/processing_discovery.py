@@ -16,7 +16,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncConnection
 
 from powercontext.builtin.persistence.cursors import SourceCursorRepository
@@ -52,6 +52,24 @@ class SourceProcessingPendingProvider:
         self._database = database
         self._binding = binding_name
         self._family = artifact_family
+
+    async def count_threshold_reached(self, connection: AsyncConnection, scope_id: str, threshold: int) -> bool:
+        """Check this Family's unconsumed Source identities using only journal metadata."""
+
+        if type(threshold) is not int or threshold < 1:
+            raise ValueError("source count threshold must be a positive integer")  # noqa: TRY003
+        heads = SOURCE_JOURNAL_HEADS_TABLE
+        # Match SourceRepository's head-first lock order. This serializes a
+        # count snapshot with concurrent capture and its dirty-intent write.
+        await connection.execute(update(heads).where(heads.c.scope_id == scope_id).values(position=heads.c.position))
+        row = (
+            await connection.execute(select(heads.c.position).where(heads.c.scope_id == scope_id).with_for_update())
+        ).one_or_none()
+        if row is None:
+            return False
+        cursor = await SourceCursorRepository().load(connection, scope_id, self._binding)
+        after = 0 if cursor is None else cursor.cursor.sequence
+        return int(row.position) - after >= threshold
 
     async def reconcile(self, after_scope_id: str | None, limit: int, *, fence: ArtifactProcessingFence) -> str | None:
         heads = SOURCE_JOURNAL_HEADS_TABLE

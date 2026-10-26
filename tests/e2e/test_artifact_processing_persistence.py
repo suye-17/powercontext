@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import asyncio
 from pathlib import Path
-from typing import NoReturn
+from typing import Any, NoReturn, cast
 
 import pytest
 from sqlalchemy.exc import IntegrityError
@@ -39,6 +39,7 @@ from powercontext.builtin.runtime import (
 )
 from powercontext.builtin.scope import ScopeDraft
 from powercontext.builtin.sources import CONTENT_SOURCE_ADAPTER, SourceCursor
+from powercontext.builtin.triggers import SOURCE_WINDOW_TRIGGER_NAME
 
 BINDING = TOPIC_MEMORY_SOURCE_WINDOW_BINDING
 
@@ -115,6 +116,34 @@ def test_runtime_capture_persists_idempotent_scope_isolated_pending(tmp_path: Pa
             scope_b_pending.flush_generation,
             scope_b_pending.handled_flush_generation,
         ) == (1, 0, 0)
+
+    asyncio.run(scenario())
+
+
+def test_capture_wakes_both_source_count_families_after_persisting(tmp_path: Path) -> None:
+    async def scenario() -> None:
+        class _WakeRecorder:
+            def __init__(self) -> None:
+                self.bindings: list[str] = []
+
+            def wake(self, binding_name: str) -> None:
+                self.bindings.append(binding_name)
+
+            async def close(self) -> None:
+                return None
+
+        config = _sqlite_config(tmp_path / "capture-wake.db")
+        async with open_builtin_runtime(
+            BuiltinConfig(database=config),
+            artifact_processing_bindings=(_processing_binding(),),
+        ) as runtime:
+            wake = _WakeRecorder()
+            cast(Any, runtime).artifact_processing_supervisor = wake
+            scope = await _create_scope(runtime, "capture-wake")
+            await runtime.sources.for_scope(scope).capture(
+                CaptureSource(source_id="new-source", content="persist before wake", metadata={})
+            )
+            assert wake.bindings == [SOURCE_WINDOW_TRIGGER_NAME, TOPIC_MEMORY_SOURCE_WINDOW_BINDING]
 
     asyncio.run(scenario())
 

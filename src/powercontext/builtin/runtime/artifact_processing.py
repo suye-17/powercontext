@@ -85,6 +85,18 @@ _WORKER_SHUTDOWN_TIMEOUT_SECONDS = 5.0
 ProcessingKey = tuple[str, str]
 
 
+def _validate_source_count_threshold(
+    threshold: int | None,
+    pending_provider: ArtifactProcessingPendingProvider | None,
+) -> None:
+    if threshold is None:
+        return
+    if type(threshold) is not int or threshold < 1:
+        raise ValueError("source_count_threshold must be a positive integer")  # noqa: TRY003
+    if pending_provider is None:
+        raise ValueError("source_count_threshold requires a pending provider")  # noqa: TRY003
+
+
 class ArtifactProcessingSupervisorStatus(StrEnum):
     DISABLED = "disabled"
     LEADER = "leader"
@@ -117,6 +129,7 @@ class ArtifactProcessingBinding:
     # Only automatic admission is filtered; already accepted requests retain
     # their own Worker authorization and domain completion semantics.
     automatic_scope_filter: Callable[[AsyncConnection, tuple[str, ...]], Awaitable[frozenset[str]]] | None = None
+    source_count_threshold: int | None = None
 
     def __post_init__(self) -> None:
         if not self.binding_name or self.binding_name != self.binding_name.strip():
@@ -131,6 +144,7 @@ class ArtifactProcessingBinding:
             raise ValueError("max_workers must be a positive integer")  # noqa: TRY003
         if self.worker_timeout_seconds <= 0:
             raise ValueError("worker_timeout_seconds must be positive")  # noqa: TRY003
+        _validate_source_count_threshold(self.source_count_threshold, self.pending_provider)
         if self.automatic_processing_interval is not None:
             if self.automatic_processing_interval.total_seconds() <= 0:
                 raise ValueError("automatic interval must be positive")  # noqa: TRY003
@@ -410,6 +424,12 @@ class _FamilyState:
     unacknowledged: int = 0
     discovery_seconds: float = 0
     invocation_seconds: float = 0
+    count_scan_pending: bool = False
+    count_scan_in_progress: bool = False
+    count_scan_after: int = 0
+    count_scan_upper: int | None = None
+    count_scan_notifications: int = 0
+    count_scan_notification_at_start: int = 0
 
 
 class ArtifactProcessingSupervisor:
@@ -514,6 +534,12 @@ class ArtifactProcessingSupervisor:
         for name, state in self._families.items():
             if binding_name is None or binding_name == name:
                 state.discovery_pending = True
+                if state.binding.source_count_threshold is not None:
+                    state.count_scan_notifications += 1
+                    if not state.count_scan_in_progress:
+                        state.count_scan_pending = True
+                        state.count_scan_after = 0
+                        state.count_scan_upper = None
         self._wake.set()
 
     async def close(self) -> None:
@@ -585,6 +611,10 @@ class ArtifactProcessingSupervisor:
             state.discovery_pending = True
             state.reconcile_complete = False
             state.reconcile_after = None
+            state.count_scan_pending = state.binding.source_count_threshold is not None
+            state.count_scan_in_progress = False
+            state.count_scan_after = 0
+            state.count_scan_upper = None
         if self._lease_mode == "oceanbase":
             self._renew_task = asyncio.create_task(self._renew(), name=f"artifact-lease-{self._supervisor_group}")
 
@@ -648,6 +678,8 @@ class ArtifactProcessingSupervisor:
                 state.next_discovery_at = loop.time() + _DISCOVERY_PAGE_DELAY_SECONDS
         else:
             state.reconcile_complete = True
+        if state.reconcile_complete:
+            await self._discover_count_trigger(state)
         # Alternate discovery channels so explicit traffic cannot monopolize admission.
         state.automatic_next = not state.automatic_next
         if state.automatic_next:
@@ -696,7 +728,68 @@ class ArtifactProcessingSupervisor:
             state.discovery_pending = state.notification_at_start != self._notifications
         else:
             state.discovery_pending = True
+
+    async def _discover_count_trigger(self, state: _FamilyState) -> None:
+        binding = state.binding
+        threshold = binding.source_count_threshold
+        provider = binding.pending_provider
+        if threshold is None or provider is None or not state.count_scan_pending:
+            return
+        capacity = self._fresh_capacity(state)
+        if capacity <= 0:
+            return
+        count_eligible = getattr(provider, "count_threshold_reached", None)
+        if count_eligible is None:
+            raise TypeError("count-trigger binding provider must support count_threshold_reached")  # noqa: TRY003
+        admitted: list[str] = []
+        limit = min(capacity, _DISCOVERY_PAGE_SIZE)
+        async with self._database.transaction() as connection:
+            await self._leases.require_fence(connection, self._require_current_fence())
+            if not state.count_scan_in_progress:
+                state.count_scan_upper = await self._intents.max_sequence(connection, binding.binding_name)
+                state.count_scan_after = 0
+                state.count_scan_notification_at_start = state.count_scan_notifications
+                state.count_scan_in_progress = True
+            rows = await self._intents.scan(
+                connection,
+                binding.binding_name,
+                after_sequence=state.count_scan_after,
+                limit=limit,
+                dirty_only=True,
+                upper_sequence=state.count_scan_upper,
+            )
+            after = state.count_scan_after
+            for row in rows:
+                after = row.pending_sequence
+                if await self._accept_count_scope(connection, state, row.scope_id, threshold, count_eligible):
+                    admitted.append(row.scope_id)
+        state.count_scan_after = after
+        if len(rows) < limit:
+            state.count_scan_in_progress = False
+            state.count_scan_after = 0
+            state.count_scan_upper = None
+            state.count_scan_pending = state.count_scan_notifications != state.count_scan_notification_at_start
+        else:
+            state.count_scan_pending = True
             state.next_discovery_at = asyncio.get_running_loop().time() + _DISCOVERY_PAGE_DELAY_SECONDS
+        for scope in admitted:
+            self._enqueue(state, scope)
+            state.next_discovery_at = asyncio.get_running_loop().time() + _DISCOVERY_PAGE_DELAY_SECONDS
+
+    async def _accept_count_scope(
+        self,
+        connection: AsyncConnection,
+        state: _FamilyState,
+        scope_id: str,
+        threshold: int,
+        count_eligible: Callable[[AsyncConnection, str, int], Awaitable[bool]],
+    ) -> bool:
+        if scope_id in state.queued or scope_id in state.running or scope_id in state.retries:
+            return False
+        if not await count_eligible(connection, scope_id, threshold):
+            return False
+        _, created = await self._intents.request_if_unaccepted(connection, scope_id, state.binding.binding_name)
+        return created
 
     async def _discover_automatic(self, state: _FamilyState) -> None:  # noqa: C901 - bounded admission state
         binding = state.binding
@@ -1060,6 +1153,10 @@ class ArtifactProcessingSupervisor:
             state.requested_after = state.scan_after = state.scan_generation = 0
             state.scan_in_progress = False
             state.discovery_pending = True
+            state.count_scan_pending = state.binding.source_count_threshold is not None
+            state.count_scan_in_progress = False
+            state.count_scan_after = 0
+            state.count_scan_upper = None
 
     async def _reap_unconfirmed_exits(self) -> None:
         for handle in tuple(self._unreaped):
@@ -1093,7 +1190,17 @@ class ArtifactProcessingSupervisor:
                 continue
             if state.next_schedule_at is not None:
                 deadlines.append(state.next_schedule_at)
-            if state.discovery_pending or state.scan_in_progress or not state.reconcile_complete or state.degraded:
+            if (
+                state.discovery_pending
+                or state.scan_in_progress
+                or not state.reconcile_complete
+                or state.degraded
+                or (
+                    state.count_scan_pending
+                    and len(state.running) < state.binding.max_workers
+                    and self._fresh_capacity(state) > 0
+                )
+            ):
                 deadlines.append(max(now, state.next_discovery_at))
         return None if not deadlines else max(0.001, min(deadlines) - now)
 
