@@ -450,6 +450,16 @@ def save_progress(client: PowerContextClient, scope_id: str, progress: Progress)
         PROGRESS_KIND,
         lambda data: data.get("paper_id") == progress.paper_id,
     )
+    if existing is not None:
+        current = _loads(existing.text)
+        payload = progress.as_json()
+        # A retried write can arrive after the server persisted the first
+        # attempt but reported 503; keep the revision stable in that case.
+        if current is not None and all(
+            current.get(key) == payload[key]
+            for key in ("paper_id", "status", "last_section", "next_action")
+        ):
+            return existing
     return _write(client, scope_id, PROGRESS_KIND, progress.as_json(), existing, reason="更新阅读进度")
 
 

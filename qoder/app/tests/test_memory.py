@@ -314,6 +314,29 @@ def test_save_session_updates_existing_session_instead_of_duplicating(fake: Fake
     assert load_state(client, SCOPE).sessions[0].session_id == "session-1"
 
 
+def test_save_progress_keeps_revision_for_unchanged_sections(fake: FakePowerContext) -> None:
+    client = PowerContextClient("http://127.0.0.1:8011", transport=fake)
+    first = save_progress(
+        client,
+        SCOPE,
+        make_progress("rag-survey", status="reading", last_section="Results", next_action="读 Evaluation 章"),
+    )
+    retried = save_progress(
+        client,
+        SCOPE,
+        make_progress("rag-survey", status="reading", last_section="Results", next_action="读 Evaluation 章"),
+    )
+    advanced = save_progress(
+        client,
+        SCOPE,
+        make_progress("rag-survey", status="reading", last_section="Evaluation", next_action="整理 rerank 要点"),
+    )
+
+    assert retried.artifact_id == first.artifact_id
+    assert retried.revision == first.revision == 1
+    assert advanced.revision == 2
+
+
 def test_forget_marks_entry_inactive(fake: FakePowerContext) -> None:
     client = PowerContextClient("http://127.0.0.1:8011", transport=fake)
     stored = client.remember(SCOPE, GOAL_KIND, json.dumps({"goal_id": "g1", "text": "旧目标"}))
