@@ -1,6 +1,6 @@
 {
   "query": "rerank",
-  "note": "向量检索不可用，已回退到全文检索：embedding transport error: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1000)",
+  "note": null,
   "hits": [
     {
       "chunk_id": "9e0319752b32fa59f8c546c9c39081df",
@@ -10,9 +10,9 @@
       "path": "rerank-notes.md",
       "start_line": 13,
       "end_line": 14,
-      "score": 1.0687,
+      "score": 0.1473,
       "fts_score": 1.0687,
-      "vector_score": null,
+      "vector_score": 0.6585,
       "tags": [
         "rerank",
         "retrieval",
@@ -28,9 +28,9 @@
       "path": "rerank-notes.md",
       "start_line": 22,
       "end_line": 23,
-      "score": 1.0016,
+      "score": 0.1454,
       "fts_score": 1.0016,
-      "vector_score": null,
+      "vector_score": 0.7165,
       "tags": [
         "rerank",
         "retrieval",
@@ -46,9 +46,9 @@
       "path": "rerank-notes.md",
       "start_line": 10,
       "end_line": 11,
-      "score": 0.8399,
+      "score": 0.1424,
       "fts_score": 0.8399,
-      "vector_score": null,
+      "vector_score": 0.5403,
       "tags": [
         "rerank",
         "retrieval",
@@ -64,9 +64,9 @@
       "path": "rerank-notes.md",
       "start_line": 19,
       "end_line": 20,
-      "score": 0.8248,
+      "score": 0.1409,
       "fts_score": 0.8248,
-      "vector_score": null,
+      "vector_score": 0.6056,
       "tags": [
         "rerank",
         "retrieval",
@@ -82,9 +82,9 @@
       "path": "rerank-notes.md",
       "start_line": 16,
       "end_line": 17,
-      "score": 0.8105,
+      "score": 0.1387,
       "fts_score": 0.8105,
-      "vector_score": null,
+      "vector_score": 0.5953,
       "tags": [
         "rerank",
         "retrieval",

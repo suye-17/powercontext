@@ -38,9 +38,10 @@
 | commit | 范围 | 关键文件 |
 | --- | --- | --- |
 | `f07c724f` | PaperDesk 应用、样例、场景脚本、文档与站点 | `app/src/paperdesk/`、`app/tests/`、`scripts/`、`sample/`、`README.md`、`RUNBOOK.md`、`site/` |
-| `61572947` | 提交后重跑的完整证据与最终截图 | `evidence/`、`site/assets/screenshots/` |
+| `1c4d5923` | 查询证据加严：必须带向量分，失败重试并标记失败状态 | `scripts/run_scenario.sh`、`sample/scenario/steps.md`、`evidence/README.md` |
+| `待填写` | 最终一轮完整证据与截图（`1c4d5923` 之后重跑） | `evidence/`、`site/assets/screenshots/` |
 
-本轮证据在 `f07c724f` 提交后由 `qoder/scripts/run_scenario.sh` 从空运行时重跑生成，`evidence/run-status.txt` 记录 `commit=f07c724f` 与 `status=complete`。
+本轮证据在 `1c4d5923` 提交后由 `qoder/scripts/run_scenario.sh` 从空运行时重跑生成，`evidence/run-status.txt` 记录 `commit=1c4d5923` 与 `status=complete`。`61572947` 是此前一轮证据提交，已被本轮取代。
 
 ## 建议截取的对话
 

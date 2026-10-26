@@ -1,6 +1,6 @@
 {
   "query": "chunk boundaries",
-  "note": "向量检索不可用，已回退到全文检索：embedding transport error: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1000)",
+  "note": null,
   "hits": [
     {
       "chunk_id": "29862ab7c300ac4d9156e4b3bee55a66",
@@ -10,9 +10,9 @@
       "path": "rag-survey.md",
       "start_line": 16,
       "end_line": 17,
-      "score": 0.6612,
+      "score": 0.1452,
       "fts_score": 0.6612,
-      "vector_score": null,
+      "vector_score": 0.4127,
       "tags": [
         "rag",
         "retrieval",
@@ -28,9 +28,9 @@
       "path": "eval-notes.md",
       "start_line": 13,
       "end_line": 14,
-      "score": 0.3423,
+      "score": 0.1424,
       "fts_score": 0.3423,
-      "vector_score": null,
+      "vector_score": 0.3816,
       "tags": [
         "evaluation",
         "retrieval",
@@ -46,9 +46,9 @@
       "path": "citation-grounding.md",
       "start_line": 19,
       "end_line": 20,
-      "score": 0.2322,
+      "score": 0.1417,
       "fts_score": 0.2322,
-      "vector_score": null,
+      "vector_score": 0.4215,
       "tags": [
         "citation",
         "grounding",
@@ -65,9 +65,9 @@
       "path": "citation-grounding.md",
       "start_line": 16,
       "end_line": 17,
-      "score": 0.2112,
+      "score": 0.1404,
       "fts_score": 0.2112,
-      "vector_score": null,
+      "vector_score": 0.4368,
       "tags": [
         "citation",
         "grounding",
@@ -84,9 +84,9 @@
       "path": "citation-grounding.md",
       "start_line": 13,
       "end_line": 14,
-      "score": 0.1849,
+      "score": 0.1366,
       "fts_score": 0.1849,
-      "vector_score": null,
+      "vector_score": 0.3843,
       "tags": [
         "citation",
         "grounding",
@@ -94,6 +94,60 @@
         "evaluation"
       ],
       "text": "## Method\nRetrieved chunks are numbered C1 through Cn and passed to the generator with a strict instruction to cite them. The validator parses citation markers, checks them against the chunk set, and computes citation coverage as cited conclusion sentences divided by total conclusion sentences. Unknown markers are removed from the visible summary and recorded in a report. If coverage falls below a threshold, or the model call fails, the system returns an extractive summary built from the chunks, with the same citation numbers. Prompt hashes and latency are logged without storing credentials."
+    },
+    {
+      "chunk_id": "203cb9c0eb80f9f1a19be1b603b067e9",
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "section": "Takeaways",
+      "path": "rerank-notes.md",
+      "start_line": 22,
+      "end_line": 23,
+      "score": 0.0164,
+      "fts_score": 0.0,
+      "vector_score": 0.5047,
+      "tags": [
+        "rerank",
+        "retrieval",
+        "rag"
+      ],
+      "text": "## Takeaways\nTreat reranking as a precision stage with an explicit budget. Keep the candidate depth configurable and log both first-stage and reranked ranks for debugging. If the generator still sees irrelevant context, inspect the reranker rather than increasing the context window."
+    },
+    {
+      "chunk_id": "5372579d1ec68f6e8d6d427dd7b34629",
+      "paper_id": "rag-survey",
+      "title": "Retrieval Augmented Generation: A Reading Map",
+      "section": "Takeaways",
+      "path": "rag-survey.md",
+      "start_line": 22,
+      "end_line": 23,
+      "score": 0.0161,
+      "fts_score": 0.0,
+      "vector_score": 0.5003,
+      "tags": [
+        "rag",
+        "retrieval",
+        "survey"
+      ],
+      "text": "## Takeaways\nStart from retrieval quality, then improve the generator. Keep a lexical baseline, add dense retrieval when paraphrase matters, and fuse by rank rather than raw score. Always preserve a path from an answer sentence back to a source passage and its line numbers."
+    },
+    {
+      "chunk_id": "503ec6d4fe5230c5941ae7a8673e5f67",
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "section": "Limitations",
+      "path": "rerank-notes.md",
+      "start_line": 19,
+      "end_line": 20,
+      "score": 0.0159,
+      "fts_score": 0.0,
+      "vector_score": 0.4527,
+      "tags": [
+        "rerank",
+        "retrieval",
+        "rag"
+      ],
+      "text": "## Limitations\nA cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely. Long passages increase cost and may exceed the reranker's input limit. Training hard negatives from the same retriever can overfit to its failure modes. The notes do not cover learned fusion of multiple rerankers, and nDCG rewards graded relevance that our small corpus does not provide."
     }
   ]
 }
