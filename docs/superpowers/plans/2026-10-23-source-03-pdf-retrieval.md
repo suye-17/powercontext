@@ -44,7 +44,7 @@
 - 提供 `parse_pdf_document(value: PDFDocumentInput) -> tuple[PDFPageInput, ...]`。
 - 提供名为 `pdf-page`、版本为 `1` 的 `PDF_PAGE_SOURCE_DEFINITION`，将每页解析为 captured Source，并可读回对应的 `PDFPageInput`。
 - 提供标准文本投影；metadata 必须恰好包含 `document_id`、`document_sha256`、`page_number`，正文为 `document_id + "\n" + text`。
-- 页 Source ID 的编码固定为：按字段顺序 `(document_id, document_sha256, page_number)`；`document_id` 使用原始 UTF-8 字节（不做 Unicode 规范化），前置其 8 字节无符号大端字节长度；`document_sha256` 解码为 32 个原始摘要字节；`page_number` 编为 8 字节无符号大端整数；整个 payload 前置域分隔符 `powercontext:pdf-page:v1\0`。对完整 payload 计算 SHA-256 小写十六进制，Source ID 使用 `pdf-page:sha256:<digest>` 格式。该编码定长、字段边界明确，并可容纳任意合理长度的文档 ID。
+- 页 Source ID 的编码固定为：按字段顺序 `(document_id, document_sha256, page_number)`；`document_id` 使用原始 UTF-8 字节（不做 Unicode 规范化），前置其 8 字节无符号大端字节长度；`document_sha256` 解码为 32 个原始摘要字节；`page_number` 编为 8 字节无符号大端整数；整个 payload 前置域分隔符 `powercontext:pdf-page:v1\0`。对完整 payload 计算 SHA-256 小写十六进制，Source ID 使用 `pdf-page:<document_sha256>:<page_number>:<digest>` 格式：摘要决定身份，前置的文档摘要与物理页码让引用自描述，可在不解析 Source 的情况下按文档分组并定位页码。该编码字段边界明确，最长 146 字符，可容纳任意合理长度的文档 ID。
 
 - [x] 编写行为测试，覆盖完整字节的 SHA-256、从 1 开始的物理页码、空白页、逐页文本、空或纯空白文档 ID、损坏输入的原子失败、空密码加密 PDF、重复调用身份稳定、PDF 修订后身份变化、含分隔符和 Unicode 的文档 ID、长 ID 及不超过 256 字符的身份。
 - [x] 运行 `uv run pytest tests/test_pdf_pages.py -q`；预期：因 PDF 页 API 尚未实现而失败。

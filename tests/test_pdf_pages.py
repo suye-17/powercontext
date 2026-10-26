@@ -153,8 +153,14 @@ def _record(index: int, text: str, sources: tuple[SourceRef, ...]) -> MemoryEntr
     )
 
 
-def _page_record(index: int, page_number: int, body: str, *, document_id: str = "doc") -> MemoryEntryRecord:
-    return _record(index, f"{document_id}\n{body}", (_page_source(page_number, document_id=document_id),))
+def _page_record(
+    index: int, page_number: int, body: str, *, document_id: str = "doc", digest: str = "a" * 64
+) -> MemoryEntryRecord:
+    return _record(
+        index,
+        f"{document_id}\n{body}",
+        (_page_source(page_number, document_id=document_id, digest=digest),),
+    )
 
 
 class _ListingMemory:
@@ -270,7 +276,17 @@ def test_search_is_deterministic_and_respects_the_limit() -> None:
     assert first == second
     assert len(first) == 5
     assert len({citation.entry_id for citation in first}) == 5
-    assert memory.list_calls == 2
+
+
+def test_search_does_not_treat_pages_of_different_documents_as_neighbours() -> None:
+    records = (
+        _page_record(0, 10, "alpha beta gamma delta", document_id="doc-a", digest="a" * 64),
+        _page_record(1, 11, "gamma delta", document_id="doc-a", digest="a" * 64),
+        _page_record(2, 11, "gamma", document_id="doc-b", digest="b" * 64),
+    )
+    memory = _ListingMemory(records)
+    citations = asyncio.run(api.search_pdf_pages(memory, "alpha beta gamma delta", limit=2))
+    assert [citation.entry_id for citation in citations] == ["entry-000", "entry-001"]
 
 
 def test_search_falls_back_to_lexical_hits_without_a_listing() -> None:

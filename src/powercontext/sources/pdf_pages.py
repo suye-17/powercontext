@@ -128,11 +128,11 @@ class _PDFPageAdapter:
             + value.page_number.to_bytes(8, "big")
         )
         # The name is a pure function of (document_id, document_sha256, page_number).
-        # The digest keeps the identity collision-free; the leading revision tag and
-        # physical page make a citation self-describing, so a reader can tell which
-        # page an entry belongs to without resolving the Source first.
+        # The digest keeps the identity collision-free; the document digest and physical
+        # page in front of it make a citation self-describing, so a reader can group
+        # entries by document and recover the page without resolving the Source first.
         return _PDFPageSource(
-            name=f"pdf-page:{value.document_sha256[:12]}:{value.page_number}:{hashlib.sha256(identity).hexdigest()}",
+            name=f"pdf-page:{value.document_sha256}:{value.page_number}:{hashlib.sha256(identity).hexdigest()}",
             materialization=SourceMaterialization.CAPTURED,
             page=value,
         )
@@ -179,9 +179,10 @@ _FUNCTION_WORD_TEXT = (
 )
 _QUERY_FUNCTION_WORDS = frozenset(_FUNCTION_WORD_TEXT.split())
 
-# 10-K headings ("Item 3. Legal Proceedings", "CONSOLIDATED STATEMENTS OF INCOME")
-# hold the vocabulary a question is phrased in while the body holds the numbers, so
-# the heading block of a page is scored as a separate, weighted field.
+# The stored entry opens with the document identity line and the page's running
+# header; 10-K headings ("Item 3. Legal Proceedings", "CONSOLIDATED STATEMENTS OF
+# INCOME") hold the vocabulary a question is phrased in while the body holds the
+# numbers, so those leading lines are scored as a separate, weighted field.
 _HEADING_LINE_LIMIT = 6
 _HEADING_TERM_LIMIT = 14
 _HEADING_WEIGHT = 2.0
@@ -237,7 +238,7 @@ def _heading_terms(text: str) -> frozenset[str]:
 
 
 def _page_position(source_id: str) -> tuple[str, int | None]:
-    """Recover the revision tag and physical page encoded in a page Source name."""
+    """Recover the document digest and physical page encoded in a page Source name."""
 
     parts = source_id.split(":")
     if len(parts) != 4 or parts[0] != _SOURCE_TYPE:
