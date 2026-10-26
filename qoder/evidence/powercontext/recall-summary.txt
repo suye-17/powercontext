@@ -1,0 +1,2 @@
+hybrid: mode=hybrid hits=4 top=paperdesk.progress matched_by=vector
+fts: mode=text hits=0 top=None matched_by=None

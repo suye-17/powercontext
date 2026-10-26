@@ -1,0 +1,10 @@
+extractive · coverage=0.50
+问题：rerank 在 RAG 里解决什么问题？
+抽取式摘要（已配置为抽取式模式）：
+- [C1] 《Reranking for Retrieval Pipelines》· Method：A cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture.
+- [C2] 《Reranking for Retrieval Pipelines》· Takeaways：Treat reranking as a precision stage with an explicit budget.
+- [C3] 《Reranking for Retrieval Pipelines》· Limitations：A cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely.
+以上内容摘自论文笔记原文，编号与检索片段一一对应。
+[C1] rerank-notes · Method · rerank-notes.md:13
+[C2] rerank-notes · Takeaways · rerank-notes.md:22
+[C3] rerank-notes · Limitations · rerank-notes.md:19

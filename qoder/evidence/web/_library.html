@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>研读 PaperDesk · 资料库</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">研</span>
+        <span class="brand-text">研读<small>PaperDesk</small></span>
+      </a>
+      <nav class="nav">
+        <a class="" href="/">工作台</a>
+        <a class="is-active" href="/library">资料库</a>
+        <a class="" href="/ask">提问</a>
+        <a class="" href="/session">会话</a>
+        <a class="" href="/debug/retrieval">检索调试</a>
+        <a class="" href="/memory">记忆</a>
+      </nav>
+      <div class="header-meta">
+        <span class="pill">6 篇 · 30 块</span>
+        <span class="pill pill-on">向量已启用</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    
+    
+    
+<section class="page-head">
+  <div>
+    <p class="eyebrow">资料库</p>
+    <h1>检索、过滤、回到原文</h1>
+    <p class="muted">全文检索由 seekdb FULLTEXT 提供，标签 / 年份 / 状态为结构化过滤；配置嵌入后与向量排名做 RRF 融合。</p>
+  </div>
+</section>
+
+<form class="card filter-form" method="get" action="/library">
+  <label class="field field-wide">关键词
+    <input type="search" name="q" value="" placeholder="例如 hybrid fusion / rerank / citation coverage">
+  </label>
+  <label class="field">标签
+    <select name="tag">
+      <option value="">全部</option>
+      
+        <option value="agents" >agents</option>
+      
+        <option value="chunking" >chunking</option>
+      
+        <option value="citation" >citation</option>
+      
+        <option value="evaluation" >evaluation</option>
+      
+        <option value="grounding" >grounding</option>
+      
+        <option value="memory" >memory</option>
+      
+        <option value="personalization" >personalization</option>
+      
+        <option value="rag" >rag</option>
+      
+        <option value="rerank" >rerank</option>
+      
+        <option value="retrieval" >retrieval</option>
+      
+        <option value="survey" >survey</option>
+      
+    </select>
+  </label>
+  <label class="field">年份下限
+    <input type="number" name="year_min" value="" min="1900" max="2100" placeholder="2023">
+  </label>
+  <label class="field">状态
+    <select name="status">
+      <option value="">全部</option>
+      
+        <option value="unread" >未读</option>
+      
+        <option value="reading" >在读</option>
+      
+        <option value="done" >已完成</option>
+      
+    </select>
+  </label>
+  <button class="button" type="submit">检索</button>
+</form>
+
+
+
+
+
+<section class="section">
+  <div class="section-head">
+    <h2>论文清单</h2>
+    <span class="muted">6 篇</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>论文</th><th>年份</th><th>状态</th><th>标签</th><th>文件</th></tr></thead>
+      <tbody>
+        
+          <tr>
+            <td><a href="/paper/agent-memory">Long-Term Memory for Reading Agents</a><div class="muted small">agent-memory</div></td>
+            <td>2024</td>
+            <td><span class="badge badge-unread">未读</span></td>
+            <td><span class="tag">agents</span><span class="tag">memory</span><span class="tag">personalization</span></td>
+            <td class="muted small">agent-memory.md</td>
+          </tr>
+        
+          <tr>
+            <td><a href="/paper/chunking-notes">Chunking Strategies for Long Technical Documents</a><div class="muted small">chunking-notes</div></td>
+            <td>2022</td>
+            <td><span class="badge badge-unread">未读</span></td>
+            <td><span class="tag">chunking</span><span class="tag">rag</span><span class="tag">retrieval</span></td>
+            <td class="muted small">chunking-notes.md</td>
+          </tr>
+        
+          <tr>
+            <td><a href="/paper/citation-grounding">Grounding Generated Summaries with Evidence Spans</a><div class="muted small">citation-grounding</div></td>
+            <td>2025</td>
+            <td><span class="badge badge-unread">未读</span></td>
+            <td><span class="tag">citation</span><span class="tag">grounding</span><span class="tag">rag</span><span class="tag">evaluation</span></td>
+            <td class="muted small">citation-grounding.md</td>
+          </tr>
+        
+          <tr>
+            <td><a href="/paper/eval-notes">Evaluating Retrieval and Grounded Answers</a><div class="muted small">eval-notes</div></td>
+            <td>2023</td>
+            <td><span class="badge badge-done">已完成</span></td>
+            <td><span class="tag">evaluation</span><span class="tag">retrieval</span><span class="tag">citation</span></td>
+            <td class="muted small">eval-notes.md</td>
+          </tr>
+        
+          <tr>
+            <td><a href="/paper/rag-survey">Retrieval Augmented Generation: A Reading Map</a><div class="muted small">rag-survey</div></td>
+            <td>2023</td>
+            <td><span class="badge badge-unread">未读</span></td>
+            <td><span class="tag">rag</span><span class="tag">retrieval</span><span class="tag">survey</span></td>
+            <td class="muted small">rag-survey.md</td>
+          </tr>
+        
+          <tr>
+            <td><a href="/paper/rerank-notes">Reranking for Retrieval Pipelines</a><div class="muted small">rerank-notes</div></td>
+            <td>2024</td>
+            <td><span class="badge badge-reading">在读</span></td>
+            <td><span class="tag">rerank</span><span class="tag">retrieval</span><span class="tag">rag</span></td>
+            <td class="muted small">rerank-notes.md</td>
+          </tr>
+        
+      </tbody>
+    </table>
+  </div>
+</section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <span>PaperDesk · seekdb 负责资料与混合检索，PowerContext 负责跨会话记忆</span>
+      <span>LLM: auto</span>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>研读 PaperDesk · 记得上次停在哪的论文阅读工作台</title>
+  <meta name="description" content="PaperDesk 用 seekdb 检索英文论文笔记，用 PowerContext 记住阅读目标、偏好、进度和会话摘要。">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="#top" aria-label="研读 PaperDesk">
+        <span class="brand-mark">研</span>
+        <span class="brand-text">研读<small>PaperDesk</small></span>
+      </a>
+      <nav class="nav" aria-label="页面导航">
+        <a href="#problem">问题</a>
+        <a href="#workflow">工作流</a>
+        <a href="#product">界面</a>
+        <a href="#technology">技术</a>
+        <a href="#evidence">证据</a>
+        <a href="#run">运行</a>
+      </nav>
+      <div class="header-meta">
+        <span class="pill">seekdb</span>
+        <span class="pill pill-on">PowerContext</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <div class="shell">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <span class="eyebrow">Qoder × OceanBase · Build with Qoder</span>
+          <h1 id="hero-title">把论文读到最后一页，<br>也记得<em>上次停在哪</em>。</h1>
+          <p class="hero-lead">
+            研读 PaperDesk 把英文论文笔记放进 seekdb 做全文与向量混合检索，
+            把阅读目标、偏好、进度和会话摘要交给 PowerContext。
+            下一次打开工作台，计划从上次结束的地方继续。
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="#workflow">看它如何工作</a>
+            <a class="btn btn-ghost" href="#run">运行验证样例</a>
+          </div>
+        </div>
+
+        <aside class="continue-card" aria-label="继续上次卡片示例">
+          <div class="continue-top">
+            <span>继续上次</span>
+            <span>PowerContext · scope</span>
+          </div>
+          <div class="continue-body">
+            <div class="continue-kicker">上次读到 Evaluation</div>
+            <h3>Retrieval Augmented Generation: A Reading Map</h3>
+            <div class="continue-meta">
+              <span class="pill">在读</span>
+              <span class="pill">rag</span>
+              <span class="pill">retrieval</span>
+            </div>
+            <div class="mini-progress"><span></span></div>
+            <div class="continue-foot"><span>进度已写回</span><span>rev 2</span></div>
+            <div class="continue-next">
+              下一步：<strong>整理 rerank 与 RAG 的关系</strong><br>
+              本周目标：读完 RAG 相关两篇，并整理 rerank 要点
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <div class="stats" aria-label="项目事实">
+        <div class="stat"><b>6</b><span>英文论文笔记</span></div>
+        <div class="stat"><b>30</b><span>可检索章节分块</span></div>
+        <div class="stat"><b>4</b><span>跨会话记忆条目</span></div>
+        <div class="stat"><b>57</b><span>应用测试通过</span></div>
+      </div>
+    </div>
+
+    <section id="problem">
+      <div class="shell">
+        <div class="section-head reveal">
+          <span class="label">Problem</span>
+          <h2>读过的论文，不该每次都从头找起。</h2>
+          <p>论文笔记通常按主题散落在多个 Markdown 文件里。检索工具能找到片段，却不知道你上周读到哪里；聊天工具能总结，却容易脱离原文。</p>
+        </div>
+        <div class="grid-3">
+          <article class="card reveal">
+            <span class="num">01</span>
+            <h3>回忆成本高</h3>
+            <p>「上次读到哪、下一步做什么」要么翻文件，要么凭记忆。读到一半停下，下次启动的成本比继续阅读本身还高。</p>
+          </article>
+          <article class="card reveal">
+            <span class="num">02</span>
+            <h3>计划不连续</h3>
+            <p>每次做阅读计划都重新翻库，已经开始的论文和没开始的论文混在一起，顺序每天都不一样。</p>
+          </article>
+          <article class="card reveal">
+            <span class="num">03</span>
+            <h3>证据与生成脱节</h3>
+            <p>普通检索只给片段，模型总结又可能编造。读者需要能点回章节和行号的结论，而不是一段无法核对的文字。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="workflow" style="background: linear-gradient(180deg, transparent, rgba(235,227,211,.55), transparent)">
+      <div class="shell">
+        <div class="section-head reveal">
+          <span class="label">Workflow</span>
+          <h2>一次阅读，五个连续动作。</h2>
+          <p>所有检索结果都会进入计划、速读或综述；所有阅读状态都会写回记忆。没有只为演示而存在的步骤。</p>
+        </div>
+        <div class="flow">
+          <div class="flow-item reveal"><h4>导入</h4><p>解析 front matter 与章节，写入嵌入式 seekdb。</p></div>
+          <div class="flow-item reveal"><h4>检索</h4><p>全文、标签、年份、状态与向量排名做 RRF 融合。</p></div>
+          <div class="flow-item reveal"><h4>计划</h4><p>目标标签、阅读进度和检索结果共同决定下一篇。</p></div>
+          <div class="flow-item reveal"><h4>综述</h4><p>分块交给模型，结论必须绑定真实引用编号。</p></div>
+          <div class="flow-item reveal"><h4>写回</h4><p>进度与摘要写入 PowerContext，重启后继续。</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="product">
+      <div class="shell">
+        <div class="section-head reveal">
+          <span class="label">Product</span>
+          <h2>看得见的检索，接得上的阅读。</h2>
+          <p>工作台不是聊天框。它把资料库、计划、出处、会话和记忆放在同一套页面里，方便读者核对每个结论从哪里来。</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="window reveal">
+            <div class="window-bar"><span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="window-title">/ · 工作台</span></div>
+            <div class="window-body">
+              <h4>本周读完 RAG 相关两篇</h4>
+              <div class="sub">目标标签 rag、rerank · 偏好中文、每篇 3 句、每周 120 分钟</div>
+              <div class="hit">
+                <span class="rank">01</span>
+                <div><div class="paper">Retrieval Augmented Generation: A Reading Map</div><div class="section">在读 · 下一节 整理 rerank 与 RAG 的关系</div></div>
+                <span class="scores">score 9.65</span>
+              </div>
+              <div class="hit">
+                <span class="rank">02</span>
+                <div><div class="paper">Reranking for Retrieval Pipelines</div><div class="section">在读 · 目标标签 rag、rerank</div></div>
+                <span class="scores">score 9.00</span>
+              </div>
+              <div class="hit">
+                <span class="rank">03</span>
+                <div><div class="paper">Chunking Strategies for Long Technical Documents</div><div class="section">未读 · 命中目标标签 rag</div></div>
+                <span class="scores">score 4.59</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="window reveal">
+            <div class="window-bar"><span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="window-title">/debug/retrieval?q=hybrid fusion</span></div>
+            <div class="window-body">
+              <h4>融合排名</h4>
+              <div class="sub">FULLTEXT + 标识符加权 + HNSW 向量，RRF k=60，关键词权重 8:1</div>
+              <div class="hit">
+                <span class="rank">01</span>
+                <div><div class="paper">rag-survey · Method</div><div class="section">rag-survey.md:13–14</div></div>
+                <span class="scores">fts 1.442 · vec .511</span>
+              </div>
+              <div class="hit">
+                <span class="rank">02</span>
+                <div><div class="paper">rag-survey · Abstract</div><div class="section">rag-survey.md:10–11</div></div>
+                <span class="scores">fts 1.084 · vec .569</span>
+              </div>
+              <div class="hit">
+                <span class="rank">03</span>
+                <div><div class="paper">rerank-notes · Limitations</div><div class="section">rerank-notes.md:19–20</div></div>
+                <span class="scores">fts .705 · vec .526</span>
+              </div>
+              <p class="excerpt" style="margin-top:12px">每个结果同时保留全文得分、向量得分和原始文件行号，评审和读者都可以回到原文核对。</p>
+            </div>
+          </div>
+
+          <div class="window reveal">
+            <div class="window-bar"><span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="window-title">/ask?q=rerank in RAG</span></div>
+            <div class="window-body">
+              <h4>带引用的中文综述</h4>
+              <div class="sub">模型生成 · coverage 1.00 · 引用全部映射到检索分块</div>
+              <p class="answer-line">Rerank 在 RAG 中主要解决<strong>上下文污染</strong>：第一阶段检索为降低成本通常牺牲精度，无关段落会占用生成器的有限上下文。<span class="cite">C3</span></p>
+              <p class="answer-line">它通过更强的模型联合分析 query 和 passage，对候选重新排序；实验中 rerank 提高了 nDCG@10，并减少了上下文中的无关段落。<span class="cite">C1</span><span class="cite">C5</span></p>
+              <p class="answer-line">Rerank <strong>不能解决召回缺失</strong>：如果候选列表里没有相关段落，reranker 也无法把它找回来。<span class="cite">C4</span></p>
+              <div class="sub" style="margin-top:14px">引用校验不通过或模型不可用时，自动回退为带出处的抽取式摘要。</div>
+            </div>
+          </div>
+
+          <div class="window reveal">
+            <div class="window-bar"><span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="window-title">/memory · 记忆审计</span></div>
+            <div class="window-body">
+              <h4>4 条记忆，4 种阅读上下文</h4>
+              <div class="sub">PowerContext scope · 原子记忆 artifact · ETag 修订</div>
+              <div class="memory-row"><div><span class="kind">goal</span><div class="memory-text">本周读完 RAG 相关两篇，并整理 rerank 要点</div></div><span class="rev">rev 1</span></div>
+              <div class="memory-row"><div><span class="kind">profile</span><div class="memory-text">中文 · 每篇 3 句 · 每周 120 分钟</div></div><span class="rev">rev 1</span></div>
+              <div class="memory-row"><div><span class="kind">progress</span><div class="memory-text">rag-survey · Evaluation · 整理 rerank 与 RAG 的关系</div></div><span class="rev">rev 2</span></div>
+              <div class="memory-row"><div><span class="kind">session</span><div class="memory-text">提问 rerank 在 RAG 里解决什么问题；下一步读完 Evaluation</div></div><span class="rev">rev 1</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gallery" style="margin-top: 22px">
+          <figure class="shot">
+            <img src="assets/screenshots/workbench.png" alt="PaperDesk 工作台实际界面：本周目标、继续上次卡片与阅读计划">
+            <figcaption>实际界面 · 工作台：目标、继续上次与六篇论文的阅读顺序</figcaption>
+          </figure>
+          <figure class="shot">
+            <img src="assets/screenshots/retrieval.png" alt="PaperDesk 检索调试页实际界面：FTS 与向量得分、融合排名">
+            <figcaption>实际界面 · 检索调试：FULLTEXT 得分、向量得分与文件行号</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="technology" style="background: linear-gradient(180deg, transparent, rgba(220,236,227,.5), transparent)">
+      <div class="shell">
+        <div class="section-head reveal">
+          <span class="label">Technology</span>
+          <h2>两种技术，一条清晰的边界。</h2>
+          <p>seekdb 是资料与证据层，PowerContext 是阅读上下文层。它们都改变产品行为，也都留下可重跑的记录。</p>
+        </div>
+
+        <div class="split">
+          <article class="tech seek reveal">
+            <span class="role">Storage &amp; Retrieval</span>
+            <h3>seekdb</h3>
+            <p>嵌入式运行，保存论文元数据、章节分块和两种索引。检索结果直接决定计划顺序、速读内容与综述引用。</p>
+            <ul>
+              <li><strong>FULLTEXT</strong>：标题与章节全文索引，保护精确术语和标识符。</li>
+              <li><strong>结构化过滤</strong>：标签、年份、阅读状态在 SQL 层完成。</li>
+              <li><strong>HNSW 向量索引</strong>：1536 维余弦距离，补足改写后的语义候选。</li>
+              <li><strong>RRF 融合</strong>：按排名而非不可比的原始分数合并两路结果。</li>
+            </ul>
+          </article>
+          <article class="tech memory reveal">
+            <span class="role">Memory &amp; Context</span>
+            <h3>PowerContext</h3>
+            <p>保存阅读目标、偏好、进度和会话摘要。进度通过原子记忆 artifact 的 ETag 修订，重启服务后仍能读回。</p>
+            <ul>
+              <li><strong>scope</strong>：一个工作台对应一个固定的记忆空间。</li>
+              <li><strong>原子记忆</strong>：goal、profile、progress、session 四类条目。</li>
+              <li><strong>版本修订</strong>：结束会话后进度从 rev 1 递增到 rev 2。</li>
+              <li><strong>语义召回</strong>：hybrid 检索把进度排在同一条中文问句的第一名。</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="quote reveal" style="margin: 26px 0 0">seekdb 决定这次能引用什么，PowerContext 决定这次从哪继续。</p>
+
+        <div class="arch reveal" aria-label="架构图">
+<pre>Markdown 笔记
+   │ 解析 front matter + 章节
+   ▼
+seekdb（嵌入式）
+   ├─ pd_documents   标题 / 作者 / 年份 / 标签 / 状态 / 原文
+   └─ pd_chunks      章节分块 + FULLTEXT + 过滤索引 + VECTOR(1536) + HNSW
+   │ 检索结果：章节、文件、行号、FTS 得分、向量得分
+   ▼
+PaperDesk 服务层
+   ├─ 阅读计划 / 继续上次       ← 读取记忆
+   ├─ 单篇速读 / 带引用综述     ← 读取检索证据
+   └─ 会话写回 / 检索评测
+   │ 目标 / 偏好 / 进度 / 会话摘要（ETag 修订）
+   ▼
+PowerContext 1.4.0（本地 HTTP 服务）</pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence">
+      <div class="shell">
+        <div class="section-head reveal">
+          <span class="label">Evidence</span>
+          <h2>不只看页面，还能重跑每一步。</h2>
+          <p>验证样例从空运行时开始，导入固定语料，写入记忆，重启服务，运行评测，再请求 8 个 Web 页面。脚本中的断言失败会直接终止。</p>
+        </div>
+
+        <div class="table-wrap reveal">
+          <table>
+            <caption class="visually-hidden" style="position:absolute;left:-9999px">检索评测结果</caption>
+            <thead>
+              <tr><th>检索模式</th><th class="mono">recall@1</th><th class="mono">recall@3</th><th class="mono">recall@5</th><th class="mono">MRR</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>关键词基线（10 条查询）</td><td class="mono">0.600</td><td class="mono">0.900</td><td class="mono metric-good">1.000</td><td class="mono">0.753</td></tr>
+              <tr><td>混合检索（FULLTEXT + 向量，RRF）</td><td class="mono">0.600</td><td class="mono">0.900</td><td class="mono metric-good">1.000</td><td class="mono">0.753</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid-2" style="margin-top: 22px">
+          <div class="card reveal">
+            <h3 style="margin-bottom:14px">一次成功运行留下了什么</h3>
+            <ul class="check">
+              <li><strong>seekdb</strong>：6 篇 / 30 块 / 30 向量；DDL 中含 FULLTEXT 与 HNSW；四组带过滤的查询结果。</li>
+              <li><strong>PowerContext</strong>：4 条记忆；进度 rev 2；重启前后条目完全一致；继续卡片变为 Evaluation。</li>
+              <li><strong>引用</strong>：综述覆盖率 1.00，每个 <span class="cite">Cn</span> 都能回到章节与行号。</li>
+              <li><strong>Web</strong>：8 个页面全部 200，健康检查显示 6 篇、30 块、30 向量。</li>
+            </ul>
+          </div>
+          <div class="card tinted reveal">
+            <h3 style="margin-bottom:14px">证据位置</h3>
+            <p style="margin-bottom:12px">提交仓库的 <code>qoder/evidence/</code> 保存原始记录，评审可以按 <code>sample/scenario/steps.md</code> 逐步复现：</p>
+            <ul style="margin:0;padding-left:18px;color:var(--ink-soft);font-size:13.5px;line-height:1.9">
+              <li><code>seekdb/</code>：导入、DDL、查询结果与可执行 SQL</li>
+              <li><code>powercontext/</code>：写入、版本、重启对比、语义召回</li>
+              <li><code>llm/</code>：综述请求、引用映射与回退记录</li>
+              <li><code>eval/</code>：关键词与混合检索的逐条指标</li>
+              <li><code>web/</code>：页面 HTML、HTTP 状态与健康检查</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="run" style="background: linear-gradient(180deg, transparent, rgba(235,227,211,.6), transparent)">
+      <div class="shell">
+        <div class="section-head reveal">
+          <span class="label">Run</span>
+          <h2>从空状态，跑出同一份结果。</h2>
+          <p>需要 Python 3.11+ 与 uv。seekdb 以嵌入式库运行，不需要 Docker；模型密钥可选，缺失时自动使用全文检索与抽取式摘要。</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="reveal">
+<pre class="code"><span class="c"># 1. 安装应用与 PowerContext</span>
+cd qoder/app
+uv sync --extra dev --extra server
+
+<span class="c"># 2. 配置模型（可省略）</span>
+cd ..
+cp .env.example .env
+<span class="c">#    填入 MINIMAX_API_KEY / MINIMAX_BASE_URL / MINIMAX_MODEL</span>
+
+<span class="c"># 3. 从空状态跑完整场景</span>
+scripts/run_scenario.sh
+
+<span class="c"># 4. 打开工作台</span>
+<span class="c">#    http://127.0.0.1:8080/</span></pre>
+          </div>
+          <div class="card reveal">
+            <h3>运行后会看到</h3>
+            <ul class="check" style="margin-top:10px">
+              <li>PowerContext 在 <code>127.0.0.1:8011</code> 就绪；配置 MiniMax 密钥后，嵌入模型为 <code>embo-01</code>（1536 维）。</li>
+              <li>导入 <strong>6 篇、30 个分块、30 个向量</strong>，seekdb 数据落在 <code>qoder/.runtime/seekdb</code>。</li>
+              <li>评测断言 <code>recall@5 ≥ 0.9</code>、<code>MRR ≥ 0.6</code>。</li>
+              <li>8 个 Web 页面返回 200，首页显示「继续上次」。</li>
+            </ul>
+            <p style="margin-top:16px;font-size:13px;color:var(--muted)">完整排错与重置步骤见仓库 <code>qoder/RUNBOOK.md</code>。验证语料由本项目编写，不含第三方论文全文。</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="qoder">
+      <div class="shell">
+        <div class="section-head reveal">
+          <span class="label">Built with Qoder</span>
+          <h2>从需求拆解到验证，开发过程可核对。</h2>
+          <p>项目在 Qoder 桌面端完成需求拆解、方案设计、实现、调试和验证。提交材料中的开发记录会把对话、diff 与运行证据对应起来。</p>
+        </div>
+        <div class="grid-3">
+          <article class="card reveal"><span class="num">01</span><h3>需求与约束</h3><p>先读赛题、仓库规范与基线，明确双技术分工、验收四项和明确不做的范围，再进入实现。</p></article>
+          <article class="card reveal"><span class="num">02</span><h3>实现与调试</h3><p>解析、seekdb 检索、记忆客户端、引用校验、Web 与测试逐步落地；遇到 500、排序偏差和限流时定位原因并留下修复。</p></article>
+          <article class="card reveal"><span class="num">03</span><h3>验证与记录</h3><p>57 项应用测试通过；完整场景脚本从空状态重跑；开发记录、Qoder 账号 UID 与 commit 映射随提交提供。</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <div>
+        <strong>研读 PaperDesk</strong> · 论文阅读工作台<br>
+        示例语料为本项目编写 · 页面不加载外部字体、脚本或追踪代码
+      </div>
+      <div>
+        Qoder × OceanBase「Build with Qoder」参赛项目<br>
+        seekdb 负责资料与检索 · PowerContext 负责跨会话记忆<br>
+        代码仓库：<a href="https://github.com/suye-17/powercontext">github.com/suye-17/powercontext</a>（提交位于 <code>qoder/</code>）
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/site.js"></script>
+</body>
+</html>

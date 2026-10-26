@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>检索调试 · 研读 PaperDesk</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">研</span>
+        <span class="brand-text">研读<small>PaperDesk</small></span>
+      </a>
+      <nav class="nav">
+        <a class="" href="/">工作台</a>
+        <a class="" href="/library">资料库</a>
+        <a class="" href="/ask">提问</a>
+        <a class="" href="/session">会话</a>
+        <a class="is-active" href="/debug/retrieval">检索调试</a>
+        <a class="" href="/memory">记忆</a>
+      </nav>
+      <div class="header-meta">
+        <span class="pill">6 篇 · 30 块</span>
+        <span class="pill pill-on">向量已启用</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    
+    
+    
+<section class="page-head">
+  <div>
+    <p class="eyebrow">检索调试</p>
+    <h1>看得见的检索链路</h1>
+    <p class="muted">seekdb 单表查询：FULLTEXT 得分 + 标签 / 年份 / 状态过滤 + 标识符加权；配置嵌入后对全文排名与向量排名做 RRF 融合（k=60）。</p>
+  </div>
+</section>
+
+<div class="metrics">
+  <div class="metric"><strong>6</strong><span>论文</span></div>
+  <div class="metric"><strong>30</strong><span>分块</span></div>
+  <div class="metric"><strong>30</strong><span>已写向量</span></div>
+  <div class="metric"><strong>1536</strong><span>向量维度</span></div>
+</div>
+
+<form class="card filter-form" method="get" action="/debug/retrieval">
+  <label class="field field-wide">查询
+    <input type="search" name="q" value="hybrid fusion" placeholder="hybrid fusion / citation coverage / rerank">
+  </label>
+  <label class="field">标签
+    <input type="text" name="tag" value="" placeholder="rag">
+  </label>
+  <label class="field">年份下限
+    <input type="number" name="year_min" value="" min="1900" max="2100">
+  </label>
+  <label class="field">状态
+    <select name="status">
+      <option value="">全部</option>
+      
+        <option value="unread" >未读</option>
+      
+        <option value="reading" >在读</option>
+      
+        <option value="done" >已完成</option>
+      
+    </select>
+  </label>
+  <button class="button" type="submit">运行检索</button>
+</form>
+
+
+
+
+<section class="section">
+  <div class="section-head"><h2>融合排名</h2><span class="muted">10 条</span></div>
+  <div class="table-wrap">
+    <table class="retrieval-table">
+      <thead>
+        <tr><th>#</th><th>论文 / 章节</th><th>FTS</th><th>Vector</th><th>融合分</th><th>出处</th></tr>
+      </thead>
+      <tbody>
+        
+          <tr>
+            <td>1</td>
+            <td><a href="/paper/rag-survey">rag-survey</a><div class="muted small">Method</div></td>
+            <td><span class="num">1.442</span></td>
+            <td><span class="num">0.511</span></td>
+            <td><span class="num strong">0.1456</span><div class="bar"><i style="width: 14.564%"></i></div></td>
+            <td class="muted small">rag-survey.md:13-14</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">## Method
+We group systems by retrieval unit. Passage-level retrieval offers precise evidence spans, while document-level retrieval preserves broader context. Dense bi-encoders learn a shared embedding space for queries and passages; sparse lexical retrieval s…</p></td></tr>
+        
+          <tr>
+            <td>2</td>
+            <td><a href="/paper/rag-survey">rag-survey</a><div class="muted small">Abstract</div></td>
+            <td><span class="num">1.084</span></td>
+            <td><span class="num">0.569</span></td>
+            <td><span class="num strong">0.1454</span><div class="bar"><i style="width: 14.5426%"></i></div></td>
+            <td class="muted small">rag-survey.md:10-11</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">## Abstract
+Retrieval augmented generation (RAG) couples a document retriever with a language model so that answers can be grounded in external evidence rather than model parameters alone. This reading map organizes the design space along three axes: what is r…</p></td></tr>
+        
+          <tr>
+            <td>3</td>
+            <td><a href="/paper/rerank-notes">rerank-notes</a><div class="muted small">Limitations</div></td>
+            <td><span class="num">0.705</span></td>
+            <td><span class="num">0.526</span></td>
+            <td><span class="num strong">0.1421</span><div class="bar"><i style="width: 14.213600000000001%"></i></div></td>
+            <td class="muted small">rerank-notes.md:19-20</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">## Limitations
+A cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely. Long passages increase cost and may exceed the reranker&#39;s input limit. Training hard negatives from the same retriever can overfit to its failure mod…</p></td></tr>
+        
+          <tr>
+            <td>4</td>
+            <td><a href="/paper/rerank-notes">rerank-notes</a><div class="muted small">Method</div></td>
+            <td><span class="num">0.501</span></td>
+            <td><span class="num">0.534</span></td>
+            <td><span class="num strong">0.1387</span><div class="bar"><i style="width: 13.870199999999999%"></i></div></td>
+            <td class="muted small">rerank-notes.md:13-14</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">## Method
+A cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture. The input candidate list is produced by BM25, a dense retriever, or a hybrid of both. We compare two-stage and three-stage pipel…</p></td></tr>
+        
+          <tr>
+            <td>5</td>
+            <td><a href="/paper/rag-survey">rag-survey</a><div class="muted small">Results</div></td>
+            <td><span class="num">0.532</span></td>
+            <td><span class="num">0.450</span></td>
+            <td><span class="num strong">0.1380</span><div class="bar"><i style="width: 13.7987%"></i></div></td>
+            <td class="muted small">rag-survey.md:16-17</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">## Results
+Across the notes we compare, hybrid retrieval improves recall on terminology-heavy questions, and reranking improves the precision of the context passed to the generator. Systems that cite evidence spans produce answers that are easier to audit, but…</p></td></tr>
+        
+          <tr>
+            <td>6</td>
+            <td><a href="/paper/chunking-notes">chunking-notes</a><div class="muted small">Abstract</div></td>
+            <td><span class="num">0.000</span></td>
+            <td><span class="num">0.547</span></td>
+            <td><span class="num strong">0.0161</span><div class="bar"><i style="width: 1.6129%"></i></div></td>
+            <td class="muted small">chunking-notes.md:10-11</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">## Abstract
+Chunking decides what a retriever can see. A chunk that is too small loses the context needed to interpret a claim, while a chunk that is too large dilutes its embedding and wastes the generator context window. This note compares fixed windows, sen…</p></td></tr>
+        
+          <tr>
+            <td>7</td>
+            <td><a href="/paper/chunking-notes">chunking-notes</a><div class="muted small">Limitations</div></td>
+            <td><span class="num">0.000</span></td>
+            <td><span class="num">0.538</span></td>
+            <td><span class="num strong">0.0159</span><div class="bar"><i style="width: 1.5873000000000002%"></i></div></td>
+            <td class="muted small">chunking-notes.md:19-20</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">## Limitations
+The study uses a small English corpus and cannot settle the best chunk size for code or tables. Semantic boundaries depend on an embedding model that may not match the retriever. Overlap can cause the same passage to appear twice in the generato…</p></td></tr>
+        
+          <tr>
+            <td>8</td>
+            <td><a href="/paper/rag-survey">rag-survey</a><div class="muted small">Limitations</div></td>
+            <td><span class="num">0.000</span></td>
+            <td><span class="num">0.531</span></td>
+            <td><span class="num strong">0.0154</span><div class="bar"><i style="width: 1.5385%"></i></div></td>
+            <td class="muted small">rag-survey.md:19-20</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">## Limitations
+The map covers English technical documents and does not model multilingual tokenization. It treats rerankers as a black box and does not compare training objectives. Most reported gains are measured on small curated sets, so absolute numbers sho…</p></td></tr>
+        
+          <tr>
+            <td>9</td>
+            <td><a href="/paper/rerank-notes">rerank-notes</a><div class="muted small">Abstract</div></td>
+            <td><span class="num">0.000</span></td>
+            <td><span class="num">0.515</span></td>
+            <td><span class="num strong">0.0149</span><div class="bar"><i style="width: 1.4925000000000002%"></i></div></td>
+            <td class="muted small">rerank-notes.md:10-11</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">## Abstract
+First-stage retrieval must be cheap, so it usually trades precision for recall. A reranker revisits a small candidate list and scores each query-passage pair with a stronger model. The core problem it solves is context pollution: irrelevant passage…</p></td></tr>
+        
+          <tr>
+            <td>10</td>
+            <td><a href="/paper/rag-survey">rag-survey</a><div class="muted small">Takeaways</div></td>
+            <td><span class="num">0.000</span></td>
+            <td><span class="num">0.513</span></td>
+            <td><span class="num strong">0.0147</span><div class="bar"><i style="width: 1.4706000000000001%"></i></div></td>
+            <td class="muted small">rag-survey.md:22-23</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">## Takeaways
+Start from retrieval quality, then improve the generator. Keep a lexical baseline, add dense retrieval when paraphrase matters, and fuse by rank rather than raw score. Always preserve a path from an answer sentence back to a source passage and its…</p></td></tr>
+        
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <span>PaperDesk · seekdb 负责资料与混合检索，PowerContext 负责跨会话记忆</span>
+      <span>LLM: auto</span>
+    </div>
+  </footer>
+</body>
+</html>

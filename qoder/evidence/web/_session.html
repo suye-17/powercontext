@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>阅读会话 · 研读 PaperDesk</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">研</span>
+        <span class="brand-text">研读<small>PaperDesk</small></span>
+      </a>
+      <nav class="nav">
+        <a class="" href="/">工作台</a>
+        <a class="" href="/library">资料库</a>
+        <a class="" href="/ask">提问</a>
+        <a class="is-active" href="/session">会话</a>
+        <a class="" href="/debug/retrieval">检索调试</a>
+        <a class="" href="/memory">记忆</a>
+      </nav>
+      <div class="header-meta">
+        <span class="pill">6 篇 · 30 块</span>
+        <span class="pill pill-on">向量已启用</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    
+    
+    
+<section class="page-head">
+  <div>
+    <p class="eyebrow">阅读会话</p>
+    <h1>把这一轮阅读写回记忆</h1>
+    <p class="muted">进度会以新版本写入 PowerContext；结束会话时同时保存问题与下一步。下次启动工作台会读取最新版本。</p>
+  </div>
+</section>
+
+
+
+<section class="grid grid-main">
+  <article class="card">
+    <div class="card-head"><h2>本轮记录</h2><span class="pill">继续上次：Retrieval Augmented Generation: A Reading Map · Evaluation</span></div>
+    <form method="post" action="/session/progress" id="session-form">
+      <label class="field">论文
+        <select name="paper_id" id="paper-select">
+          
+            <option value="agent-memory" >Long-Term Memory for Reading Agents（agent-memory）</option>
+          
+            <option value="chunking-notes" >Chunking Strategies for Long Technical Documents（chunking-notes）</option>
+          
+            <option value="citation-grounding" >Grounding Generated Summaries with Evidence Spans（citation-grounding）</option>
+          
+            <option value="eval-notes" >Evaluating Retrieval and Grounded Answers（eval-notes）</option>
+          
+            <option value="rag-survey" selected>Retrieval Augmented Generation: A Reading Map（rag-survey）</option>
+          
+            <option value="rerank-notes" >Reranking for Retrieval Pipelines（rerank-notes）</option>
+          
+        </select>
+      </label>
+      <div class="form-row">
+        <label class="field">状态
+          <select name="status" id="status-select">
+            
+              <option value="unread">未读</option>
+            
+              <option value="reading">在读</option>
+            
+              <option value="done">已完成</option>
+            
+          </select>
+        </label>
+        <label class="field">上次读到
+          <input type="text" name="last_section" id="last-section" placeholder="例如 Evaluation">
+        </label>
+        <label class="field">下一步
+          <input type="text" name="next_action" id="next-action" placeholder="例如 整理 rerank 与 RAG 的关系">
+        </label>
+      </div>
+      <label class="field">本次问题（每行一条）
+        <textarea name="questions" rows="2" placeholder="rerank 在 RAG 里解决什么问题？"></textarea>
+      </label>
+      <label class="field">下一步清单（每行一条）
+        <textarea name="next_steps" rows="2" placeholder="读完 Evaluation 章&#10;对比两篇 rerank 方法"></textarea>
+      </label>
+      <div class="actions">
+        <button class="button" type="submit" formaction="/session/progress">只更新进度</button>
+        <button class="button button-accent" type="submit" formaction="/session/finish">结束会话并写回记忆</button>
+      </div>
+    </form>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>当前记忆进度</h2><span class="muted">PowerContext</span></div>
+    <ul class="progress-list">
+      
+        <li>
+          <div><a href="/paper/rag-survey">rag-survey</a> <span class="badge badge-reading">在读</span></div>
+          <div class="muted">Evaluation · 下一步 整理 rerank 与 RAG 的关系</div>
+          <div class="muted small">2026-10-26T13:43:24+00:00</div>
+        </li>
+      
+    </ul>
+  </article>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>会话摘要</h2><span class="muted">1 条</span></div>
+  <div class="session-list">
+    
+      <article class="session-card">
+        <div class="hit-head"><strong>session-20261026-134329</strong><span class="muted">2026-10-26T13:43:29+00:00</span></div>
+        <p>阅读：rag-survey</p>
+        <p class="muted">问题：rerank 在 RAG 里解决什么问题？</p>
+        <p class="muted">下一步：读完 Evaluation 章；整理 rerank 要点</p>
+      </article>
+    
+  </div>
+</section>
+
+<script id="progress-data" type="application/json">{"rag-survey": {"last_section": "Evaluation", "next_action": "\u6574\u7406 rerank \u4e0e RAG \u7684\u5173\u7cfb", "paper_id": "rag-survey", "status": "reading", "updated_at": "2026-10-26T13:43:24+00:00"}}</script>
+<script>
+  (function () {
+    const data = JSON.parse(document.getElementById("progress-data").textContent || "{}");
+    const paper = document.getElementById("paper-select");
+    const status = document.getElementById("status-select");
+    const last = document.getElementById("last-section");
+    const next = document.getElementById("next-action");
+    function fill() {
+      const entry = data[paper.value];
+      status.value = entry ? entry.status : "reading";
+      last.value = entry ? entry.last_section : "";
+      next.value = entry ? entry.next_action : "";
+    }
+    paper.addEventListener("change", fill);
+    fill();
+  })();
+</script>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <span>PaperDesk · seekdb 负责资料与混合检索，PowerContext 负责跨会话记忆</span>
+      <span>LLM: auto</span>
+    </div>
+  </footer>
+</body>
+</html>

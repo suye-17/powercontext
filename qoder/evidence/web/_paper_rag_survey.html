@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Retrieval Augmented Generation: A Reading Map · 研读 PaperDesk</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">研</span>
+        <span class="brand-text">研读<small>PaperDesk</small></span>
+      </a>
+      <nav class="nav">
+        <a class="" href="/">工作台</a>
+        <a class="is-active" href="/library">资料库</a>
+        <a class="" href="/ask">提问</a>
+        <a class="" href="/session">会话</a>
+        <a class="" href="/debug/retrieval">检索调试</a>
+        <a class="" href="/memory">记忆</a>
+      </nav>
+      <div class="header-meta">
+        <span class="pill">6 篇 · 30 块</span>
+        <span class="pill pill-on">向量已启用</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    
+    
+    
+<section class="page-head paper-head">
+  <div>
+    <p class="eyebrow">2023 · PaperDesk Reading Group</p>
+    <h1>Retrieval Augmented Generation: A Reading Map</h1>
+    <p class="hero-meta">
+      <span class="badge badge-unread">未读</span>
+      <span class="tag">rag</span><span class="tag">retrieval</span><span class="tag">survey</span>
+      <span class="muted">rag-survey.md</span>
+    </p>
+  </div>
+  <a class="button button-ghost" href="/library">返回资料库</a>
+</section>
+
+
+<div class="callout">
+  <strong>记忆中的进度：</strong>在读 · 上次读到 Evaluation
+   · 下一步 整理 rerank 与 RAG 的关系
+</div>
+
+
+<section class="grid grid-main">
+  <article class="card digest-card">
+    <div class="card-head">
+      <h2>速读</h2>
+      
+        <span class="pill">模型生成</span>
+      
+    </div>
+    
+      <p class="digest-text">### 研究问题
+
+本文构建 RAG 的设计空间“阅读地图”，围绕检索什么、何时检索以及如何将检索证据融入生成三个维度组织相关系统。[C1]  
+其核心问题是探究 RAG 系统之间的大部分质量差异来自何处；文章的中心观点是，这些差异主要源于检索粒度与证据选择，而非生成器本身。[C1]
+
+### 方法
+
+文章按检索单元对系统分类：段落级检索提供更精确的证据片段，文档级检索则保留更广泛的上下文。[C2]  
+方法比较涵盖稀疏检索、稠密检索与混合融合：稀疏方法如 BM25 对罕见术语、标识符和精确短语仍然有效，稠密双编码器则学习查询与段落共享的嵌入空间。[C1][C2]  
+混合融合通常使用倒数排名融合（RRF），因为它依据排名而非不可直接比较的分数进行融合；此外还可使用重排器在生成前优化候选结果。[C2]
+
+### 主要结论与建议
+
+混合检索在术语密集型问题上提高了召回率，而重排提高了传递给生成器的上下文精度。[C3]  
+提供证据片段引用的系统更容易审计，但引用覆盖率需要实际测量，不能直接假定。[C3]  
+当索引已处于热状态时，检索延迟主要由第一阶段候选搜索决定；同时，文档分块边界的变化可能改变获胜段落，即使底层文档没有变化。[C3]  
+实践上应优先提升检索质量，再改进生成器；保留词法检索基线，在需要处理改述时加入稠密检索，并按排名而非原始分数融合结果。[C5]  
+回答中的每个句子都应保留回溯到源段落及其行号的路径，以支持可追溯性。[C5]
+
+### 局限
+
+现有地图主要覆盖英文技术文档，尚未建模多语言分词；它也将重排器视为黑箱，没有比较不同训练目标。[C4]  
+多数结果来自规模较小且经过整理的数据集，因此绝对数值不能直接迁移到其他语料库；同时，生成器能否忠实使用所提供证据仍需单独进行事实依据检查。[C4]</p>
+      <div class="hit-meta">
+        <span>引用覆盖 100%</span>
+        <span>模型 MiniMax-M3.1-Flash</span>
+        <span>14113 ms</span>
+        
+      </div>
+      <h3>出处</h3>
+      <ol class="citation-list">
+        
+          <li><strong>[C1]</strong> Abstract · <span class="muted">rag-survey.md:10-11</span></li>
+        
+          <li><strong>[C2]</strong> Method · <span class="muted">rag-survey.md:13-14</span></li>
+        
+          <li><strong>[C3]</strong> Results · <span class="muted">rag-survey.md:16-17</span></li>
+        
+          <li><strong>[C4]</strong> Limitations · <span class="muted">rag-survey.md:19-20</span></li>
+        
+          <li><strong>[C5]</strong> Takeaways · <span class="muted">rag-survey.md:22-23</span></li>
+        
+      </ol>
+    
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>阅读动作</h2></div>
+    <p class="muted">在会话页记录进度后，工作台会优先把未完成的论文排在计划前面。</p>
+    <div class="actions">
+      <a class="button" href="/session">记录进度 / 结束会话</a>
+      <a class="button button-ghost" href="/ask?q=Retrieval%20Augmented%20Generation%3A%20A%20Reading%20Map">围绕这篇提问</a>
+    </div>
+    <h3>章节</h3>
+    <ul class="toc">
+      
+        <li><a href="#chunk-1">Abstract</a><span class="muted">L10</span></li>
+      
+        <li><a href="#chunk-2">Method</a><span class="muted">L13</span></li>
+      
+        <li><a href="#chunk-3">Results</a><span class="muted">L16</span></li>
+      
+        <li><a href="#chunk-4">Limitations</a><span class="muted">L19</span></li>
+      
+        <li><a href="#chunk-5">Takeaways</a><span class="muted">L22</span></li>
+      
+    </ul>
+  </article>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>原文分块</h2><span class="muted">行号可直接回查 Markdown</span></div>
+  
+    <details class="chunk" id="chunk-1">
+      <summary>Abstract <span class="muted">L10-11</span></summary>
+      <pre>## Abstract
+Retrieval augmented generation (RAG) couples a document retriever with a language model so that answers can be grounded in external evidence rather than model parameters alone. This reading map organizes the design space along three axes: what is retrieved, when retrieval happens, and how retrieved evidence is fused into generation. The central claim is that most quality differences between RAG systems come from retrieval granularity and evidence selection, not from the generator. We use this map to compare sparse retrieval, dense retrieval, and hybrid fusion.</pre>
+    </details>
+  
+    <details class="chunk" id="chunk-2">
+      <summary>Method <span class="muted">L13-14</span></summary>
+      <pre>## Method
+We group systems by retrieval unit. Passage-level retrieval offers precise evidence spans, while document-level retrieval preserves broader context. Dense bi-encoders learn a shared embedding space for queries and passages; sparse lexical retrieval such as BM25 remains strong for rare terms, identifiers, and exact phrases. Hybrid fusion combines the two candidate lists, commonly with reciprocal rank fusion (RRF), which is robust because it uses ranks instead of incomparable score scales. A reranker may then refine the top candidates before generation.</pre>
+    </details>
+  
+    <details class="chunk" id="chunk-3">
+      <summary>Results <span class="muted">L16-17</span></summary>
+      <pre>## Results
+Across the notes we compare, hybrid retrieval improves recall on terminology-heavy questions, and reranking improves the precision of the context passed to the generator. Systems that cite evidence spans produce answers that are easier to audit, but citation coverage must be measured rather than assumed. Retrieval latency is dominated by the first-stage candidate search when the index is warm. The survey also observes that chunk boundaries can change which passage wins a query even when the underlying document is unchanged.</pre>
+    </details>
+  
+    <details class="chunk" id="chunk-4">
+      <summary>Limitations <span class="muted">L19-20</span></summary>
+      <pre>## Limitations
+The map covers English technical documents and does not model multilingual tokenization. It treats rerankers as a black box and does not compare training objectives. Most reported gains are measured on small curated sets, so absolute numbers should not be transferred across corpora. The notes also assume that the generator faithfully uses the supplied evidence, which requires a separate grounding check.</pre>
+    </details>
+  
+    <details class="chunk" id="chunk-5">
+      <summary>Takeaways <span class="muted">L22-23</span></summary>
+      <pre>## Takeaways
+Start from retrieval quality, then improve the generator. Keep a lexical baseline, add dense retrieval when paraphrase matters, and fuse by rank rather than raw score. Always preserve a path from an answer sentence back to a source passage and its line numbers.</pre>
+    </details>
+  
+</section>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <span>PaperDesk · seekdb 负责资料与混合检索，PowerContext 负责跨会话记忆</span>
+      <span>LLM: auto</span>
+    </div>
+  </footer>
+</body>
+</html>

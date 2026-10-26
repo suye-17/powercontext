@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}阅读会话 · 研读 PaperDesk{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">阅读会话</p>
+    <h1>把这一轮阅读写回记忆</h1>
+    <p class="muted">进度会以新版本写入 PowerContext；结束会话时同时保存问题与下一步。下次启动工作台会读取最新版本。</p>
+  </div>
+</section>
+
+{% if memory_error %}
+<div class="callout callout-warn"><strong>记忆服务不可用。</strong>{{ memory_error }}</div>
+{% endif %}
+
+<section class="grid grid-main">
+  <article class="card">
+    <div class="card-head"><h2>本轮记录</h2><span class="pill">{{ continue_card.headline }}</span></div>
+    <form method="post" action="/session/progress" id="session-form">
+      <label class="field">论文
+        <select name="paper_id" id="paper-select">
+          {% for paper in papers %}
+            <option value="{{ paper.paper_id }}" {{ 'selected' if paper.paper_id == continue_card.paper_id }}>{{ paper.title }}（{{ paper.paper_id }}）</option>
+          {% endfor %}
+        </select>
+      </label>
+      <div class="form-row">
+        <label class="field">状态
+          <select name="status" id="status-select">
+            {% for value, label in status_labels.items() %}
+              <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="field">上次读到
+          <input type="text" name="last_section" id="last-section" placeholder="例如 Evaluation">
+        </label>
+        <label class="field">下一步
+          <input type="text" name="next_action" id="next-action" placeholder="例如 整理 rerank 与 RAG 的关系">
+        </label>
+      </div>
+      <label class="field">本次问题（每行一条）
+        <textarea name="questions" rows="2" placeholder="rerank 在 RAG 里解决什么问题？"></textarea>
+      </label>
+      <label class="field">下一步清单（每行一条）
+        <textarea name="next_steps" rows="2" placeholder="读完 Evaluation 章&#10;对比两篇 rerank 方法"></textarea>
+      </label>
+      <div class="actions">
+        <button class="button" type="submit" formaction="/session/progress">只更新进度</button>
+        <button class="button button-accent" type="submit" formaction="/session/finish">结束会话并写回记忆</button>
+      </div>
+    </form>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>当前记忆进度</h2><span class="muted">PowerContext</span></div>
+    <ul class="progress-list">
+      {% for item in progress.values()|sort(attribute='updated_at', reverse=true) %}
+        <li>
+          <div><a href="/paper/{{ item.paper_id }}">{{ item.paper_id }}</a> <span class="badge badge-{{ item.status }}">{{ status_labels[item.status] }}</span></div>
+          <div class="muted">{{ item.last_section or '未记录章节' }}{% if item.next_action %} · 下一步 {{ item.next_action }}{% endif %}</div>
+          <div class="muted small">{{ item.updated_at }}</div>
+        </li>
+      {% else %}
+        <li class="muted">还没有进度记录。保存一次即可创建。</li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>会话摘要</h2><span class="muted">{{ sessions|length }} 条</span></div>
+  <div class="session-list">
+    {% for session in sessions %}
+      <article class="session-card">
+        <div class="hit-head"><strong>{{ session.session_id }}</strong><span class="muted">{{ session.created_at }}</span></div>
+        <p>阅读：{{ session.read_papers|join('、') or '未记录' }}</p>
+        {% if session.questions %}<p class="muted">问题：{{ session.questions|join('；') }}</p>{% endif %}
+        {% if session.next_steps %}<p class="muted">下一步：{{ session.next_steps|join('；') }}</p>{% endif %}
+      </article>
+    {% else %}
+      <p class="muted">还没有会话摘要。</p>
+    {% endfor %}
+  </div>
+</section>
+
+<script id="progress-data" type="application/json">{{ progress_json|tojson }}</script>
+<script>
+  (function () {
+    const data = JSON.parse(document.getElementById("progress-data").textContent || "{}");
+    const paper = document.getElementById("paper-select");
+    const status = document.getElementById("status-select");
+    const last = document.getElementById("last-section");
+    const next = document.getElementById("next-action");
+    function fill() {
+      const entry = data[paper.value];
+      status.value = entry ? entry.status : "reading";
+      last.value = entry ? entry.last_section : "";
+      next.value = entry ? entry.next_action : "";
+    }
+    paper.addEventListener("change", fill);
+    fill();
+  })();
+</script>
+{% endblock %}

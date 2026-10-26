@@ -1,0 +1,132 @@
+{
+  "goal": {
+    "goal_id": "weekly",
+    "text": "本周读完 RAG 相关两篇，并整理 rerank 要点",
+    "tags": [
+      "rag",
+      "rerank"
+    ],
+    "deadline": null,
+    "status": "active"
+  },
+  "continue": {
+    "paper_id": "rag-survey",
+    "title": "Retrieval Augmented Generation: A Reading Map",
+    "last_section": "Evaluation",
+    "next_action": "整理 rerank 与 RAG 的关系",
+    "headline": "继续上次：Retrieval Augmented Generation: A Reading Map · Evaluation",
+    "goal_text": "本周读完 RAG 相关两篇，并整理 rerank 要点",
+    "questions": [
+      "rerank 在 RAG 里解决什么问题？"
+    ],
+    "next_steps": [
+      "读完 Evaluation 章",
+      "整理 rerank 要点"
+    ],
+    "profile_summary": "界面语言 zh，速读 3 条要点，每周计划 120 分钟"
+  },
+  "plan": [
+    {
+      "paper_id": "rag-survey",
+      "title": "Retrieval Augmented Generation: A Reading Map",
+      "status": "reading",
+      "score": 9.651,
+      "next_section": "整理 rerank 与 RAG 的关系",
+      "tags": [
+        "rag",
+        "retrieval",
+        "survey"
+      ],
+      "reasons": [
+        "已经开始阅读，适合继续推进",
+        "命中目标标签：rag",
+        "与目标关键词相关",
+        "记忆中有未完成的阅读进度",
+        "上次读到 Evaluation",
+        "下一步：整理 rerank 与 RAG 的关系"
+      ]
+    },
+    {
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "status": "reading",
+      "score": 9.0,
+      "next_section": "Abstract",
+      "tags": [
+        "rerank",
+        "retrieval",
+        "rag"
+      ],
+      "reasons": [
+        "已经开始阅读，适合继续推进",
+        "命中目标标签：rag、rerank",
+        "与目标检索最相关"
+      ]
+    },
+    {
+      "paper_id": "chunking-notes",
+      "title": "Chunking Strategies for Long Technical Documents",
+      "status": "unread",
+      "score": 4.585,
+      "next_section": "Abstract",
+      "tags": [
+        "chunking",
+        "rag",
+        "retrieval"
+      ],
+      "reasons": [
+        "尚未开始，适合按计划推进",
+        "命中目标标签：rag",
+        "与目标关键词相关"
+      ]
+    },
+    {
+      "paper_id": "citation-grounding",
+      "title": "Grounding Generated Summaries with Evidence Spans",
+      "status": "unread",
+      "score": 4.582,
+      "next_section": "Abstract",
+      "tags": [
+        "citation",
+        "grounding",
+        "rag",
+        "evaluation"
+      ],
+      "reasons": [
+        "尚未开始，适合按计划推进",
+        "命中目标标签：rag",
+        "与目标关键词相关"
+      ]
+    },
+    {
+      "paper_id": "agent-memory",
+      "title": "Long-Term Memory for Reading Agents",
+      "status": "unread",
+      "score": 2.0,
+      "next_section": "Abstract",
+      "tags": [
+        "agents",
+        "memory",
+        "personalization"
+      ],
+      "reasons": [
+        "尚未开始，适合按计划推进"
+      ]
+    },
+    {
+      "paper_id": "eval-notes",
+      "title": "Evaluating Retrieval and Grounded Answers",
+      "status": "done",
+      "score": -1.0,
+      "next_section": "Abstract",
+      "tags": [
+        "evaluation",
+        "retrieval",
+        "citation"
+      ],
+      "reasons": [
+        "已完成，可用于回顾"
+      ]
+    }
+  ]
+}

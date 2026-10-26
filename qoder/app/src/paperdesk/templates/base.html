@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}研读 PaperDesk{% endblock %}</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">研</span>
+        <span class="brand-text">研读<small>PaperDesk</small></span>
+      </a>
+      <nav class="nav">
+        <a class="{{ 'is-active' if active == 'home' }}" href="/">工作台</a>
+        <a class="{{ 'is-active' if active == 'library' }}" href="/library">资料库</a>
+        <a class="{{ 'is-active' if active == 'ask' }}" href="/ask">提问</a>
+        <a class="{{ 'is-active' if active == 'session' }}" href="/session">会话</a>
+        <a class="{{ 'is-active' if active == 'retrieval' }}" href="/debug/retrieval">检索调试</a>
+        <a class="{{ 'is-active' if active == 'memory' }}" href="/memory">记忆</a>
+      </nav>
+      <div class="header-meta">
+        <span class="pill">{{ counts.documents }} 篇 · {{ counts.chunks }} 块</span>
+        <span class="pill {{ 'pill-on' if embedding_enabled else 'pill-off' }}">向量{{ '已启用' if embedding_enabled else '未配置' }}</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    {% if request.query_params.get('error') %}
+      <div class="flash flash-error">记忆写入失败：{{ request.query_params.get('error') }}</div>
+    {% endif %}
+    {% if request.query_params.get('saved') %}
+      <div class="flash flash-ok">已写入 PowerContext：{{ request.query_params.get('saved') }}</div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <span>PaperDesk · seekdb 负责资料与混合检索，PowerContext 负责跨会话记忆</span>
+      <span>LLM: {{ llm_mode }}{{ '' if llm_available else '（抽取式回退）' }}</span>
+    </div>
+  </footer>
+</body>
+</html>

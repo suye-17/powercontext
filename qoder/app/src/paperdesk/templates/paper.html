@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ paper.title }} · 研读 PaperDesk{% endblock %}
+{% block content %}
+<section class="page-head paper-head">
+  <div>
+    <p class="eyebrow">{{ paper.year }} · {{ paper.authors or '作者未注明' }}</p>
+    <h1>{{ paper.title }}</h1>
+    <p class="hero-meta">
+      <span class="badge badge-{{ paper.status }}">{{ status_labels[paper.status] }}</span>
+      {% for item in paper.tags %}<span class="tag">{{ item }}</span>{% endfor %}
+      <span class="muted">{{ paper.path }}</span>
+    </p>
+  </div>
+  <a class="button button-ghost" href="/library">返回资料库</a>
+</section>
+
+{% if progress %}
+<div class="callout">
+  <strong>记忆中的进度：</strong>{{ status_labels[progress.status] }} · 上次读到 {{ progress.last_section or '未记录' }}
+  {% if progress.next_action %} · 下一步 {{ progress.next_action }}{% endif %}
+</div>
+{% endif %}
+
+<section class="grid grid-main">
+  <article class="card digest-card">
+    <div class="card-head">
+      <h2>速读</h2>
+      {% if digest %}
+        <span class="pill">{{ '模型生成' if digest.synthesis.mode == 'llm' else '抽取式回退' }}</span>
+      {% endif %}
+    </div>
+    {% if digest %}
+      <p class="digest-text">{{ digest.synthesis.text }}</p>
+      <div class="hit-meta">
+        <span>引用覆盖 {{ '%.0f'|format(digest.synthesis.coverage * 100) }}%</span>
+        {% if digest.synthesis.model %}<span>模型 {{ digest.synthesis.model }}</span>{% endif %}
+        <span>{{ digest.synthesis.latency_ms }} ms</span>
+        {% if digest.synthesis.fallback_reason %}<span class="warn-text">回退：{{ digest.synthesis.fallback_reason }}</span>{% endif %}
+      </div>
+      <h3>出处</h3>
+      <ol class="citation-list">
+        {% for citation in digest.synthesis.citations %}
+          <li><strong>[C{{ citation.index }}]</strong> {{ citation.section }} · <span class="muted">{{ citation.path }}:{{ citation.start_line }}-{{ citation.end_line }}</span></li>
+        {% else %}
+          <li class="muted">没有可用引用。</li>
+        {% endfor %}
+      </ol>
+    {% else %}
+      <p class="muted">这篇论文没有可用的章节分块。</p>
+    {% endif %}
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>阅读动作</h2></div>
+    <p class="muted">在会话页记录进度后，工作台会优先把未完成的论文排在计划前面。</p>
+    <div class="actions">
+      <a class="button" href="/session">记录进度 / 结束会话</a>
+      <a class="button button-ghost" href="/ask?q={{ paper.title|urlencode }}">围绕这篇提问</a>
+    </div>
+    <h3>章节</h3>
+    <ul class="toc">
+      {% for chunk in chunks %}
+        <li><a href="#chunk-{{ loop.index }}">{{ chunk.section }}</a><span class="muted">L{{ chunk.start_line }}</span></li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>原文分块</h2><span class="muted">行号可直接回查 Markdown</span></div>
+  {% for chunk in chunks %}
+    <details class="chunk" id="chunk-{{ loop.index }}">
+      <summary>{{ chunk.section }} <span class="muted">L{{ chunk.start_line }}-{{ chunk.end_line }}</span></summary>
+      <pre>{{ chunk.text }}</pre>
+    </details>
+  {% else %}
+    <p class="muted">没有分块。</p>
+  {% endfor %}
+</section>
+{% endblock %}

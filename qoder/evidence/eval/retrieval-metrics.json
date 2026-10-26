@@ -1,0 +1,630 @@
+{
+  "query_count": 10,
+  "recall@1": 0.6,
+  "recall@3": 0.9,
+  "recall@5": 1.0,
+  "mrr": 0.7533,
+  "details": [
+    {
+      "query": "What problem does reranking solve in retrieval augmented generation?",
+      "filters": {
+        "tag": null,
+        "year_min": null,
+        "status": null
+      },
+      "first_relevant_rank": 1,
+      "top": [
+        {
+          "paper_id": "rerank-notes",
+          "section": "Abstract",
+          "score": 0.145,
+          "fts_score": 2.4896,
+          "vector_score": 0.9042,
+          "path": "rerank-notes.md",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "paper_id": "rag-survey",
+          "section": "Limitations",
+          "score": 0.1449,
+          "fts_score": 2.3168,
+          "vector_score": 0.9326,
+          "path": "rag-survey.md",
+          "start_line": 19,
+          "end_line": 20
+        },
+        {
+          "paper_id": "rag-survey",
+          "section": "Takeaways",
+          "score": 0.1404,
+          "fts_score": 1.6199,
+          "vector_score": 0.9289,
+          "path": "rag-survey.md",
+          "start_line": 22,
+          "end_line": 23
+        },
+        {
+          "paper_id": "rag-survey",
+          "section": "Abstract",
+          "score": 0.1403,
+          "fts_score": 2.0151,
+          "vector_score": 0.8971,
+          "path": "rag-survey.md",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "paper_id": "rag-survey",
+          "section": "Results",
+          "score": 0.1359,
+          "fts_score": 1.5968,
+          "vector_score": 0.9224,
+          "path": "rag-survey.md",
+          "start_line": 16,
+          "end_line": 17
+        }
+      ],
+      "note": "Precision filter between retrieval and generation."
+    },
+    {
+      "query": "hybrid fusion of sparse and dense retrieval",
+      "filters": {
+        "tag": null,
+        "year_min": null,
+        "status": null
+      },
+      "first_relevant_rank": 2,
+      "top": [
+        {
+          "paper_id": "rag-survey",
+          "section": "Abstract",
+          "score": 0.1444,
+          "fts_score": 2.9543,
+          "vector_score": 0.807,
+          "path": "rag-survey.md",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "paper_id": "rag-survey",
+          "section": "Method",
+          "score": 0.1435,
+          "fts_score": 3.1569,
+          "vector_score": 0.7145,
+          "path": "rag-survey.md",
+          "start_line": 13,
+          "end_line": 14
+        },
+        {
+          "paper_id": "rag-survey",
+          "section": "Takeaways",
+          "score": 0.1409,
+          "fts_score": 1.4003,
+          "vector_score": 0.8083,
+          "path": "rag-survey.md",
+          "start_line": 22,
+          "end_line": 23
+        },
+        {
+          "paper_id": "rerank-notes",
+          "section": "Method",
+          "score": 0.1392,
+          "fts_score": 1.4857,
+          "vector_score": 0.7125,
+          "path": "rerank-notes.md",
+          "start_line": 13,
+          "end_line": 14
+        },
+        {
+          "paper_id": "rerank-notes",
+          "section": "Limitations",
+          "score": 0.1359,
+          "fts_score": 1.3014,
+          "vector_score": 0.7317,
+          "path": "rerank-notes.md",
+          "start_line": 19,
+          "end_line": 20
+        }
+      ],
+      "note": ""
+    },
+    {
+      "query": "chunk size tradeoff between recall and precision",
+      "filters": {
+        "tag": null,
+        "year_min": null,
+        "status": null
+      },
+      "first_relevant_rank": 3,
+      "top": [
+        {
+          "paper_id": "rerank-notes",
+          "section": "Abstract",
+          "score": 0.1452,
+          "fts_score": 2.1876,
+          "vector_score": 0.9061,
+          "path": "rerank-notes.md",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "paper_id": "chunking-notes",
+          "section": "Takeaways",
+          "score": 0.1435,
+          "fts_score": 4.1833,
+          "vector_score": 0.821,
+          "path": "chunking-notes.md",
+          "start_line": 22,
+          "end_line": 23
+        },
+        {
+          "paper_id": "chunking-notes",
+          "section": "Limitations",
+          "score": 0.1424,
+          "fts_score": 1.2151,
+          "vector_score": 0.8808,
+          "path": "chunking-notes.md",
+          "start_line": 19,
+          "end_line": 20
+        },
+        {
+          "paper_id": "rerank-notes",
+          "section": "Takeaways",
+          "score": 0.1369,
+          "fts_score": 1.0003,
+          "vector_score": 0.7902,
+          "path": "rerank-notes.md",
+          "start_line": 22,
+          "end_line": 23
+        },
+        {
+          "paper_id": "rag-survey",
+          "section": "Results",
+          "score": 0.1368,
+          "fts_score": 0.9665,
+          "vector_score": 0.8548,
+          "path": "rag-survey.md",
+          "start_line": 16,
+          "end_line": 17
+        }
+      ],
+      "note": ""
+    },
+    {
+      "query": "citation coverage and faithfulness evaluation",
+      "filters": {
+        "tag": "citation",
+        "year_min": null,
+        "status": null
+      },
+      "first_relevant_rank": 5,
+      "top": [
+        {
+          "paper_id": "citation-grounding",
+          "section": "Takeaways",
+          "score": 0.1473,
+          "fts_score": 1.8895,
+          "vector_score": 0.8998,
+          "path": "citation-grounding.md",
+          "start_line": 22,
+          "end_line": 23
+        },
+        {
+          "paper_id": "citation-grounding",
+          "section": "Method",
+          "score": 0.144,
+          "fts_score": 1.7785,
+          "vector_score": 0.8422,
+          "path": "citation-grounding.md",
+          "start_line": 13,
+          "end_line": 14
+        },
+        {
+          "paper_id": "citation-grounding",
+          "section": "Results",
+          "score": 0.1424,
+          "fts_score": 1.703,
+          "vector_score": 0.8491,
+          "path": "citation-grounding.md",
+          "start_line": 16,
+          "end_line": 17
+        },
+        {
+          "paper_id": "eval-notes",
+          "section": "Limitations",
+          "score": 0.1402,
+          "fts_score": 1.6882,
+          "vector_score": 0.8429,
+          "path": "eval-notes.md",
+          "start_line": 19,
+          "end_line": 20
+        },
+        {
+          "paper_id": "eval-notes",
+          "section": "Results",
+          "score": 0.1376,
+          "fts_score": 1.682,
+          "vector_score": 0.8083,
+          "path": "eval-notes.md",
+          "start_line": 16,
+          "end_line": 17
+        }
+      ],
+      "note": ""
+    },
+    {
+      "query": "recall at k and mean reciprocal rank",
+      "filters": {
+        "tag": null,
+        "year_min": null,
+        "status": null
+      },
+      "first_relevant_rank": 1,
+      "top": [
+        {
+          "paper_id": "eval-notes",
+          "section": "Abstract",
+          "score": 0.1461,
+          "fts_score": 2.9135,
+          "vector_score": 0.8381,
+          "path": "eval-notes.md",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "paper_id": "rerank-notes",
+          "section": "Results",
+          "score": 0.1426,
+          "fts_score": 1.0785,
+          "vector_score": 0.8657,
+          "path": "rerank-notes.md",
+          "start_line": 16,
+          "end_line": 17
+        },
+        {
+          "paper_id": "rag-survey",
+          "section": "Takeaways",
+          "score": 0.1411,
+          "fts_score": 0.831,
+          "vector_score": 0.8694,
+          "path": "rag-survey.md",
+          "start_line": 22,
+          "end_line": 23
+        },
+        {
+          "paper_id": "rag-survey",
+          "section": "Method",
+          "score": 0.1411,
+          "fts_score": 1.1671,
+          "vector_score": 0.7557,
+          "path": "rag-survey.md",
+          "start_line": 13,
+          "end_line": 14
+        },
+        {
+          "paper_id": "chunking-notes",
+          "section": "Results",
+          "score": 0.1366,
+          "fts_score": 0.4755,
+          "vector_score": 0.8414,
+          "path": "chunking-notes.md",
+          "start_line": 16,
+          "end_line": 17
+        }
+      ],
+      "note": ""
+    },
+    {
+      "query": "long term memory across sessions for reading agents",
+      "filters": {
+        "tag": null,
+        "year_min": null,
+        "status": null
+      },
+      "first_relevant_rank": 2,
+      "top": [
+        {
+          "paper_id": "agent-memory",
+          "section": "Takeaways",
+          "score": 0.1475,
+          "fts_score": 5.4045,
+          "vector_score": 0.9686,
+          "path": "agent-memory.md",
+          "start_line": 22,
+          "end_line": 23
+        },
+        {
+          "paper_id": "agent-memory",
+          "section": "Abstract",
+          "score": 0.1452,
+          "fts_score": 4.6994,
+          "vector_score": 0.9592,
+          "path": "agent-memory.md",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "paper_id": "agent-memory",
+          "section": "Limitations",
+          "score": 0.1429,
+          "fts_score": 4.3519,
+          "vector_score": 0.9534,
+          "path": "agent-memory.md",
+          "start_line": 19,
+          "end_line": 20
+        },
+        {
+          "paper_id": "agent-memory",
+          "section": "Method",
+          "score": 0.1406,
+          "fts_score": 4.1304,
+          "vector_score": 0.9045,
+          "path": "agent-memory.md",
+          "start_line": 13,
+          "end_line": 14
+        },
+        {
+          "paper_id": "agent-memory",
+          "section": "Results",
+          "score": 0.1385,
+          "fts_score": 3.3512,
+          "vector_score": 0.8301,
+          "path": "agent-memory.md",
+          "start_line": 16,
+          "end_line": 17
+        }
+      ],
+      "note": ""
+    },
+    {
+      "query": "revision history and correcting stale preferences",
+      "filters": {
+        "tag": null,
+        "year_min": null,
+        "status": null
+      },
+      "first_relevant_rank": 1,
+      "top": [
+        {
+          "paper_id": "agent-memory",
+          "section": "Limitations",
+          "score": 0.1426,
+          "fts_score": 2.1395,
+          "vector_score": 0.5303,
+          "path": "agent-memory.md",
+          "start_line": 19,
+          "end_line": 20
+        },
+        {
+          "paper_id": "agent-memory",
+          "section": "Results",
+          "score": 0.1415,
+          "fts_score": 1.8519,
+          "vector_score": 0.6847,
+          "path": "agent-memory.md",
+          "start_line": 16,
+          "end_line": 17
+        },
+        {
+          "paper_id": "agent-memory",
+          "section": "Method",
+          "score": 0.1382,
+          "fts_score": 1.5261,
+          "vector_score": 0.516,
+          "path": "agent-memory.md",
+          "start_line": 13,
+          "end_line": 14
+        },
+        {
+          "paper_id": "agent-memory",
+          "section": "Abstract",
+          "score": 0.1364,
+          "fts_score": 1.3524,
+          "vector_score": 0.5292,
+          "path": "agent-memory.md",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "paper_id": "eval-notes",
+          "section": "Takeaways",
+          "score": 0.1351,
+          "fts_score": 0.2558,
+          "vector_score": 0.5971,
+          "path": "eval-notes.md",
+          "start_line": 22,
+          "end_line": 23
+        }
+      ],
+      "note": ""
+    },
+    {
+      "query": "grounding generated answers with evidence spans",
+      "filters": {
+        "tag": null,
+        "year_min": null,
+        "status": null
+      },
+      "first_relevant_rank": 1,
+      "top": [
+        {
+          "paper_id": "citation-grounding",
+          "section": "Abstract",
+          "score": 0.1452,
+          "fts_score": 2.3566,
+          "vector_score": 0.859,
+          "path": "citation-grounding.md",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "paper_id": "citation-grounding",
+          "section": "Limitations",
+          "score": 0.1434,
+          "fts_score": 2.1201,
+          "vector_score": 0.9291,
+          "path": "citation-grounding.md",
+          "start_line": 19,
+          "end_line": 20
+        },
+        {
+          "paper_id": "citation-grounding",
+          "section": "Takeaways",
+          "score": 0.1427,
+          "fts_score": 2.349,
+          "vector_score": 0.8414,
+          "path": "citation-grounding.md",
+          "start_line": 22,
+          "end_line": 23
+        },
+        {
+          "paper_id": "citation-grounding",
+          "section": "Results",
+          "score": 0.1385,
+          "fts_score": 1.9103,
+          "vector_score": 0.8405,
+          "path": "citation-grounding.md",
+          "start_line": 16,
+          "end_line": 17
+        },
+        {
+          "paper_id": "citation-grounding",
+          "section": "Method",
+          "score": 0.1374,
+          "fts_score": 1.4811,
+          "vector_score": 0.8621,
+          "path": "citation-grounding.md",
+          "start_line": 13,
+          "end_line": 14
+        }
+      ],
+      "note": ""
+    },
+    {
+      "query": "nDCG improvement from reranking the first stage candidate list",
+      "filters": {
+        "tag": null,
+        "year_min": null,
+        "status": null
+      },
+      "first_relevant_rank": 1,
+      "top": [
+        {
+          "paper_id": "rerank-notes",
+          "section": "Results",
+          "score": 0.1452,
+          "fts_score": 3.0828,
+          "vector_score": 0.932,
+          "path": "rerank-notes.md",
+          "start_line": 16,
+          "end_line": 17
+        },
+        {
+          "paper_id": "rerank-notes",
+          "section": "Takeaways",
+          "score": 0.1441,
+          "fts_score": 3.1559,
+          "vector_score": 0.8738,
+          "path": "rerank-notes.md",
+          "start_line": 22,
+          "end_line": 23
+        },
+        {
+          "paper_id": "rerank-notes",
+          "section": "Method",
+          "score": 0.1434,
+          "fts_score": 2.8071,
+          "vector_score": 0.939,
+          "path": "rerank-notes.md",
+          "start_line": 13,
+          "end_line": 14
+        },
+        {
+          "paper_id": "rerank-notes",
+          "section": "Abstract",
+          "score": 0.1406,
+          "fts_score": 2.7263,
+          "vector_score": 0.9133,
+          "path": "rerank-notes.md",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "paper_id": "rerank-notes",
+          "section": "Limitations",
+          "score": 0.1378,
+          "fts_score": 2.2208,
+          "vector_score": 0.8917,
+          "path": "rerank-notes.md",
+          "start_line": 19,
+          "end_line": 20
+        }
+      ],
+      "note": ""
+    },
+    {
+      "query": "semantic chunk boundaries and heading aware chunks",
+      "filters": {
+        "tag": null,
+        "year_min": 2022,
+        "status": null
+      },
+      "first_relevant_rank": 1,
+      "top": [
+        {
+          "paper_id": "chunking-notes",
+          "section": "Results",
+          "score": 0.1475,
+          "fts_score": 3.3093,
+          "vector_score": 0.8441,
+          "path": "chunking-notes.md",
+          "start_line": 16,
+          "end_line": 17
+        },
+        {
+          "paper_id": "chunking-notes",
+          "section": "Takeaways",
+          "score": 0.1425,
+          "fts_score": 2.6236,
+          "vector_score": 0.7216,
+          "path": "chunking-notes.md",
+          "start_line": 22,
+          "end_line": 23
+        },
+        {
+          "paper_id": "chunking-notes",
+          "section": "Abstract",
+          "score": 0.1419,
+          "fts_score": 1.6595,
+          "vector_score": 0.7672,
+          "path": "chunking-notes.md",
+          "start_line": 10,
+          "end_line": 11
+        },
+        {
+          "paper_id": "chunking-notes",
+          "section": "Method",
+          "score": 0.1393,
+          "fts_score": 1.6541,
+          "vector_score": 0.7349,
+          "path": "chunking-notes.md",
+          "start_line": 13,
+          "end_line": 14
+        },
+        {
+          "paper_id": "chunking-notes",
+          "section": "Limitations",
+          "score": 0.1373,
+          "fts_score": 1.303,
+          "vector_score": 0.8022,
+          "path": "chunking-notes.md",
+          "start_line": 19,
+          "end_line": 20
+        }
+      ],
+      "note": ""
+    }
+  ],
+  "embedding": true
+}

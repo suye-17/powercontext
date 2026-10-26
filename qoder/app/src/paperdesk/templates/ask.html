@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}提问 · 研读 PaperDesk{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">AI 综述</p>
+    <h1>只基于资料回答</h1>
+    <p class="muted">先由 seekdb 检索章节分块，再让模型生成中文综述；每个结论必须绑定 [C1] 形式的出处。引用校验不足或调用失败时自动回退为抽取式摘要。</p>
+  </div>
+</section>
+
+<form class="ask-form card" method="post" action="/ask">
+  <input type="text" name="q" value="{{ q }}" placeholder="例如：rerank 在 RAG 里解决什么问题？" autofocus>
+  <button class="button" type="submit">生成综述</button>
+</form>
+
+{% if answer %}
+<section class="grid grid-main">
+  <article class="card digest-card">
+    <div class="card-head">
+      <h2>综述</h2>
+      <span class="pill">{{ '模型生成' if answer.synthesis.mode == 'llm' else '抽取式回退' }}</span>
+    </div>
+    <p class="digest-text">{{ answer.synthesis.text|answer_text }}</p>
+    <div class="hit-meta">
+      <span>引用覆盖 {{ '%.0f'|format(answer.synthesis.coverage * 100) }}%</span>
+      {% if answer.synthesis.model %}<span>{{ answer.synthesis.model }}</span>{% endif %}
+      <span>{{ answer.synthesis.latency_ms }} ms</span>
+      {% if answer.synthesis.fallback_reason %}<span class="warn-text">{{ answer.synthesis.fallback_reason }}</span>{% endif %}
+    </div>
+    <ol class="citation-list">
+      {% for citation in answer.synthesis.citations %}
+        <li><strong>[C{{ citation.index }}]</strong> {{ citation.title }} · {{ citation.section }} · <span class="muted">{{ citation.path }}:{{ citation.start_line }}</span></li>
+      {% endfor %}
+    </ol>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>检索证据</h2><span class="muted">{{ answer.hits|length }} 块</span></div>
+    <ul class="evidence-list">
+      {% for hit in answer.hits %}
+        <li>
+          <div><a href="/paper/{{ hit.paper_id }}">{{ hit.paper_id }}</a> · {{ hit.section }} <span class="muted">{{ hit.path }}:{{ hit.start_line }}</span></div>
+          <p>{{ hit.text[:220] }}{% if hit.text|length > 220 %}…{% endif %}</p>
+          <div class="hit-meta"><span>score {{ '%.3f'|format(hit.score) }}</span>{% if hit.vector_score is not none %}<span>vector {{ '%.3f'|format(hit.vector_score) }}</span>{% endif %}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+{% endif %}
+{% endblock %}

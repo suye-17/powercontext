@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}检索调试 · 研读 PaperDesk{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">检索调试</p>
+    <h1>看得见的检索链路</h1>
+    <p class="muted">seekdb 单表查询：FULLTEXT 得分 + 标签 / 年份 / 状态过滤 + 标识符加权；配置嵌入后对全文排名与向量排名做 RRF 融合（k=60）。</p>
+  </div>
+</section>
+
+<div class="metrics">
+  <div class="metric"><strong>{{ counts.documents }}</strong><span>论文</span></div>
+  <div class="metric"><strong>{{ counts.chunks }}</strong><span>分块</span></div>
+  <div class="metric"><strong>{{ embedding_count }}</strong><span>已写向量</span></div>
+  <div class="metric"><strong>{{ embedding_dim or '—' }}</strong><span>向量维度</span></div>
+</div>
+
+<form class="card filter-form" method="get" action="/debug/retrieval">
+  <label class="field field-wide">查询
+    <input type="search" name="q" value="{{ q }}" placeholder="hybrid fusion / citation coverage / rerank">
+  </label>
+  <label class="field">标签
+    <input type="text" name="tag" value="{{ tag }}" placeholder="rag">
+  </label>
+  <label class="field">年份下限
+    <input type="number" name="year_min" value="{{ year_min or '' }}" min="1900" max="2100">
+  </label>
+  <label class="field">状态
+    <select name="status">
+      <option value="">全部</option>
+      {% for value, label in status_labels.items() %}
+        <option value="{{ value }}" {{ 'selected' if value == status }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="button" type="submit">运行检索</button>
+</form>
+
+{% if note %}<div class="callout callout-warn">{{ note }}</div>{% endif %}
+
+{% if q %}
+<section class="section">
+  <div class="section-head"><h2>融合排名</h2><span class="muted">{{ hits|length }} 条</span></div>
+  <div class="table-wrap">
+    <table class="retrieval-table">
+      <thead>
+        <tr><th>#</th><th>论文 / 章节</th><th>FTS</th><th>Vector</th><th>融合分</th><th>出处</th></tr>
+      </thead>
+      <tbody>
+        {% for hit in hits %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td><a href="/paper/{{ hit.paper_id }}">{{ hit.paper_id }}</a><div class="muted small">{{ hit.section }}</div></td>
+            <td><span class="num">{{ '%.3f'|format(hit.fts_score) }}</span></td>
+            <td>{% if hit.vector_score is not none %}<span class="num">{{ '%.3f'|format(hit.vector_score) }}</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+            <td><span class="num strong">{{ '%.4f'|format(hit.score) }}</span><div class="bar"><i style="width: {{ [hit.score * 100, 100]|min }}%"></i></div></td>
+            <td class="muted small">{{ hit.path }}:{{ hit.start_line }}-{{ hit.end_line }}</td>
+          </tr>
+          <tr class="excerpt-row"><td></td><td colspan="5"><p class="hit-text">{{ hit.text[:260] }}{% if hit.text|length > 260 %}…{% endif %}</p></td></tr>
+        {% else %}
+          <tr><td colspan="6" class="muted">没有命中。</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

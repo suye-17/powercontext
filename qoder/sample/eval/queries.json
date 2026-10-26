@@ -1,0 +1,78 @@
+{
+  "queries": [
+    {
+      "query": "What problem does reranking solve in retrieval augmented generation?",
+      "expected": [
+        {"paper_id": "rerank-notes", "section": "Abstract"},
+        {"paper_id": "rag-survey", "section": "Method"}
+      ],
+      "note": "Precision filter between retrieval and generation."
+    },
+    {
+      "query": "hybrid fusion of sparse and dense retrieval",
+      "expected": [
+        {"paper_id": "rag-survey", "section": "Method"},
+        {"paper_id": "rerank-notes", "section": "Method"}
+      ]
+    },
+    {
+      "query": "chunk size tradeoff between recall and precision",
+      "expected": [
+        {"paper_id": "chunking-notes", "section": "Method"},
+        {"paper_id": "chunking-notes", "section": "Limitations"}
+      ]
+    },
+    {
+      "query": "citation coverage and faithfulness evaluation",
+      "expected": [
+        {"paper_id": "eval-notes", "section": "Method"},
+        {"paper_id": "eval-notes", "section": "Results"},
+        {"paper_id": "citation-grounding", "section": "Abstract"}
+      ],
+      "tag": "citation"
+    },
+    {
+      "query": "recall at k and mean reciprocal rank",
+      "expected": [
+        {"paper_id": "eval-notes", "section": "Method"},
+        {"paper_id": "eval-notes", "section": "Abstract"}
+      ]
+    },
+    {
+      "query": "long term memory across sessions for reading agents",
+      "expected": [
+        {"paper_id": "agent-memory", "section": "Abstract"},
+        {"paper_id": "agent-memory", "section": "Method"}
+      ]
+    },
+    {
+      "query": "revision history and correcting stale preferences",
+      "expected": [
+        {"paper_id": "agent-memory", "section": "Results"},
+        {"paper_id": "agent-memory", "section": "Limitations"}
+      ]
+    },
+    {
+      "query": "grounding generated answers with evidence spans",
+      "expected": [
+        {"paper_id": "citation-grounding", "section": "Method"},
+        {"paper_id": "citation-grounding", "section": "Abstract"}
+      ]
+    },
+    {
+      "query": "nDCG improvement from reranking the first stage candidate list",
+      "expected": [
+        {"paper_id": "rerank-notes", "section": "Results"},
+        {"paper_id": "rerank-notes", "section": "Method"}
+      ]
+    },
+    {
+      "query": "semantic chunk boundaries and heading aware chunks",
+      "expected": [
+        {"paper_id": "chunking-notes", "section": "Method"},
+        {"paper_id": "chunking-notes", "section": "Results"}
+      ],
+      "year_min": 2022
+    }
+  ]
+}

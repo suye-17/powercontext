@@ -1,0 +1,60 @@
+{
+  "run_status": "complete",
+  "ingest": {
+    "documents": 6,
+    "chunks": 30,
+    "embedded": 30,
+    "embedding_error": null
+  },
+  "retrieval": {
+    "chunk_query": "chunk boundaries",
+    "chunk_query_top_paper": "chunking-notes",
+    "year_min_2023_excludes": ["chunking-notes"],
+    "reading_status_papers": ["rerank-notes"],
+    "citation_tag_papers": ["citation-grounding", "eval-notes"]
+  },
+  "memory": {
+    "kinds": {
+      "paperdesk.goal": 1,
+      "paperdesk.profile": 1,
+      "paperdesk.progress": 1,
+      "paperdesk.session": 1
+    },
+    "progress_revision_after_finish": 2,
+    "restart_diff_empty": true,
+    "recall_query": "上次读到哪篇论文，下一步做什么",
+    "recall_top_kind": "paperdesk.progress",
+    "recall_top_paper": "rag-survey"
+  },
+  "plan": {
+    "session1_top2": ["rag-survey", "rerank-notes"],
+    "session2_first": "rag-survey",
+    "session2_continue": {
+      "paper_id": "rag-survey",
+      "last_section": "Evaluation"
+    }
+  },
+  "synthesis": {
+    "answer_mode": "llm",
+    "answer_citations_valid": true,
+    "digest_coverage": 1.0,
+    "extractive_fallback_mode": "extractive"
+  },
+  "eval": {
+    "keyword": {"recall@1": 0.6, "recall@3": 0.9, "recall@5": 1.0, "mrr": 0.7533},
+    "hybrid": {"recall@1": 0.6, "recall@3": 0.9, "recall@5": 1.0, "mrr": 0.7533}
+  },
+  "web": {
+    "paths": [
+      "/",
+      "/library",
+      "/library?q=hybrid+fusion",
+      "/paper/rag-survey",
+      "/session",
+      "/debug/retrieval?q=hybrid+fusion",
+      "/memory",
+      "/ask?q=rerank+in+RAG"
+    ],
+    "status": 200
+  }
+}

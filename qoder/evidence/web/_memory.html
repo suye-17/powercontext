@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>记忆审计 · 研读 PaperDesk</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">研</span>
+        <span class="brand-text">研读<small>PaperDesk</small></span>
+      </a>
+      <nav class="nav">
+        <a class="" href="/">工作台</a>
+        <a class="" href="/library">资料库</a>
+        <a class="" href="/ask">提问</a>
+        <a class="" href="/session">会话</a>
+        <a class="" href="/debug/retrieval">检索调试</a>
+        <a class="is-active" href="/memory">记忆</a>
+      </nav>
+      <div class="header-meta">
+        <span class="pill">6 篇 · 30 块</span>
+        <span class="pill pill-on">向量已启用</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    
+    
+    
+<section class="page-head">
+  <div>
+    <p class="eyebrow">记忆审计</p>
+    <h1>PowerContext 里的阅读状态</h1>
+    <p class="muted">目标、偏好、进度和会话摘要都写在同一个 scope。进度通过原子记忆 artifact 的 ETag 修订，版本号递增并保留历史。</p>
+  </div>
+  <span class="pill">scope scp_73x4kqyf8b6vcpz4kavqzr60b9</span>
+</section>
+
+
+
+
+<section class="grid grid-main">
+  <article class="card">
+    <div class="card-head"><h2>当前目标</h2><span class="muted">1 条</span></div>
+    
+      <div class="memory-item">
+        <div class="hit-head"><strong>weekly</strong><span class="badge">进行中</span></div>
+        <p>本周读完 RAG 相关两篇，并整理 rerank 要点</p>
+        <div class="hit-meta">
+          <span class="tag">rag</span><span class="tag">rerank</span>
+          
+        </div>
+      </div>
+    
+    <form class="stack-form" method="post" action="/memory/goal">
+      <label class="field">目标描述
+        <input type="text" name="text" value="本周读完 RAG 相关两篇，并整理 rerank 要点" placeholder="本周读完 RAG 相关两篇，并整理 rerank 要点">
+      </label>
+      <div class="form-row">
+        <label class="field">目标 ID<input type="text" name="goal_id" value="weekly"></label>
+        <label class="field">标签<input type="text" name="tags" value="rag,rerank"></label>
+        <label class="field">截止日期<input type="text" name="deadline" value="" placeholder="2026-11-02"></label>
+      </div>
+      <button class="button" type="submit">写入 / 修订目标</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>阅读偏好</h2><span class="muted">zh · 3 句</span></div>
+    <form class="stack-form" method="post" action="/memory/profile">
+      <div class="form-row">
+        <label class="field">综述句数
+          <input type="number" name="digest_sentences" value="3" min="1" max="8">
+        </label>
+        <label class="field">引用风格
+          <select name="citation_style">
+            <option value="inline" selected>行内编号</option>
+            <option value="footnote" >脚注</option>
+          </select>
+        </label>
+        <label class="field">每周分钟
+          <input type="number" name="weekly_minutes" value="120" min="10" step="10">
+        </label>
+      </div>
+      <input type="hidden" name="language" value="zh">
+      <button class="button" type="submit">写入 / 修订偏好</button>
+    </form>
+    <p class="muted small">速读长度遵循这里的句数；偏好修订同样产生新版本。</p>
+  </article>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>活跃条目</h2><span class="muted">4 条</span></div>
+  <div class="memory-grid">
+    
+      <article class="card memory-card">
+        <div class="card-head"><h3>阅读偏好</h3><span class="muted">1</span></div>
+        
+          <div class="memory-item">
+            <div class="hit-head"><span class="badge">rev 1</span><span class="muted small">art_21730ccfc1b3488e831656789f011b06</span></div>
+            <pre class="memory-text">{&#34;language&#34;: &#34;zh&#34;, &#34;digest_sentences&#34;: 3, &#34;citation_style&#34;: &#34;inline&#34;, &#34;weekly_minutes&#34;: 120}</pre>
+          </div>
+        
+      </article>
+    
+      <article class="card memory-card">
+        <div class="card-head"><h3>阅读目标</h3><span class="muted">1</span></div>
+        
+          <div class="memory-item">
+            <div class="hit-head"><span class="badge">rev 1</span><span class="muted small">art_669477b38508400f86219475b6e4a6b2</span></div>
+            <pre class="memory-text">{&#34;goal_id&#34;: &#34;weekly&#34;, &#34;text&#34;: &#34;本周读完 RAG 相关两篇，并整理 rerank 要点&#34;, &#34;tags&#34;: [&#34;rag&#34;, &#34;rerank&#34;], &#34;deadline&#34;: null, &#34;status&#34;: &#34;active&#34;}</pre>
+          </div>
+        
+      </article>
+    
+      <article class="card memory-card">
+        <div class="card-head"><h3>阅读进度</h3><span class="muted">1</span></div>
+        
+          <div class="memory-item">
+            <div class="hit-head"><span class="badge">rev 2</span><span class="muted small">art_96101294515c4166b0f03db9d7ae7dbf</span></div>
+            <pre class="memory-text">{&#34;paper_id&#34;: &#34;rag-survey&#34;, &#34;status&#34;: &#34;reading&#34;, &#34;last_section&#34;: &#34;Evaluation&#34;, &#34;next_action&#34;: &#34;整理 rerank 与 RAG 的关系&#34;, &#34;updated_at&#34;: &#34;2026-10-26T13:43:24+00:00&#34;}</pre>
+          </div>
+        
+      </article>
+    
+      <article class="card memory-card">
+        <div class="card-head"><h3>会话摘要</h3><span class="muted">1</span></div>
+        
+          <div class="memory-item">
+            <div class="hit-head"><span class="badge">rev 1</span><span class="muted small">art_41864d471b714359a1a888340e8e98d0</span></div>
+            <pre class="memory-text">{&#34;session_id&#34;: &#34;session-20261026-134329&#34;, &#34;read_papers&#34;: [&#34;rag-survey&#34;], &#34;questions&#34;: [&#34;rerank 在 RAG 里解决什么问题？&#34;], &#34;next_steps&#34;: [&#34;读完 Evaluation 章&#34;, &#34;整理 rerank 要点&#34;], &#34;created_at&#34;: &#34;2026-10-26T13:43:29+00:00&#34;}</pre>
+          </div>
+        
+      </article>
+    
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>语义召回</h2><span class="muted">PowerContext hybrid</span></div>
+  <form class="inline-form" method="get" action="/memory">
+    <input type="search" name="q" value="" placeholder="上次读到哪篇论文？下一步做什么？">
+    <select name="mode">
+      
+        <option value="hybrid" selected>hybrid</option>
+      
+        <option value="auto" >auto</option>
+      
+        <option value="fts" >fts</option>
+      
+        <option value="vector" >vector</option>
+      
+    </select>
+    <button class="button" type="submit">召回</button>
+  </form>
+  
+  
+</section>
+
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <span>PaperDesk · seekdb 负责资料与混合检索，PowerContext 负责跨会话记忆</span>
+      <span>LLM: auto</span>
+    </div>
+  </footer>
+</body>
+</html>

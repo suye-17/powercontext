@@ -1,0 +1,160 @@
+{
+  "kind": "answer",
+  "question": "rerank 在 RAG 里解决什么问题？",
+  "hits": [
+    {
+      "chunk_id": "9e0319752b32fa59f8c546c9c39081df",
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "section": "Method",
+      "path": "rerank-notes.md",
+      "start_line": 13,
+      "end_line": 14,
+      "text": "## Method\nA cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture. The input candidate list is produced by BM25, a dense retriever, or a hybrid of both. We compare two-stage and three-stage pipelines: retrieve top 50, rerank top 20, then pass the best 5 to the generator. Training uses query-passage pairs with hard negatives mined from the first-stage results. Reranking scores are not comparable across queries, so pipelines use them only to order candidates within one query.",
+      "score": 0.147541,
+      "fts_score": 1.439406,
+      "vector_score": 0.823835,
+      "tags": [
+        "rerank",
+        "retrieval",
+        "rag"
+      ]
+    },
+    {
+      "chunk_id": "203cb9c0eb80f9f1a19be1b603b067e9",
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "section": "Takeaways",
+      "path": "rerank-notes.md",
+      "start_line": 22,
+      "end_line": 23,
+      "text": "## Takeaways\nTreat reranking as a precision stage with an explicit budget. Keep the candidate depth configurable and log both first-stage and reranked ranks for debugging. If the generator still sees irrelevant context, inspect the reranker rather than increasing the context window.",
+      "score": 0.144905,
+      "fts_score": 1.415935,
+      "vector_score": 0.791424,
+      "tags": [
+        "rerank",
+        "retrieval",
+        "rag"
+      ]
+    },
+    {
+      "chunk_id": "503ec6d4fe5230c5941ae7a8673e5f67",
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "section": "Limitations",
+      "path": "rerank-notes.md",
+      "start_line": 19,
+      "end_line": 20,
+      "text": "## Limitations\nA cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely. Long passages increase cost and may exceed the reranker's input limit. Training hard negatives from the same retriever can overfit to its failure modes. The notes do not cover learned fusion of multiple rerankers, and nDCG rewards graded relevance that our small corpus does not provide.",
+      "score": 0.141129,
+      "fts_score": 1.210365,
+      "vector_score": 0.801226,
+      "tags": [
+        "rerank",
+        "retrieval",
+        "rag"
+      ]
+    },
+    {
+      "chunk_id": "091ebb004a61cf0c03eed44479970e7a",
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "section": "Abstract",
+      "path": "rerank-notes.md",
+      "start_line": 10,
+      "end_line": 11,
+      "text": "## Abstract\nFirst-stage retrieval must be cheap, so it usually trades precision for recall. A reranker revisits a small candidate list and scores each query-passage pair with a stronger model. The core problem it solves is context pollution: irrelevant passages consume the generator's limited context window and invite unsupported claims. Reranking is therefore a precision filter placed between retrieval and generation.",
+      "score": 0.140873,
+      "fts_score": 1.227943,
+      "vector_score": 0.7001,
+      "tags": [
+        "rerank",
+        "retrieval",
+        "rag"
+      ]
+    },
+    {
+      "chunk_id": "fd7a4219cee6eed4e772c6bf0de6e6cc",
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "section": "Results",
+      "path": "rerank-notes.md",
+      "start_line": 16,
+      "end_line": 17,
+      "text": "## Results\nReranking improves nDCG at ten and reduces the number of irrelevant passages in the generator context. In our notes, the largest gains appear on questions with rare entities and on queries whose lexical and dense candidate lists disagree. The reranker also helps when the first stage returns a relevant passage at rank 12 but not at rank 1. Latency grows linearly with the number of reranked pairs, so candidate depth is the main cost control.",
+      "score": 0.13757,
+      "fts_score": 1.193744,
+      "vector_score": 0.728926,
+      "tags": [
+        "rerank",
+        "retrieval",
+        "rag"
+      ]
+    },
+    {
+      "chunk_id": "2b2e5433c52d4ad8a87bddea5cee0c3b",
+      "paper_id": "rag-survey",
+      "title": "Retrieval Augmented Generation: A Reading Map",
+      "section": "Abstract",
+      "path": "rag-survey.md",
+      "start_line": 10,
+      "end_line": 11,
+      "text": "## Abstract\nRetrieval augmented generation (RAG) couples a document retriever with a language model so that answers can be grounded in external evidence rather than model parameters alone. This reading map organizes the design space along three axes: what is retrieved, when retrieval happens, and how retrieved evidence is fused into generation. The central claim is that most quality differences between RAG systems come from retrieval granularity and evidence selection, not from the generator. We use this map to compare sparse retrieval, dense retrieval, and hybrid fusion.",
+      "score": 0.134033,
+      "fts_score": 0.468712,
+      "vector_score": 0.648974,
+      "tags": [
+        "rag",
+        "retrieval",
+        "survey"
+      ]
+    }
+  ],
+  "synthesis": {
+    "text": "问题：rerank 在 RAG 里解决什么问题？\n抽取式摘要（已配置为抽取式模式）：\n- [C1] 《Reranking for Retrieval Pipelines》· Method：A cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture.\n- [C2] 《Reranking for Retrieval Pipelines》· Takeaways：Treat reranking as a precision stage with an explicit budget.\n- [C3] 《Reranking for Retrieval Pipelines》· Limitations：A cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely.\n以上内容摘自论文笔记原文，编号与检索片段一一对应。",
+    "mode": "extractive",
+    "citations": [
+      {
+        "index": 1,
+        "marker": "[C1]",
+        "chunk_id": "9e0319752b32fa59f8c546c9c39081df",
+        "paper_id": "rerank-notes",
+        "title": "Reranking for Retrieval Pipelines",
+        "section": "Method",
+        "path": "rerank-notes.md",
+        "start_line": 13,
+        "end_line": 14
+      },
+      {
+        "index": 2,
+        "marker": "[C2]",
+        "chunk_id": "203cb9c0eb80f9f1a19be1b603b067e9",
+        "paper_id": "rerank-notes",
+        "title": "Reranking for Retrieval Pipelines",
+        "section": "Takeaways",
+        "path": "rerank-notes.md",
+        "start_line": 22,
+        "end_line": 23
+      },
+      {
+        "index": 3,
+        "marker": "[C3]",
+        "chunk_id": "503ec6d4fe5230c5941ae7a8673e5f67",
+        "paper_id": "rerank-notes",
+        "title": "Reranking for Retrieval Pipelines",
+        "section": "Limitations",
+        "path": "rerank-notes.md",
+        "start_line": 19,
+        "end_line": 20
+      }
+    ],
+    "coverage": 0.5,
+    "model": null,
+    "prompt_hash": "bf9ca266430ff674",
+    "latency_ms": 0,
+    "fallback_reason": "已配置为抽取式模式",
+    "cached": false,
+    "evidence": {}
+  }
+}

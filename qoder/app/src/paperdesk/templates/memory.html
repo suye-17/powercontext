@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}记忆审计 · 研读 PaperDesk{% endblock %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">记忆审计</p>
+    <h1>PowerContext 里的阅读状态</h1>
+    <p class="muted">目标、偏好、进度和会话摘要都写在同一个 scope。进度通过原子记忆 artifact 的 ETag 修订，版本号递增并保留历史。</p>
+  </div>
+  {% if scope_id %}<span class="pill">scope {{ scope_id }}</span>{% endif %}
+</section>
+
+{% if memory_error %}
+<div class="callout callout-warn">
+  <strong>PowerContext 未连接。</strong>{{ memory_error }}
+  <div class="muted">启动：<code>scripts/start_powercontext.sh</code>，或设置 <code>PAPERDESK_POWERCONTEXT_URL</code>。</div>
+</div>
+{% endif %}
+
+{% if state %}
+<section class="grid grid-main">
+  <article class="card">
+    <div class="card-head"><h2>当前目标</h2><span class="muted">{{ state.goals|length }} 条</span></div>
+    {% for goal in state.goals %}
+      <div class="memory-item">
+        <div class="hit-head"><strong>{{ goal.goal_id }}</strong><span class="badge">{{ '进行中' if goal.status == 'active' else goal.status }}</span></div>
+        <p>{{ goal.text }}</p>
+        <div class="hit-meta">
+          {% for item in goal.tags %}<span class="tag">{{ item }}</span>{% endfor %}
+          {% if goal.deadline %}<span>截止 {{ goal.deadline }}</span>{% endif %}
+        </div>
+      </div>
+    {% else %}
+      <p class="muted">还没有写入目标。</p>
+    {% endfor %}
+    <form class="stack-form" method="post" action="/memory/goal">
+      <label class="field">目标描述
+        <input type="text" name="text" value="{{ state.goals[0].text if state.goals else '' }}" placeholder="本周读完 RAG 相关两篇，并整理 rerank 要点">
+      </label>
+      <div class="form-row">
+        <label class="field">目标 ID<input type="text" name="goal_id" value="{{ state.goals[0].goal_id if state.goals else 'weekly' }}"></label>
+        <label class="field">标签<input type="text" name="tags" value="{{ state.goals[0].tags|join(',') if state.goals else 'rag,rerank' }}"></label>
+        <label class="field">截止日期<input type="text" name="deadline" value="{{ state.goals[0].deadline or '' if state.goals else '' }}" placeholder="2026-11-02"></label>
+      </div>
+      <button class="button" type="submit">写入 / 修订目标</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>阅读偏好</h2><span class="muted">{{ state.profile.language }} · {{ state.profile.digest_sentences }} 句</span></div>
+    <form class="stack-form" method="post" action="/memory/profile">
+      <div class="form-row">
+        <label class="field">综述句数
+          <input type="number" name="digest_sentences" value="{{ state.profile.digest_sentences }}" min="1" max="8">
+        </label>
+        <label class="field">引用风格
+          <select name="citation_style">
+            <option value="inline" {{ 'selected' if state.profile.citation_style == 'inline' }}>行内编号</option>
+            <option value="footnote" {{ 'selected' if state.profile.citation_style == 'footnote' }}>脚注</option>
+          </select>
+        </label>
+        <label class="field">每周分钟
+          <input type="number" name="weekly_minutes" value="{{ state.profile.weekly_minutes }}" min="10" step="10">
+        </label>
+      </div>
+      <input type="hidden" name="language" value="{{ state.profile.language }}">
+      <button class="button" type="submit">写入 / 修订偏好</button>
+    </form>
+    <p class="muted small">速读长度遵循这里的句数；偏好修订同样产生新版本。</p>
+  </article>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>活跃条目</h2><span class="muted">{{ state.entries|length }} 条</span></div>
+  <div class="memory-grid">
+    {% for kind, label in kind_labels.items() %}
+      <article class="card memory-card">
+        <div class="card-head"><h3>{{ label }}</h3><span class="muted">{{ grouped.get(kind, [])|length }}</span></div>
+        {% for entry in grouped.get(kind, []) %}
+          <div class="memory-item">
+            <div class="hit-head"><span class="badge">rev {{ entry.revision }}</span><span class="muted small">{{ entry.artifact_id }}</span></div>
+            <pre class="memory-text">{{ entry.text }}</pre>
+          </div>
+        {% else %}
+          <p class="muted">暂无。</p>
+        {% endfor %}
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>语义召回</h2><span class="muted">PowerContext {{ mode }}</span></div>
+  <form class="inline-form" method="get" action="/memory">
+    <input type="search" name="q" value="{{ q }}" placeholder="上次读到哪篇论文？下一步做什么？">
+    <select name="mode">
+      {% for value in ['hybrid', 'auto', 'fts', 'vector'] %}
+        <option value="{{ value }}" {{ 'selected' if value == mode }}>{{ value }}</option>
+      {% endfor %}
+    </select>
+    <button class="button" type="submit">召回</button>
+  </form>
+  {% if search_error %}<div class="callout callout-warn">{{ search_error }}</div>{% endif %}
+  {% if search %}
+    <div class="callout">
+      请求模式 {{ search.requested_mode }}，实际 {{ search.mode }}，命中 {{ search.hits|length }} 条。
+      {% if search.fallback_reason %}<span class="warn-text">{{ search.fallback_reason }}</span>{% endif %}
+    </div>
+    <div class="hit-list">
+      {% for hit in search.hits %}
+        <article class="hit">
+          <div class="hit-head"><span class="badge">{{ kind_labels.get(hit.record.kind, hit.record.kind) }}</span><span class="score">{{ '%.3f'|format(hit.score) }}</span><span class="muted small">rev {{ hit.record.revision }} · {{ hit.matched_by|join(', ') }}</span></div>
+          <pre class="memory-text">{{ hit.record.text }}</pre>
+        </article>
+      {% else %}
+        <p class="muted">没有召回结果。</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+{% endif %}
+{% endblock %}

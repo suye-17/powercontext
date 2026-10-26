@@ -1,0 +1,7 @@
+{
+  "documents": 6,
+  "chunks": 30,
+  "embedded": 30,
+  "embedding_error": null,
+  "db_dir": ".runtime/seekdb"
+}

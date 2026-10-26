@@ -1,0 +1,147 @@
+{
+  "kind": "digest",
+  "paper_id": "rag-survey",
+  "title": "Retrieval Augmented Generation: A Reading Map",
+  "chunks": [
+    "Abstract",
+    "Method",
+    "Results",
+    "Limitations",
+    "Takeaways"
+  ],
+  "synthesis": {
+    "text": "### 研究问题\n\n文章试图梳理 RAG 的设计空间，重点考察三个维度：检索什么、何时检索，以及如何将检索证据融合进生成过程；并比较稀疏检索、稠密检索与混合检索。[C1]  \n文章的核心问题是解释 RAG 系统间的大部分质量差异是否主要来自检索粒度和证据选择，而非生成器本身。[C1]\n\n### 方法\n\n文章按检索单元划分系统：段落级检索能提供更精确的证据片段，文档级检索则能保留更广泛的上下文。[C2]  \n在具体技术上，文章比较稠密双编码器、BM25 等稀疏词法检索，以及结合二者候选列表的混合检索；混合融合通常采用倒数排名融合（RRF），以避免直接比较不可通约的分数，并可在生成前用重排器优化候选结果。[C2]  \n原文仅将“何时检索”列为设计维度，未进一步说明不同检索时机的具体方法。[C1]\n\n### 主要结论\n\n文章主张优先提升检索质量，再改进生成器；实践中应保留词法检索基线，在涉及改写时加入稠密检索，并按排名而非原始分数融合候选结果。[C5]  \n在所比较的笔记中，混合检索提高了术语密集型问题的召回率，而重排提高了传给生成器的上下文精度。[C3]  \n输出带证据片段的引用能提高答案的可审计性，但引用覆盖率需要实际测量，不能默认已经实现。[C3]  \n切分边界即使在底层文档不变时也可能改变最相关段落，因此分块策略会显著影响检索结果。[C3]  \n索引已预热时，检索延迟主要由第一阶段候选搜索决定。[C3]  \n回答应始终保留从答案句子追溯到源段落及其行号的路径，以便核查证据来源。[C5]\n\n### 适用范围与限制\n\n该阅读图主要覆盖英文技术文档，没有建模多语言分词；它还将重排器视为黑箱，未比较训练目标，因此其结论更适合作为设计导航，而非跨场景性能定论。[C4]  \n多数已报告增益来自小型、人工整理的数据集，绝对数值不能直接迁移到其他语料库；此外，“生成器会忠实使用所提供证据”仍是需要独立 grounding 检查的假设。[C4]",
+    "mode": "llm",
+    "citations": [
+      {
+        "index": 1,
+        "marker": "[C1]",
+        "chunk_id": "2b2e5433c52d4ad8a87bddea5cee0c3b",
+        "paper_id": "rag-survey",
+        "title": "Retrieval Augmented Generation: A Reading Map",
+        "section": "Abstract",
+        "path": "rag-survey.md",
+        "start_line": 10,
+        "end_line": 11
+      },
+      {
+        "index": 2,
+        "marker": "[C2]",
+        "chunk_id": "11cdbc4032efc3e0770705fcc2cbec53",
+        "paper_id": "rag-survey",
+        "title": "Retrieval Augmented Generation: A Reading Map",
+        "section": "Method",
+        "path": "rag-survey.md",
+        "start_line": 13,
+        "end_line": 14
+      },
+      {
+        "index": 3,
+        "marker": "[C3]",
+        "chunk_id": "29862ab7c300ac4d9156e4b3bee55a66",
+        "paper_id": "rag-survey",
+        "title": "Retrieval Augmented Generation: A Reading Map",
+        "section": "Results",
+        "path": "rag-survey.md",
+        "start_line": 16,
+        "end_line": 17
+      },
+      {
+        "index": 4,
+        "marker": "[C4]",
+        "chunk_id": "4e3ee52a2d263ed3f120803f6d1dd580",
+        "paper_id": "rag-survey",
+        "title": "Retrieval Augmented Generation: A Reading Map",
+        "section": "Limitations",
+        "path": "rag-survey.md",
+        "start_line": 19,
+        "end_line": 20
+      },
+      {
+        "index": 5,
+        "marker": "[C5]",
+        "chunk_id": "5372579d1ec68f6e8d6d427dd7b34629",
+        "paper_id": "rag-survey",
+        "title": "Retrieval Augmented Generation: A Reading Map",
+        "section": "Takeaways",
+        "path": "rag-survey.md",
+        "start_line": 22,
+        "end_line": 23
+      }
+    ],
+    "coverage": 1.0,
+    "model": "MiniMax-M3.1-Flash",
+    "prompt_hash": "1f64a2bdcf24e175",
+    "latency_ms": 15102,
+    "fallback_reason": null,
+    "cached": false,
+    "evidence": {
+      "request": {
+        "model": "MiniMax-M3.1-Flash",
+        "messages": [
+          {
+            "role": "system",
+            "content": "你是 PaperDesk 的文献阅读助手。只能依据用户提供的原文片段回答，不得编造片段之外的事实。每个结论句末尾必须用 [C1]、[C2] 这样的编号标注出处，编号必须对应给定片段。证据不足时直接说明缺少哪些证据。用简体中文回答，保持简洁，不要输出思考过程。"
+          },
+          {
+            "role": "user",
+            "content": "问题：总结《Retrieval Augmented Generation: A Reading Map》的研究问题、方法与主要结论\n\n可用原文片段：\n\n[C1] 标题：Retrieval Augmented Generation: A Reading Map\n章节：Abstract\n位置：rag-survey.md:10-11\n原文：## Abstract\nRetrieval augmented generation (RAG) couples a document retriever with a language model so that answers can be grounded in external evidence rather than model parameters alone. This reading map organizes the design space along three axes: what is retrieved, when retrieval happens, and how retrieved evidence is fused into generation. The central claim is that most quality differences between RAG systems come from retrieval granularity and evidence selection, not from the generator. We use this map to compare sparse retrieval, dense retrieval, and hybrid fusion.\n\n[C2] 标题：Retrieval Augmented Generation: A Reading Map\n章节：Method\n位置：rag-survey.md:13-14\n原文：## Method\nWe group systems by retrieval unit. Passage-level retrieval offers precise evidence spans, while document-level retrieval preserves broader context. Dense bi-encoders learn a shared embedding space for queries and passages; sparse lexical retrieval such as BM25 remains strong for rare terms, identifiers, and exact phrases. Hybrid fusion combines the two candidate lists, commonly with reciprocal rank fusion (RRF), which is robust because it uses ranks instead of incomparable score scales. A reranker may then refine the top candidates before generation.\n\n[C3] 标题：Retrieval Augmented Generation: A Reading Map\n章节：Results\n位置：rag-survey.md:16-17\n原文：## Results\nAcross the notes we compare, hybrid retrieval improves recall on terminology-heavy questions, and reranking improves the precision of the context passed to the generator. Systems that cite evidence spans produce answers that are easier to audit, but citation coverage must be measured rather than assumed. Retrieval latency is dominated by the first-stage candidate search when the index is warm. The survey also observes that chunk boundaries can change which passage wins a query even when the underlying document is unchanged.\n\n[C4] 标题：Retrieval Augmented Generation: A Reading Map\n章节：Limitations\n位置：rag-survey.md:19-20\n原文：## Limitations\nThe map covers English technical documents and does not model multilingual tokenization. It treats rerankers as a black box and does not compare training objectives. Most reported gains are measured on small curated sets, so absolute numbers should not be transferred across corpora. The notes also assume that the generator faithfully uses the supplied evidence, which requires a separate grounding check.\n\n[C5] 标题：Retrieval Augmented Generation: A Reading Map\n章节：Takeaways\n位置：rag-survey.md:22-23\n原文：## Takeaways\nStart from retrieval quality, then improve the generator. Keep a lexical baseline, add dense retrieval when paraphrase matters, and fuse by rank rather than raw score. Always preserve a path from an answer sentence back to a source passage and its line numbers."
+          }
+        ],
+        "temperature": 0.2,
+        "stream": false
+      },
+      "response": {
+        "id": "072e8c1ddb8e5d0f0b366b58fa2fe1f4",
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "### 研究问题\n\n文章试图梳理 RAG 的设计空间，重点考察三个维度：检索什么、何时检索，以及如何将检索证据融合进生成过程；并比较稀疏检索、稠密检索与混合检索。[C1]  \n文章的核心问题是解释 RAG 系统间的大部分质量差异是否主要来自检索粒度和证据选择，而非生成器本身。[C1]\n\n### 方法\n\n文章按检索单元划分系统：段落级检索能提供更精确的证据片段，文档级检索则能保留更广泛的上下文。[C2]  \n在具体技术上，文章比较稠密双编码器、BM25 等稀疏词法检索，以及结合二者候选列表的混合检索；混合融合通常采用倒数排名融合（RRF），以避免直接比较不可通约的分数，并可在生成前用重排器优化候选结果。[C2]  \n原文仅将“何时检索”列为设计维度，未进一步说明不同检索时机的具体方法。[C1]\n\n### 主要结论\n\n文章主张优先提升检索质量，再改进生成器；实践中应保留词法检索基线，在涉及改写时加入稠密检索，并按排名而非原始分数融合候选结果。[C5]  \n在所比较的笔记中，混合检索提高了术语密集型问题的召回率，而重排提高了传给生成器的上下文精度。[C3]  \n输出带证据片段的引用能提高答案的可审计性，但引用覆盖率需要实际测量，不能默认已经实现。[C3]  \n切分边界即使在底层文档不变时也可能改变最相关段落，因此分块策略会显著影响检索结果。[C3]  \n索引已预热时，检索延迟主要由第一阶段候选搜索决定。[C3]  \n回答应始终保留从答案句子追溯到源段落及其行号的路径，以便核查证据来源。[C5]\n\n### 适用范围与限制\n\n该阅读图主要覆盖英文技术文档，没有建模多语言分词；它还将重排器视为黑箱，未比较训练目标，因此其结论更适合作为设计导航，而非跨场景性能定论。[C4]  \n多数已报告增益来自小型、人工整理的数据集，绝对数值不能直接迁移到其他语料库；此外，“生成器会忠实使用所提供证据”仍是需要独立 grounding 检查的假设。[C4]",
+              "role": "assistant",
+              "reasoning_content": "We need answer Chinese concise. Need summarize research question, methods, main conclusions based only snippets, every conclusion sentence end citation corresponding. Need be careful every conclusion sentence ends [C]. Maybe headings aren't conclusion sentences? User asks summary. Need include citations at sentence ends. We can structure. Need identify research problem: organize design space along three axes what retrieved, when retrieval happens, how evidence fused; central claim comparing sparse/dense/hybrid. Method: group by retrieval unit passage vs doc; dense bi-encoder; sparse BM25; hybrid RRF; reranker. Results: hybrid improves recall terminology-heavy; reranking precision context; citations audit but coverage measure; latency dominated candidate search warm index; chunk boundaries affect winner. Limitations perhaps relevant research/method scope. Main conclusion/takeaways: retrieval quality first; lexical baseline, dense for paraphrase, fuse rank; provenance path line numbers. Also caveat central claim says most quality differences from retrieval granularity/evidence selection not generator. Need perhaps mention limitation. Every conclusion sentence end numbered citation. Could use bullets and each sentence end citation. Headings don't need citation? They aren't conclusion sentence, but perhaps citations anyway. Ensure no unsupported facts.\n\nLet's formulate in Chinese with sections.\n\n\"研究问题\" maybe asks \"这篇 reading map 要解决什么问题?\" It organizes RAG design space and assesses quality drivers, comparing retrieval types. Cite C1.\n\nMethods:\n- map axes what, when, fusion [C1].\n- group retrieval unit passage/document and explain trade-off [C2].\n- compare dense sparse hybrid and RRF, reranker [C2].\n- results survey notes? \"作者在所比较笔记中评估\" C3 perhaps. We need distinguish method from evidence. \"结果评估覆盖 recall/context precision...\" C3.\n\nConclusions:\n- Most quality differences from granularity/selection, not generator [C1].\n- Hybrid terminology recall; reranking precision [C3].\n- evidence spans easier audit but citation coverage measured [C3].\n- chunk boundaries influence winner, latency first-stage warm index [C3].\n- Takeaway strategy [C5].\n- limits [C4].\nCould mention assumptions on generator faithful requires grounding check.\n\nPotential issue \"when retrieval happens\" but no detail, don't fabricate. Say framework considers axis but excerpt does not elaborate timing strategies—that's evidence limitation. We can explicitly state. Also \"training objectives\" etc.\n\nQuestion simply \"总结研究问题、方法与主要结论\", perhaps no need limitations, but adding short boundary section useful."
+            }
+          }
+        ],
+        "created": 1793022238,
+        "model": "MiniMax-M3.1-Flash",
+        "object": "chat.completion",
+        "usage": {
+          "total_tokens": 1843,
+          "total_characters": 0,
+          "prompt_tokens": 874,
+          "completion_tokens": 969,
+          "completion_tokens_details": {
+            "reasoning_tokens": 502
+          },
+          "prompt_tokens_details": {
+            "cached_tokens": 768
+          }
+        },
+        "input_sensitive": false,
+        "output_sensitive": false,
+        "input_sensitive_type": 0,
+        "output_sensitive_type": 0,
+        "output_sensitive_int": 0,
+        "base_resp": {
+          "status_code": 0,
+          "status_msg": ""
+        }
+      },
+      "citation_report": {
+        "used": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "unknown": [],
+        "coverage": 1.0,
+        "sentences": 13,
+        "cited_sentences": 13
+      }
+    }
+  }
+}

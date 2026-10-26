@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>提问 · 研读 PaperDesk</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">研</span>
+        <span class="brand-text">研读<small>PaperDesk</small></span>
+      </a>
+      <nav class="nav">
+        <a class="" href="/">工作台</a>
+        <a class="" href="/library">资料库</a>
+        <a class="is-active" href="/ask">提问</a>
+        <a class="" href="/session">会话</a>
+        <a class="" href="/debug/retrieval">检索调试</a>
+        <a class="" href="/memory">记忆</a>
+      </nav>
+      <div class="header-meta">
+        <span class="pill">6 篇 · 30 块</span>
+        <span class="pill pill-on">向量已启用</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    
+    
+    
+<section class="page-head">
+  <div>
+    <p class="eyebrow">AI 综述</p>
+    <h1>只基于资料回答</h1>
+    <p class="muted">先由 seekdb 检索章节分块，再让模型生成中文综述；每个结论必须绑定 [C1] 形式的出处。引用校验不足或调用失败时自动回退为抽取式摘要。</p>
+  </div>
+</section>
+
+<form class="ask-form card" method="post" action="/ask">
+  <input type="text" name="q" value="rerank in RAG" placeholder="例如：rerank 在 RAG 里解决什么问题？" autofocus>
+  <button class="button" type="submit">生成综述</button>
+</form>
+
+
+<section class="grid grid-main">
+  <article class="card digest-card">
+    <div class="card-head">
+      <h2>综述</h2>
+      <span class="pill">模型生成</span>
+    </div>
+    <p class="digest-text">在 RAG 中，**rerank（重排序）是检索与生成之间的精度筛选层**：第一阶段以低成本换取召回率，随后由更强模型重新审查候选文档，减少无关内容占用生成器上下文并诱发无依据陈述。[C3]
+
+- **工作方式**：cross-encoder 将查询和文档一起读取，通过 token 级交互进行联合判断；候选可来自 BM25、稠密检索或二者混合。[C1]
+- **典型流程**：先召回 Top 50，再重排 Top 20，最后将最佳 5 条交给生成器。[C1]
+- **训练方式**：使用查询—文档对，并从第一阶段结果中挖掘 hard negatives。[C1]
+- **分数使用限制**：不同查询之间的重排分数不可比较，只能用于同一查询内部排序。[C1]
+- **效果**：重排提升了 nDCG@10，并减少生成器上下文中的无关文档；对稀有实体问题、稀疏与稠密检索结果不一致的问题，以及相关文档最初排在第 12 名的情形尤其有帮助。[C5]
+- **成本控制**：延迟随重排文档对数量近似线性增长，因此应限制候选深度。[C5]
+- **实践建议**：将重排视为有明确预算的精度阶段，保持候选深度可配置，并记录第一阶段与重排后的排名；如果生成器仍看到无关上下文，应检查 reranker，而不是扩大上下文窗口。[C2]
+- **主要局限**：reranker 无法补回第一阶段完全漏掉的文档；长文档成本更高且可能超过输入长度限制；使用同一检索器挖掘 hard negatives 可能过拟合其失败模式。[C4]</p>
+    <div class="hit-meta">
+      <span>引用覆盖 100%</span>
+      <span>MiniMax-M3.1-Flash</span>
+      <span>14765 ms</span>
+      
+    </div>
+    <ol class="citation-list">
+      
+        <li><strong>[C1]</strong> Reranking for Retrieval Pipelines · Method · <span class="muted">rerank-notes.md:13</span></li>
+      
+        <li><strong>[C2]</strong> Reranking for Retrieval Pipelines · Takeaways · <span class="muted">rerank-notes.md:22</span></li>
+      
+        <li><strong>[C3]</strong> Reranking for Retrieval Pipelines · Abstract · <span class="muted">rerank-notes.md:10</span></li>
+      
+        <li><strong>[C4]</strong> Reranking for Retrieval Pipelines · Limitations · <span class="muted">rerank-notes.md:19</span></li>
+      
+        <li><strong>[C5]</strong> Reranking for Retrieval Pipelines · Results · <span class="muted">rerank-notes.md:16</span></li>
+      
+    </ol>
+  </article>
+
+  <article class="card">
+    <div class="card-head"><h2>检索证据</h2><span class="muted">6 块</span></div>
+    <ul class="evidence-list">
+      
+        <li>
+          <div><a href="/paper/rerank-notes">rerank-notes</a> · Method <span class="muted">rerank-notes.md:13</span></div>
+          <p>## Method
+A cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture. The input candidate list is produced by BM25, a dense retriever, or a hybrid of both. We…</p>
+          <div class="hit-meta"><span>score 1.439</span></div>
+        </li>
+      
+        <li>
+          <div><a href="/paper/rerank-notes">rerank-notes</a> · Takeaways <span class="muted">rerank-notes.md:22</span></div>
+          <p>## Takeaways
+Treat reranking as a precision stage with an explicit budget. Keep the candidate depth configurable and log both first-stage and reranked ranks for debugging. If the generator still sees irrelevant context, …</p>
+          <div class="hit-meta"><span>score 1.416</span></div>
+        </li>
+      
+        <li>
+          <div><a href="/paper/rerank-notes">rerank-notes</a> · Abstract <span class="muted">rerank-notes.md:10</span></div>
+          <p>## Abstract
+First-stage retrieval must be cheap, so it usually trades precision for recall. A reranker revisits a small candidate list and scores each query-passage pair with a stronger model. The core problem it solves …</p>
+          <div class="hit-meta"><span>score 1.228</span></div>
+        </li>
+      
+        <li>
+          <div><a href="/paper/rerank-notes">rerank-notes</a> · Limitations <span class="muted">rerank-notes.md:19</span></div>
+          <p>## Limitations
+A cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely. Long passages increase cost and may exceed the reranker&#39;s input limit. Training hard negatives from the same …</p>
+          <div class="hit-meta"><span>score 1.210</span></div>
+        </li>
+      
+        <li>
+          <div><a href="/paper/rerank-notes">rerank-notes</a> · Results <span class="muted">rerank-notes.md:16</span></div>
+          <p>## Results
+Reranking improves nDCG at ten and reduces the number of irrelevant passages in the generator context. In our notes, the largest gains appear on questions with rare entities and on queries whose lexical and de…</p>
+          <div class="hit-meta"><span>score 1.194</span></div>
+        </li>
+      
+        <li>
+          <div><a href="/paper/rag-survey">rag-survey</a> · Abstract <span class="muted">rag-survey.md:10</span></div>
+          <p>## Abstract
+Retrieval augmented generation (RAG) couples a document retriever with a language model so that answers can be grounded in external evidence rather than model parameters alone. This reading map organizes the …</p>
+          <div class="hit-meta"><span>score 0.469</span></div>
+        </li>
+      
+    </ul>
+  </article>
+</section>
+
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="shell footer-inner">
+      <span>PaperDesk · seekdb 负责资料与混合检索，PowerContext 负责跨会话记忆</span>
+      <span>LLM: auto</span>
+    </div>
+  </footer>
+</body>
+</html>
