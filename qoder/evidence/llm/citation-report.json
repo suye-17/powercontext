@@ -2,11 +2,23 @@
   "mode": "llm",
   "coverage": 1.0,
   "used": [
+    "[C1]",
     "[C3]",
     "[C4]",
     "[C5]"
   ],
   "citations": [
+    {
+      "index": 1,
+      "marker": "[C1]",
+      "chunk_id": "9e0319752b32fa59f8c546c9c39081df",
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "section": "Method",
+      "path": "rerank-notes.md",
+      "start_line": 13,
+      "end_line": 14
+    },
     {
       "index": 3,
       "marker": "[C3]",
@@ -51,14 +63,15 @@
   ],
   "validator": {
     "used": [
+      1,
       3,
       4,
       5
     ],
     "unknown": [],
     "coverage": 1.0,
-    "sentences": 3,
-    "cited_sentences": 3
+    "sentences": 4,
+    "cited_sentences": 4
   },
   "fallback_reason": null
 }

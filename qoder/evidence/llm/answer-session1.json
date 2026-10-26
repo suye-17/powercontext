@@ -112,9 +112,20 @@
     }
   ],
   "synthesis": {
-    "text": "- **核心问题是“上下文污染”**：第一阶段检索为了低成本通常牺牲精度，候选中会混入无关段落；rerank 用更强的模型重新评分和排序，将无关内容过滤在生成器之前，避免它们占用有限上下文并诱发无依据的陈述。[C3]\n- **Rerank 本质上是检索与生成之间的精度过滤层**，而不是补救召回遗漏的手段；如果第一阶段完全没有召回相关段落，rerank 无法将其找回。[C4]\n- 实测中，rerank 提升了 nDCG@10，并减少了生成器上下文里的无关段落，尤其适用于相关段落初始排名靠后，或词法检索与稠密检索结果不一致的情况。[C5]",
+    "text": "Rerank 在 RAG 中主要解决**上下文污染**问题：第一阶段检索常以召回率换取精度，引入的不相关段落会占用生成器有限的上下文窗口，并诱发无依据的陈述；因此 rerank 是检索与生成之间的精度过滤层。[C3]\n\n它使用 cross-encoder 同时读取 query 和 passage，捕捉双编码器无法捕获的 token 级交互，对 BM25、稠密检索或混合检索产生的候选列表重新评分排序。[C1]\n\n实验中，rerank 提升了 nDCG@10，并减少了生成上下文中的不相关段落，尤其能改善“相关文档初始排名靠后”或稀疏、稠密候选不一致的情况。[C5]\n\n但 rerank 不能弥补第一阶段的漏检：如果候选列表中完全没有相关文档，它就无法将其找回。[C4]",
     "mode": "llm",
     "citations": [
+      {
+        "index": 1,
+        "marker": "[C1]",
+        "chunk_id": "9e0319752b32fa59f8c546c9c39081df",
+        "paper_id": "rerank-notes",
+        "title": "Reranking for Retrieval Pipelines",
+        "section": "Method",
+        "path": "rerank-notes.md",
+        "start_line": 13,
+        "end_line": 14
+      },
       {
         "index": 3,
         "marker": "[C3]",
@@ -152,7 +163,7 @@
     "coverage": 1.0,
     "model": "MiniMax-M3.1-Flash",
     "prompt_hash": "65ee67219d08a1f0",
-    "latency_ms": 6783,
+    "latency_ms": 6494,
     "fallback_reason": null,
     "cached": false,
     "evidence": {
@@ -172,28 +183,28 @@
         "stream": false
       },
       "response": {
-        "id": "072ea1ed82aa5a4ebfa39a95d93e476a",
+        "id": "072eada67db557afdba92ac754e7a6c3",
         "choices": [
           {
             "finish_reason": "stop",
             "index": 0,
             "message": {
-              "content": "- **核心问题是“上下文污染”**：第一阶段检索为了低成本通常牺牲精度，候选中会混入无关段落；rerank 用更强的模型重新评分和排序，将无关内容过滤在生成器之前，避免它们占用有限上下文并诱发无依据的陈述。[C3]\n- **Rerank 本质上是检索与生成之间的精度过滤层**，而不是补救召回遗漏的手段；如果第一阶段完全没有召回相关段落，rerank 无法将其找回。[C4]\n- 实测中，rerank 提升了 nDCG@10，并减少了生成器上下文里的无关段落，尤其适用于相关段落初始排名靠后，或词法检索与稠密检索结果不一致的情况。[C5]",
+              "content": "Rerank 在 RAG 中主要解决**上下文污染**问题：第一阶段检索常以召回率换取精度，引入的不相关段落会占用生成器有限的上下文窗口，并诱发无依据的陈述；因此 rerank 是检索与生成之间的精度过滤层。[C3]\n\n它使用 cross-encoder 同时读取 query 和 passage，捕捉双编码器无法捕获的 token 级交互，对 BM25、稠密检索或混合检索产生的候选列表重新评分排序。[C1]\n\n实验中，rerank 提升了 nDCG@10，并减少了生成上下文中的不相关段落，尤其能改善“相关文档初始排名靠后”或稀疏、稠密候选不一致的情况。[C5]\n\n但 rerank 不能弥补第一阶段的漏检：如果候选列表中完全没有相关文档，它就无法将其找回。[C4]",
               "role": "assistant",
-              "reasoning_content": "We need answer Chinese concise, every conclusion sentence ending citation. Need only provided excerpts. Question: rerank in RAG solves what problem? Explain context pollution / precision filter between retrieval and generation, reorders candidate list, filters irrelevant passages to limited context, unsupported claims. Can't recover missing relevant docs. Cite every conclusion sentence. Need perhaps distinguish not recall. Ensure every sentence conclusion ends [C3] etc. Maybe bullets fragments? \"核心是...\" sentence citation. \"它...\" [C3]. \"不能...\" [C4]. Results maybe supporting. Need no unsupported fact. We should cite each sentence.\n\nPotential answer:\nRerank 在 RAG 中主要解决“上下文污染”问题：第一阶段为低成本通常牺牲精度，候选中可能含无关段落；reranker 用更强模型重排小候选集，把无关内容过滤在生成器之前，避免其占用有限上下文并诱发无依据陈述。[C3]\n它本质是检索与生成之间的精度过滤层，而不是扩大召回的手段；若第一阶段完全漏掉相关段落，reranker 无法补救。[C4]\n实际效果是提升 nDCG@10，并减少生成器上下文中的无关段落，尤其当相关 passage 初始排名靠后，或词法/稠密候选不一致时更有帮助。[C5]\n\nCould mention budget and scores only order within query? Asked what issue, perhaps useful:\n\"Rerank scores not comparable across queries, so only ordering within one query.\" Not necessary.\nNeed every conclusion sentence ends citation. Fine. Could include one sentence on mechanism cross encoder. \"它联合阅读 query-passage...\" maybe C1. User asks concise. Include perhaps process:\n\"具体做法是对第一阶段候选逐对评分并重排，再把高相关候选送给生成器；例如 top50 -> rerank top20 -> best5.\" This is given. But maybe no need. We can formulate.\n\nNeed obey \"每个结论句末尾必须用编号标注\". Three bullets. Ensure citation last. No uncited intro perhaps. Let's answer Chinese."
+              "reasoning_content": "We need answer Chinese concise, every conclusion sentence ends citation. Need only provided. Question rerank in RAG solves what problem? Need explain context pollution, precision stage between retrieval/generation, irrelevant passages consume limited context and unsupported claims; improves ordering/filtering, limitations perhaps cannot recover missing docs. We need citation each conclusion sentence. Ensure every conclusion sentence ending [C#. Maybe mention mechanism cross-encoder query/passage together, candidate list. We should not overdo. Every sentence ends citation. Could write 3 bullets perhaps fragments? They said each conclusion sentence. Need citations.\n\nPossible answer:\n\nRerank 在 RAG 中主要解决“上下文污染”问题：第一阶段检索为了召回率可能带回大量不相关段落，它们占用生成器有限上下文窗口，并诱发无依据陈述；因此 rerank 作为检索与生成之间的精度过滤层，对候选集重新评分排序。[C3]\n它通过 cross-encoder 同时读取 query 和 passage，捕捉 bi-encoder 无法捕获的 token-level interaction，从 BM25/稠密/混合检索产生的小候选列表中挑出更好的 passages。[C1]\n效果上，rerank 提升 nDCG@10 并减少生成上下文中的不相关段落，尤其当相关文档初始排名靠后或稀疏、稠密候选不一致时更有帮助。[C5]\n但它不是召回补救：若第一阶段候选中完全没有相关文档，reranker 无法修复；长 passage 还会增加成本或超输入限制。[C4]\n\nNeed perhaps answer direct. Chinese but cited claims. Citation after period? Requirement each conclusion sentence末尾 marker. Better omit period and marker at very end, e.g. \"...。[C3]\" technically sentence ends marker, okay. Use citations. Ensure no unsupported \"precision\" paraphrase grounded.\n\nCould include not increase context window recommendation? Question only asks what issue. Maybe caveat useful. Keep concise. Let's formulate."
             }
           }
         ],
-        "created": 1793027822,
+        "created": 1793030823,
         "model": "MiniMax-M3.1-Flash",
         "object": "chat.completion",
         "usage": {
-          "total_tokens": 1534,
+          "total_tokens": 1529,
           "total_characters": 0,
           "prompt_tokens": 984,
-          "completion_tokens": 550,
+          "completion_tokens": 545,
           "completion_tokens_details": {
-            "reasoning_tokens": 407
+            "reasoning_tokens": 379
           },
           "prompt_tokens_details": {
             "cached_tokens": 128
@@ -211,14 +222,15 @@
       },
       "citation_report": {
         "used": [
+          1,
           3,
           4,
           5
         ],
         "unknown": [],
         "coverage": 1.0,
-        "sentences": 3,
-        "cited_sentences": 3
+        "sentences": 4,
+        "cited_sentences": 4
       }
     }
   }

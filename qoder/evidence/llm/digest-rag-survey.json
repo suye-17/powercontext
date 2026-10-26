@@ -10,7 +10,7 @@
     "Takeaways"
   ],
   "synthesis": {
-    "text": "### 研究问题\n- 本文梳理 RAG 的设计空间，围绕“检索什么、何时检索、检索到的证据如何融入生成”三个维度组织不同系统，并考察 RAG 系统间质量差异的主要来源。[C1]\n- 文章的核心问题是：多数 RAG 质量差异是否主要来自检索粒度和证据选择，而非生成器本身。[C1]\n\n### 方法\n- 文章按检索单元对系统分类：段落级检索提供更精确的证据片段，文档级检索保留更广泛的上下文。[C2]\n- 研究比较稀疏检索、稠密检索与混合融合：BM25 等稀疏方法适合罕见术语、标识符和精确短语，稠密双编码器学习查询与段落的共享嵌入空间，混合融合则常以倒数排名融合（RRF）合并候选列表。[C1][C2]\n- 检索后可用重排序器进一步优化候选结果，再将证据交给生成器。[C2]\n- 评估涉及术语密集型问题的召回率、传给生成器的上下文精度、引用可审计性、检索延迟及分块边界的影响。[C3]\n\n### 主要结论\n- 混合检索在术语密集型问题上提高了召回率，而重排序提高了传给生成器的上下文精度。[C3]\n- 引用具体证据片段可使答案更容易审计，但引用覆盖率仍需实际测量，不能默认生成器一定会充分引用证据。[C3]\n- 在索引已预热的条件下，检索延迟主要来自第一阶段候选搜索。[C3]\n- 即使底层文档不变，分块边界也可能改变最终胜出的检索段落，说明分块策略会显著影响检索结果。[C3]\n- 实践上应优先提升检索质量，再改进生成器；保留词法检索基线，在需要处理改述时加入稠密检索，并按排名而非不可比的原始分数融合候选结果。[C5]\n- 应始终保留从答案句子回溯到来源段落及其行号的路径，以支持溯源和审计。[C5]\n- 结论的适用范围有限：研究主要覆盖英文技术文档，未建模多语言分词，也未充分比较重排序器与训练目标；多数增益来自小型整理数据集，不能直接迁移到其他语料库，且生成器是否忠实使用证据仍需单独检查。[C4]",
+    "text": "### 研究问题\n文章构建了一张 RAG“阅读地图”，沿“检索什么、何时检索、如何将检索证据融合进生成”三个维度梳理设计空间，核心关注 RAG 系统间的质量差异主要来自生成器，还是来自检索粒度与证据选择。[C1]\n\n### 方法\n方法上按检索单元组织系统：段落级检索提供更精确的证据跨度，文档级检索保留更广泛的上下文。[C2]  \n文章比较稀疏词法检索（如 BM25）、稠密双编码器检索和混合融合；混合融合常采用倒数排名融合（RRF），并可使用重排器在生成前精炼候选结果。[C2]  \n比较内容还包括术语密集型问题的召回率、传入生成器的上下文精度、引用可审计性、检索延迟以及分块边界对检索结果的影响。[C3]\n\n### 主要结论\n文章的中心判断是，大多数 RAG 质量差异源自检索粒度和证据选择，而非生成器本身。[C1]  \n混合检索可提高术语密集型问题的召回率，重排序可提高传给生成器的上下文精度；提供证据跨度引文有助于答案审计，但引用覆盖率仍需实际测量。[C3]  \n索引处于预热状态时，检索延迟主要由第一阶段候选搜索决定；即使底层文档不变，分块边界也可能改变最终胜出的段落。[C3]\n\n### 实践建议与局限\n实践上应优先提升检索质量，保留词法检索基线，在需要处理释义时加入稠密检索，并按排名而非不可比的原始分数进行融合；同时应保留从答案句子回溯到源段落及其行号的路径。[C5]  \n该阅读地图主要覆盖英文技术文档，未建模多语言分词，也未深入比较重排器的训练目标；多数结果来自小型精选数据集，绝对数值不宜直接迁移到其他语料库，且生成器是否忠实使用证据仍需单独进行接地检查。[C4]",
     "mode": "llm",
     "citations": [
       {
@@ -72,7 +72,7 @@
     "coverage": 1.0,
     "model": "MiniMax-M3.1-Flash",
     "prompt_hash": "1f64a2bdcf24e175",
-    "latency_ms": 7949,
+    "latency_ms": 18189,
     "fallback_reason": null,
     "cached": false,
     "evidence": {
@@ -92,31 +92,31 @@
         "stream": false
       },
       "response": {
-        "id": "072ea215dd4b6e763d67f730e040e926",
+        "id": "072eadceb71d3509c8723f39ba4cde39",
         "choices": [
           {
             "finish_reason": "stop",
             "index": 0,
             "message": {
-              "content": "### 研究问题\n- 本文梳理 RAG 的设计空间，围绕“检索什么、何时检索、检索到的证据如何融入生成”三个维度组织不同系统，并考察 RAG 系统间质量差异的主要来源。[C1]\n- 文章的核心问题是：多数 RAG 质量差异是否主要来自检索粒度和证据选择，而非生成器本身。[C1]\n\n### 方法\n- 文章按检索单元对系统分类：段落级检索提供更精确的证据片段，文档级检索保留更广泛的上下文。[C2]\n- 研究比较稀疏检索、稠密检索与混合融合：BM25 等稀疏方法适合罕见术语、标识符和精确短语，稠密双编码器学习查询与段落的共享嵌入空间，混合融合则常以倒数排名融合（RRF）合并候选列表。[C1][C2]\n- 检索后可用重排序器进一步优化候选结果，再将证据交给生成器。[C2]\n- 评估涉及术语密集型问题的召回率、传给生成器的上下文精度、引用可审计性、检索延迟及分块边界的影响。[C3]\n\n### 主要结论\n- 混合检索在术语密集型问题上提高了召回率，而重排序提高了传给生成器的上下文精度。[C3]\n- 引用具体证据片段可使答案更容易审计，但引用覆盖率仍需实际测量，不能默认生成器一定会充分引用证据。[C3]\n- 在索引已预热的条件下，检索延迟主要来自第一阶段候选搜索。[C3]\n- 即使底层文档不变，分块边界也可能改变最终胜出的检索段落，说明分块策略会显著影响检索结果。[C3]\n- 实践上应优先提升检索质量，再改进生成器；保留词法检索基线，在需要处理改述时加入稠密检索，并按排名而非不可比的原始分数融合候选结果。[C5]\n- 应始终保留从答案句子回溯到来源段落及其行号的路径，以支持溯源和审计。[C5]\n- 结论的适用范围有限：研究主要覆盖英文技术文档，未建模多语言分词，也未充分比较重排序器与训练目标；多数增益来自小型整理数据集，不能直接迁移到其他语料库，且生成器是否忠实使用证据仍需单独检查。[C4]",
+              "content": "### 研究问题\n文章构建了一张 RAG“阅读地图”，沿“检索什么、何时检索、如何将检索证据融合进生成”三个维度梳理设计空间，核心关注 RAG 系统间的质量差异主要来自生成器，还是来自检索粒度与证据选择。[C1]\n\n### 方法\n方法上按检索单元组织系统：段落级检索提供更精确的证据跨度，文档级检索保留更广泛的上下文。[C2]  \n文章比较稀疏词法检索（如 BM25）、稠密双编码器检索和混合融合；混合融合常采用倒数排名融合（RRF），并可使用重排器在生成前精炼候选结果。[C2]  \n比较内容还包括术语密集型问题的召回率、传入生成器的上下文精度、引用可审计性、检索延迟以及分块边界对检索结果的影响。[C3]\n\n### 主要结论\n文章的中心判断是，大多数 RAG 质量差异源自检索粒度和证据选择，而非生成器本身。[C1]  \n混合检索可提高术语密集型问题的召回率，重排序可提高传给生成器的上下文精度；提供证据跨度引文有助于答案审计，但引用覆盖率仍需实际测量。[C3]  \n索引处于预热状态时，检索延迟主要由第一阶段候选搜索决定；即使底层文档不变，分块边界也可能改变最终胜出的段落。[C3]\n\n### 实践建议与局限\n实践上应优先提升检索质量，保留词法检索基线，在需要处理释义时加入稠密检索，并按排名而非不可比的原始分数进行融合；同时应保留从答案句子回溯到源段落及其行号的路径。[C5]  \n该阅读地图主要覆盖英文技术文档，未建模多语言分词，也未深入比较重排器的训练目标；多数结果来自小型精选数据集，绝对数值不宜直接迁移到其他语料库，且生成器是否忠实使用证据仍需单独进行接地检查。[C4]",
               "role": "assistant",
-              "reasoning_content": "We need answer Chinese concise, summarize research question, method, main conclusions based only snippets, every conclusion sentence ending citation marker. Need distinguish perhaps \"研究问题\" inferred from central claim/design space. Need ensure every conclusion sentence ending with [Cx]. Could structure bullets, each sentence ends citation. Don't overstate. Need likely mention axes: what retrieved, when, how fused. Method grouping retrieval unit and comparing sparse/dense/hybrid, reranker. Results main conclusions and limitations maybe because asks main conclusions. Must cite every conclusion sentence. We can include title. Need no uncited factual assertion. Every \"结论句\" ending citation. We can formulate 3 headings perhaps headings aren't sentences and don't need citations, but safest citations? Headings can be uncited labels, no claim. Bullet sentences.\n\nNeed Chinese simplified. Let's draft:\n\n**研究问题**\n- 本文试图梳理RAG的设计空间及系统间质量差异来源，围绕“检索什么、何时检索、检索证据如何融合”三轴展开，并检验核心主张：多数质量差异主要由检索粒度与证据选择造成，而非生成器。[C1]\n\nMaybe title \"what is retrieved\" perhaps 检索什么; \"when retrieval happens\"; how fused.\n\n**方法**\n- 按检索单元分组：passage-level vs document-level trade-off, sparse BM25 rare terms etc, dense shared embeddings, hybrid RRF ranks; optional reranker. [C2]\nNeed perhaps one or two sentences. Every conclusion sentence ending citation. \"研究采用阅读地图/跨笔记比较...\" [C1][C3]. \n- 比较稀疏、稠密与混合，跨 notes compare. C1/C3.\n- Method details.\n\n**主要结论**\n- Hybrid improves recall terminology-heavy, reranking precision. [C3]\n- Evidence spans citations auditable, but coverage measure not assume. [C3]\n- latency dominated by first-stage search warm index. [C3]\n- chunk boundaries affect winning passage even same doc. [C3]\n- Recommendations: start retrieval, lexical baseline, dense paraphrase, fuse rank, provenance line. [C5]\nMaybe central claim separately.\n- Limitations maybe a concise line: English technical docs, no multilingual tokenization, reranker black box, no training objective comparison, small curated sets, generator faithfulness needs grounding check. [C4]\nQuestion asks research question/method/main conclusion. Could include \"证据边界\" to avoid overstating. Maybe not necessary but valuable."
+              "reasoning_content": "We need answer Chinese concise, summarize research question, methods, main conclusions. Every conclusion sentence end citation. Must rely only excerpts, no fabrication. Need perhaps structure. Each bullet sentence end with citation(s). \"研究问题\" asks what question. Abstract says reading map organizes design space three axes: what retrieved, when retrieval happens, how evidence fused. Central claim most quality differences from retrieval granularity and evidence selection, not generator. Method groups by retrieval unit; compares sparse/dense/hybrid; passage/document; reranker. Results. Limitations maybe relevant because summary research question/method/conclusions, perhaps include caveat. Takeaways. Need ensure every \"结论句\" citation. Could phrase each bullet one sentence with [C#]. The question says 总结...研究问题、方法与主要结论. We should mention when retrieval happens is axis though method excerpt doesn't detail. Do not invent.\n\nCould organize:\n\n**研究问题**\n- 文章试图用“阅读地图”系统梳理RAG设计空间，核心考察检索什么、何时检索以及检索证据如何融合进生成，并检验质量差异主要来自生成器还是检索粒度与证据选择。[C1]\n\n**方法**\n- 按检索单元（段落/文档）组织系统，比较稀疏（BM25）、稠密双编码和混合融合；混合常用 RRF，重排器可进一步精炼候选。[C2]\n- 评估关注术语问题召回、传入生成器上下文的精度、证据可审计性/引用覆盖、检索延迟，并观察分块边界影响。[C3]\nMaybe first says \"across notes compare\"; okay.\n\n**主要结论**\n- 混合 retrieval improves terminology-heavy recall, reranking precision. [C3]\n- Citation spans auditability but coverage must measure. [C3]\n- warm index latency dominated by first-stage candidate search. [C3]\n- chunk boundaries can change winner. [C3]\n- central claim most quality differences from granularity/evidence selection, not generator. [C1]\n- recommendation start retrieval, lexical baseline, dense paraphrase, rank fusion, provenance line numbers. [C5]\n\n**边界**\n- English technical docs, no multilingual tokenization; reranker black box no training objective; small curated sets, cross corpus caveat; assumes generator uses evidence requiring grounding check. [C4]\n\nNeed maybe be concise. Every sentence ends citation. Headings aren't conclusion sentences? Fine. If each bullet ends citations. Could perhaps citation at each sentence. No citation after headings needed. We need not include all details. Should state \"研究问题\" perhaps RAG performance and design. Use no unsupported extrapolation.\n\nPotential issue phrase \"并检验\" might imply empirical evaluation, not exactly. Better \"围绕\". Sentence:\n- 文章以构建一张 RAG“阅读地图”为目标，沿“检索什么、何时检索、如何把检索证据融合进生成”三轴梳理设计空间；其中心问题是，RAG 系统间的质量差异究竟主要来自生成器，还是来自检索粒度与证据选择。[C1]\nThis is grounded.\n\nMethods:\n- 方法上按检索单元分组：段落级提供更精确证据跨度，文档级保留更广上下文。[C2]\n- 比较 sparse lexical BM25, dense bi-encoder and hybrid; RRF and reranker. [C2]\n- Results metrics. [C3]\nCould call \"评估\" but article \"Across notes compare\" no exact metrics. Say \"比较内容还包括...\" safe.\n\nMain:\n- Hybrid improves recall on terminology-heavy; reranking improves context precision. [C3]\n- Citation evidence spans easier audit, but coverage measured. [C3]\n- Retrieval latency dominated by first-stage search when index warm; chunk boundary changes winning passage. [C3]\n- Survey central claim. C1\n- Practical recommendation. C5.\n\nLimitations:\n- Scope and caveat. Could combine with semicolon one sentence, one citation. It says every conclusion sentence ends [C#]. Good.\n\nShould include \"when retrieval happens\" in question but method does not elaborate timing. Fine.\n\nCould answer with perhaps 4 sections. Ensure no unsupported \"性能主要由检索\". C1 says most quality differences. Phrase exact.\n\nLet's compose concise but sufficient."
             }
           }
         ],
-        "created": 1793027861,
+        "created": 1793030862,
         "model": "MiniMax-M3.1-Flash",
         "object": "chat.completion",
         "usage": {
-          "total_tokens": 1834,
+          "total_tokens": 2120,
           "total_characters": 0,
           "prompt_tokens": 874,
-          "completion_tokens": 960,
+          "completion_tokens": 1246,
           "completion_tokens_details": {
-            "reasoning_tokens": 496
+            "reasoning_tokens": 848
           },
           "prompt_tokens_details": {
-            "cached_tokens": 768
+            "cached_tokens": 256
           }
         },
         "input_sensitive": false,
@@ -139,8 +139,8 @@
         ],
         "unknown": [],
         "coverage": 1.0,
-        "sentences": 13,
-        "cited_sentences": 13
+        "sentences": 9,
+        "cited_sentences": 9
       }
     }
   }
