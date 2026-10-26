@@ -52,21 +52,45 @@
       <h2>综述</h2>
       <span class="pill">模型生成</span>
     </div>
-    <p class="digest-text">• 定义：在 RAG 中，rerank 是位于“检索”和“生成”之间的重排与精度过滤阶段；它对第一阶段召回的 query-passage 候选进行更精细的评分，以减少无关内容占用生成器上下文并诱发无依据结论。[C1][C3]
+    <p class="digest-text">什么是 RAG 中的 Rerank
 
-• 典型流程：第一阶段用 BM25、稠密检索器或混合检索召回候选，再由 cross-encoder 联合读取查询与文档进行重排。一个三阶段示例是：召回 Top 50 → 重排 Top 20 → 将最佳 5 条交给生成器。[C1]
+Rerank（重排序）是放在检索与生成之间的精度过滤阶段：第一阶段以较低成本召回候选文档，随后由更强的模型重新评估每个“查询—文档”对。[C3]
 
-• 作用与收益：重排能够提高 nDCG@10，并减少生成器上下文中的无关文档；对稀有实体、稀疏与稠密检索结果不一致，以及正确文档最初排在第 12 位而非第 1 位的情况尤其有帮助。[C5]
+文中采用的 cross-encoder 会同时读取查询和文档，从而捕捉 bi-encoder 无法建模的 token 级交互。[C1]
 
-• 实践建议：将重排视为有明确预算的精度阶段，保持候选深度可配置，同时记录第一阶段和重排后的排名；若生成器仍看到无关上下文，应检查重排器，而不是直接扩大上下文窗口。[C2]
+工作流程
 
-• 成本与限制：重排延迟随候选对数量线性增长，因此候选深度是主要成本控制手段；重排无法补救第一阶段完全漏掉相关文档的情况，长文档还可能增加成本或超过输入长度限制。[C4][C5]
+第一阶段候选列表可以来自 BM25、稠密检索器，或两者的混合检索。[C1]
 
-• 分数解释：重排分数不适合跨查询比较，只适合同一查询内部对候选进行排序。[C1]</p>
+文中给出的流程是：召回前 50 个候选，重排前 20 个，再将最佳的 5 个交给生成器。[C1]
+
+Rerank 分数不能跨查询比较，因此只能用于同一个查询内部的候选排序。[C1]
+
+主要价值
+
+Rerank 解决的核心问题是“上下文污染”：无关文档会占用生成器有限的上下文窗口，并诱发缺乏依据的陈述。[C3]
+
+实验结果显示，重排序提高了 nDCG@10，并减少了生成器上下文中的无关文档；对包含罕见实体、稀疏与稠密检索结果不一致，以及正确文档最初排在第 12 位而非第 1 位的查询，收益尤其明显。[C5]
+
+这也与 RAG 的整体结论一致：许多质量差异来自检索粒度和证据选择，而不只是生成器本身。[C6]
+
+局限与成本
+
+Rerank 无法挽救完全未进入候选列表的相关文档，因此不能弥补第一阶段召回缺失。[C4]
+
+长文档会提高重排成本，并可能超过 reranker 的输入长度限制；使用同一检索器挖掘的困难负样本也可能让模型过拟合该检索器的失败模式。[C4]
+
+重排延迟随被打分文档对的数量线性增长，因此候选深度是主要的成本控制手段。[C5]
+
+实践建议
+
+应将 rerank 视为具有明确预算的精度阶段，保持候选深度可配置，并同时记录第一阶段和重排后的排名以便调试。[C2]
+
+如果生成器仍看到无关上下文，应优先检查 reranker，而不是直接扩大上下文窗口。[C2]</p>
     <div class="hit-meta">
-      <span>引用覆盖 86%</span>
+      <span>引用覆盖 93%</span>
       <span>MiniMax-M3.1-Flash</span>
-      <span>7455 ms</span>
+      <span>12634 ms</span>
       
     </div>
     <ol class="citation-list">
@@ -81,6 +105,8 @@
       
         <li><strong>[C5]</strong> Reranking for Retrieval Pipelines · Results · <span class="muted">rerank-notes.md:16</span></li>
       
+        <li><strong>[C6]</strong> Retrieval Augmented Generation: A Reading Map · Abstract · <span class="muted">rag-survey.md:10</span></li>
+      
     </ol>
   </article>
 
@@ -92,42 +118,42 @@
           <div><a href="/paper/rerank-notes">rerank-notes</a> · Method <span class="muted">rerank-notes.md:13</span></div>
           <p>## Method
 A cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture. The input candidate list is produced by BM25, a dense retriever, or a hybrid of both. We…</p>
-          <div class="hit-meta"><span>score 1.439</span></div>
+          <div class="hit-meta"><span>score 0.148</span><span>vector 0.721</span></div>
         </li>
       
         <li>
           <div><a href="/paper/rerank-notes">rerank-notes</a> · Takeaways <span class="muted">rerank-notes.md:22</span></div>
           <p>## Takeaways
 Treat reranking as a precision stage with an explicit budget. Keep the candidate depth configurable and log both first-stage and reranked ranks for debugging. If the generator still sees irrelevant context, …</p>
-          <div class="hit-meta"><span>score 1.416</span></div>
+          <div class="hit-meta"><span>score 0.145</span><span>vector 0.700</span></div>
         </li>
       
         <li>
           <div><a href="/paper/rerank-notes">rerank-notes</a> · Abstract <span class="muted">rerank-notes.md:10</span></div>
           <p>## Abstract
 First-stage retrieval must be cheap, so it usually trades precision for recall. A reranker revisits a small candidate list and scores each query-passage pair with a stronger model. The core problem it solves …</p>
-          <div class="hit-meta"><span>score 1.228</span></div>
+          <div class="hit-meta"><span>score 0.142</span><span>vector 0.631</span></div>
         </li>
       
         <li>
           <div><a href="/paper/rerank-notes">rerank-notes</a> · Limitations <span class="muted">rerank-notes.md:19</span></div>
           <p>## Limitations
 A cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely. Long passages increase cost and may exceed the reranker&#39;s input limit. Training hard negatives from the same …</p>
-          <div class="hit-meta"><span>score 1.210</span></div>
+          <div class="hit-meta"><span>score 0.140</span><span>vector 0.671</span></div>
         </li>
       
         <li>
           <div><a href="/paper/rerank-notes">rerank-notes</a> · Results <span class="muted">rerank-notes.md:16</span></div>
           <p>## Results
 Reranking improves nDCG at ten and reduces the number of irrelevant passages in the generator context. In our notes, the largest gains appear on questions with rare entities and on queries whose lexical and de…</p>
-          <div class="hit-meta"><span>score 1.194</span></div>
+          <div class="hit-meta"><span>score 0.139</span><span>vector 0.686</span></div>
         </li>
       
         <li>
           <div><a href="/paper/rag-survey">rag-survey</a> · Abstract <span class="muted">rag-survey.md:10</span></div>
           <p>## Abstract
 Retrieval augmented generation (RAG) couples a document retriever with a language model so that answers can be grounded in external evidence rather than model parameters alone. This reading map organizes the …</p>
-          <div class="hit-meta"><span>score 0.469</span></div>
+          <div class="hit-meta"><span>score 0.134</span><span>vector 0.547</span></div>
         </li>
       
     </ul>

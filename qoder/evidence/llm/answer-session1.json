@@ -11,9 +11,9 @@
       "start_line": 13,
       "end_line": 14,
       "text": "## Method\nA cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture. The input candidate list is produced by BM25, a dense retriever, or a hybrid of both. We compare two-stage and three-stage pipelines: retrieve top 50, rerank top 20, then pass the best 5 to the generator. Training uses query-passage pairs with hard negatives mined from the first-stage results. Reranking scores are not comparable across queries, so pipelines use them only to order candidates within one query.",
-      "score": 1.439406,
+      "score": 0.147541,
       "fts_score": 1.439406,
-      "vector_score": null,
+      "vector_score": 0.823835,
       "tags": [
         "rerank",
         "retrieval",
@@ -29,27 +29,9 @@
       "start_line": 22,
       "end_line": 23,
       "text": "## Takeaways\nTreat reranking as a precision stage with an explicit budget. Keep the candidate depth configurable and log both first-stage and reranked ranks for debugging. If the generator still sees irrelevant context, inspect the reranker rather than increasing the context window.",
-      "score": 1.415935,
+      "score": 0.144905,
       "fts_score": 1.415935,
-      "vector_score": null,
-      "tags": [
-        "rerank",
-        "retrieval",
-        "rag"
-      ]
-    },
-    {
-      "chunk_id": "091ebb004a61cf0c03eed44479970e7a",
-      "paper_id": "rerank-notes",
-      "title": "Reranking for Retrieval Pipelines",
-      "section": "Abstract",
-      "path": "rerank-notes.md",
-      "start_line": 10,
-      "end_line": 11,
-      "text": "## Abstract\nFirst-stage retrieval must be cheap, so it usually trades precision for recall. A reranker revisits a small candidate list and scores each query-passage pair with a stronger model. The core problem it solves is context pollution: irrelevant passages consume the generator's limited context window and invite unsupported claims. Reranking is therefore a precision filter placed between retrieval and generation.",
-      "score": 1.227943,
-      "fts_score": 1.227943,
-      "vector_score": null,
+      "vector_score": 0.791424,
       "tags": [
         "rerank",
         "retrieval",
@@ -65,9 +47,27 @@
       "start_line": 19,
       "end_line": 20,
       "text": "## Limitations\nA cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely. Long passages increase cost and may exceed the reranker's input limit. Training hard negatives from the same retriever can overfit to its failure modes. The notes do not cover learned fusion of multiple rerankers, and nDCG rewards graded relevance that our small corpus does not provide.",
-      "score": 1.210365,
+      "score": 0.141129,
       "fts_score": 1.210365,
-      "vector_score": null,
+      "vector_score": 0.801226,
+      "tags": [
+        "rerank",
+        "retrieval",
+        "rag"
+      ]
+    },
+    {
+      "chunk_id": "091ebb004a61cf0c03eed44479970e7a",
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "section": "Abstract",
+      "path": "rerank-notes.md",
+      "start_line": 10,
+      "end_line": 11,
+      "text": "## Abstract\nFirst-stage retrieval must be cheap, so it usually trades precision for recall. A reranker revisits a small candidate list and scores each query-passage pair with a stronger model. The core problem it solves is context pollution: irrelevant passages consume the generator's limited context window and invite unsupported claims. Reranking is therefore a precision filter placed between retrieval and generation.",
+      "score": 0.140873,
+      "fts_score": 1.227943,
+      "vector_score": 0.7001,
       "tags": [
         "rerank",
         "retrieval",
@@ -83,9 +83,9 @@
       "start_line": 16,
       "end_line": 17,
       "text": "## Results\nReranking improves nDCG at ten and reduces the number of irrelevant passages in the generator context. In our notes, the largest gains appear on questions with rare entities and on queries whose lexical and dense candidate lists disagree. The reranker also helps when the first stage returns a relevant passage at rank 12 but not at rank 1. Latency grows linearly with the number of reranked pairs, so candidate depth is the main cost control.",
-      "score": 1.193744,
+      "score": 0.13757,
       "fts_score": 1.193744,
-      "vector_score": null,
+      "vector_score": 0.728926,
       "tags": [
         "rerank",
         "retrieval",
@@ -101,9 +101,9 @@
       "start_line": 10,
       "end_line": 11,
       "text": "## Abstract\nRetrieval augmented generation (RAG) couples a document retriever with a language model so that answers can be grounded in external evidence rather than model parameters alone. This reading map organizes the design space along three axes: what is retrieved, when retrieval happens, and how retrieved evidence is fused into generation. The central claim is that most quality differences between RAG systems come from retrieval granularity and evidence selection, not from the generator. We use this map to compare sparse retrieval, dense retrieval, and hybrid fusion.",
-      "score": 0.468712,
+      "score": 0.134033,
       "fts_score": 0.468712,
-      "vector_score": null,
+      "vector_score": 0.648974,
       "tags": [
         "rag",
         "retrieval",
@@ -112,7 +112,7 @@
     }
   ],
   "synthesis": {
-    "text": "Rerank 在 RAG 中主要解决**上下文污染**问题：第一阶段检索常以召回率换取精度，引入的不相关段落会占用生成器有限的上下文窗口，并诱发无依据的陈述；因此 rerank 是检索与生成之间的精度过滤层。[C3]\n\n它使用 cross-encoder 同时读取 query 和 passage，捕捉双编码器无法捕获的 token 级交互，对 BM25、稠密检索或混合检索产生的候选列表重新评分排序。[C1]\n\n实验中，rerank 提升了 nDCG@10，并减少了生成上下文中的不相关段落，尤其能改善“相关文档初始排名靠后”或稀疏、稠密候选不一致的情况。[C5]\n\n但 rerank 不能弥补第一阶段的漏检：如果候选列表中完全没有相关文档，它就无法将其找回。[C4]",
+    "text": "Rerank 在 RAG 中主要解决**第一阶段检索精度不足造成的上下文污染**：它对候选文档逐个进行 query-passage 联合打分和重排，把更相关的文档排到前面，减少无关文档占用生成器上下文及诱发无依据回答。[C1][C4]\n\n它本质上是位于“检索”和“生成”之间的**精度过滤层**，而不是扩大召回范围；如果相关文档在第一阶段就完全未被召回，rerank 也无法补救。[C3][C4]",
     "mode": "llm",
     "citations": [
       {
@@ -129,17 +129,6 @@
       {
         "index": 3,
         "marker": "[C3]",
-        "chunk_id": "091ebb004a61cf0c03eed44479970e7a",
-        "paper_id": "rerank-notes",
-        "title": "Reranking for Retrieval Pipelines",
-        "section": "Abstract",
-        "path": "rerank-notes.md",
-        "start_line": 10,
-        "end_line": 11
-      },
-      {
-        "index": 4,
-        "marker": "[C4]",
         "chunk_id": "503ec6d4fe5230c5941ae7a8673e5f67",
         "paper_id": "rerank-notes",
         "title": "Reranking for Retrieval Pipelines",
@@ -149,21 +138,21 @@
         "end_line": 20
       },
       {
-        "index": 5,
-        "marker": "[C5]",
-        "chunk_id": "fd7a4219cee6eed4e772c6bf0de6e6cc",
+        "index": 4,
+        "marker": "[C4]",
+        "chunk_id": "091ebb004a61cf0c03eed44479970e7a",
         "paper_id": "rerank-notes",
         "title": "Reranking for Retrieval Pipelines",
-        "section": "Results",
+        "section": "Abstract",
         "path": "rerank-notes.md",
-        "start_line": 16,
-        "end_line": 17
+        "start_line": 10,
+        "end_line": 11
       }
     ],
     "coverage": 1.0,
     "model": "MiniMax-M3.1-Flash",
-    "prompt_hash": "65ee67219d08a1f0",
-    "latency_ms": 6494,
+    "prompt_hash": "bf9ca266430ff674",
+    "latency_ms": 8089,
     "fallback_reason": null,
     "cached": false,
     "evidence": {
@@ -176,38 +165,38 @@
           },
           {
             "role": "user",
-            "content": "问题：rerank 在 RAG 里解决什么问题？\n\n可用原文片段：\n\n[C1] 标题：Reranking for Retrieval Pipelines\n章节：Method\n位置：rerank-notes.md:13-14\n原文：## Method\nA cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture. The input candidate list is produced by BM25, a dense retriever, or a hybrid of both. We compare two-stage and three-stage pipelines: retrieve top 50, rerank top 20, then pass the best 5 to the generator. Training uses query-passage pairs with hard negatives mined from the first-stage results. Reranking scores are not comparable across queries, so pipelines use them only to order candidates within one query.\n\n[C2] 标题：Reranking for Retrieval Pipelines\n章节：Takeaways\n位置：rerank-notes.md:22-23\n原文：## Takeaways\nTreat reranking as a precision stage with an explicit budget. Keep the candidate depth configurable and log both first-stage and reranked ranks for debugging. If the generator still sees irrelevant context, inspect the reranker rather than increasing the context window.\n\n[C3] 标题：Reranking for Retrieval Pipelines\n章节：Abstract\n位置：rerank-notes.md:10-11\n原文：## Abstract\nFirst-stage retrieval must be cheap, so it usually trades precision for recall. A reranker revisits a small candidate list and scores each query-passage pair with a stronger model. The core problem it solves is context pollution: irrelevant passages consume the generator's limited context window and invite unsupported claims. Reranking is therefore a precision filter placed between retrieval and generation.\n\n[C4] 标题：Reranking for Retrieval Pipelines\n章节：Limitations\n位置：rerank-notes.md:19-20\n原文：## Limitations\nA cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely. Long passages increase cost and may exceed the reranker's input limit. Training hard negatives from the same retriever can overfit to its failure modes. The notes do not cover learned fusion of multiple rerankers, and nDCG rewards graded relevance that our small corpus does not provide.\n\n[C5] 标题：Reranking for Retrieval Pipelines\n章节：Results\n位置：rerank-notes.md:16-17\n原文：## Results\nReranking improves nDCG at ten and reduces the number of irrelevant passages in the generator context. In our notes, the largest gains appear on questions with rare entities and on queries whose lexical and dense candidate lists disagree. The reranker also helps when the first stage returns a relevant passage at rank 12 but not at rank 1. Latency grows linearly with the number of reranked pairs, so candidate depth is the main cost control.\n\n[C6] 标题：Retrieval Augmented Generation: A Reading Map\n章节：Abstract\n位置：rag-survey.md:10-11\n原文：## Abstract\nRetrieval augmented generation (RAG) couples a document retriever with a language model so that answers can be grounded in external evidence rather than model parameters alone. This reading map organizes the design space along three axes: what is retrieved, when retrieval happens, and how retrieved evidence is fused into generation. The central claim is that most quality differences between RAG systems come from retrieval granularity and evidence selection, not from the generator. We use this map to compare sparse retrieval, dense retrieval, and hybrid fusion."
+            "content": "问题：rerank 在 RAG 里解决什么问题？\n\n可用原文片段：\n\n[C1] 标题：Reranking for Retrieval Pipelines\n章节：Method\n位置：rerank-notes.md:13-14\n原文：## Method\nA cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture. The input candidate list is produced by BM25, a dense retriever, or a hybrid of both. We compare two-stage and three-stage pipelines: retrieve top 50, rerank top 20, then pass the best 5 to the generator. Training uses query-passage pairs with hard negatives mined from the first-stage results. Reranking scores are not comparable across queries, so pipelines use them only to order candidates within one query.\n\n[C2] 标题：Reranking for Retrieval Pipelines\n章节：Takeaways\n位置：rerank-notes.md:22-23\n原文：## Takeaways\nTreat reranking as a precision stage with an explicit budget. Keep the candidate depth configurable and log both first-stage and reranked ranks for debugging. If the generator still sees irrelevant context, inspect the reranker rather than increasing the context window.\n\n[C3] 标题：Reranking for Retrieval Pipelines\n章节：Limitations\n位置：rerank-notes.md:19-20\n原文：## Limitations\nA cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely. Long passages increase cost and may exceed the reranker's input limit. Training hard negatives from the same retriever can overfit to its failure modes. The notes do not cover learned fusion of multiple rerankers, and nDCG rewards graded relevance that our small corpus does not provide.\n\n[C4] 标题：Reranking for Retrieval Pipelines\n章节：Abstract\n位置：rerank-notes.md:10-11\n原文：## Abstract\nFirst-stage retrieval must be cheap, so it usually trades precision for recall. A reranker revisits a small candidate list and scores each query-passage pair with a stronger model. The core problem it solves is context pollution: irrelevant passages consume the generator's limited context window and invite unsupported claims. Reranking is therefore a precision filter placed between retrieval and generation.\n\n[C5] 标题：Reranking for Retrieval Pipelines\n章节：Results\n位置：rerank-notes.md:16-17\n原文：## Results\nReranking improves nDCG at ten and reduces the number of irrelevant passages in the generator context. In our notes, the largest gains appear on questions with rare entities and on queries whose lexical and dense candidate lists disagree. The reranker also helps when the first stage returns a relevant passage at rank 12 but not at rank 1. Latency grows linearly with the number of reranked pairs, so candidate depth is the main cost control.\n\n[C6] 标题：Retrieval Augmented Generation: A Reading Map\n章节：Abstract\n位置：rag-survey.md:10-11\n原文：## Abstract\nRetrieval augmented generation (RAG) couples a document retriever with a language model so that answers can be grounded in external evidence rather than model parameters alone. This reading map organizes the design space along three axes: what is retrieved, when retrieval happens, and how retrieved evidence is fused into generation. The central claim is that most quality differences between RAG systems come from retrieval granularity and evidence selection, not from the generator. We use this map to compare sparse retrieval, dense retrieval, and hybrid fusion."
           }
         ],
         "temperature": 0.2,
         "stream": false
       },
       "response": {
-        "id": "072eada67db557afdba92ac754e7a6c3",
+        "id": "072eb0df4a4bfbfd46943155cb20f199",
         "choices": [
           {
             "finish_reason": "stop",
             "index": 0,
             "message": {
-              "content": "Rerank 在 RAG 中主要解决**上下文污染**问题：第一阶段检索常以召回率换取精度，引入的不相关段落会占用生成器有限的上下文窗口，并诱发无依据的陈述；因此 rerank 是检索与生成之间的精度过滤层。[C3]\n\n它使用 cross-encoder 同时读取 query 和 passage，捕捉双编码器无法捕获的 token 级交互，对 BM25、稠密检索或混合检索产生的候选列表重新评分排序。[C1]\n\n实验中，rerank 提升了 nDCG@10，并减少了生成上下文中的不相关段落，尤其能改善“相关文档初始排名靠后”或稀疏、稠密候选不一致的情况。[C5]\n\n但 rerank 不能弥补第一阶段的漏检：如果候选列表中完全没有相关文档，它就无法将其找回。[C4]",
+              "content": "Rerank 在 RAG 中主要解决**第一阶段检索精度不足造成的上下文污染**：它对候选文档逐个进行 query-passage 联合打分和重排，把更相关的文档排到前面，减少无关文档占用生成器上下文及诱发无依据回答。[C1][C4]\n\n它本质上是位于“检索”和“生成”之间的**精度过滤层**，而不是扩大召回范围；如果相关文档在第一阶段就完全未被召回，rerank 也无法补救。[C3][C4]",
               "role": "assistant",
-              "reasoning_content": "We need answer Chinese concise, every conclusion sentence ends citation. Need only provided. Question rerank in RAG solves what problem? Need explain context pollution, precision stage between retrieval/generation, irrelevant passages consume limited context and unsupported claims; improves ordering/filtering, limitations perhaps cannot recover missing docs. We need citation each conclusion sentence. Ensure every conclusion sentence ending [C#. Maybe mention mechanism cross-encoder query/passage together, candidate list. We should not overdo. Every sentence ends citation. Could write 3 bullets perhaps fragments? They said each conclusion sentence. Need citations.\n\nPossible answer:\n\nRerank 在 RAG 中主要解决“上下文污染”问题：第一阶段检索为了召回率可能带回大量不相关段落，它们占用生成器有限上下文窗口，并诱发无依据陈述；因此 rerank 作为检索与生成之间的精度过滤层，对候选集重新评分排序。[C3]\n它通过 cross-encoder 同时读取 query 和 passage，捕捉 bi-encoder 无法捕获的 token-level interaction，从 BM25/稠密/混合检索产生的小候选列表中挑出更好的 passages。[C1]\n效果上，rerank 提升 nDCG@10 并减少生成上下文中的不相关段落，尤其当相关文档初始排名靠后或稀疏、稠密候选不一致时更有帮助。[C5]\n但它不是召回补救：若第一阶段候选中完全没有相关文档，reranker 无法修复；长 passage 还会增加成本或超输入限制。[C4]\n\nNeed perhaps answer direct. Chinese but cited claims. Citation after period? Requirement each conclusion sentence末尾 marker. Better omit period and marker at very end, e.g. \"...。[C3]\" technically sentence ends marker, okay. Use citations. Ensure no unsupported \"precision\" paraphrase grounded.\n\nCould include not increase context window recommendation? Question only asks what issue. Maybe caveat useful. Keep concise. Let's formulate."
+              "reasoning_content": "We need answer Chinese concise, citations every conclusion sentence. Need explain what problem rerank solves in RAG based only snippets. Need perhaps say first-stage trades precision/recall, reranker precision filter, reduces context pollution and irrelevant passages consuming context / unsupported claims, better ordering relevant candidate. It cannot recover missing relevant passages. Also cross-encoder query-passage interactions. Need every conclusion sentence end with citation. Could formulate 3 bullets.\n\nQuestion simply \"rerank 在 RAG 里解决什么问题？\" Need direct. We should not overdo. Must cite each conclusion sentence [C1] etc. Ensure every conclusion sentence has citation. Maybe mention not recall but precision, between retrieval and generation. \"Rerank 在 RAG 中主要解决第一阶段检索精度不足导致的上下文污染问题：它对召回的小候选集逐个进行 query-passage 联合打分，把更相关的 passage 排到前面，减少无关 passage 占用生成器上下文并诱发无依据陈述 [C4]\" One sentence and citation end. Second: \"本质上，它不是扩大召回，而是检索与生成之间的精度过滤/重排层；cross encoder captures interactions.\" [C1][C4]. Third limitation. \"但如果相关 passage 在第一阶段完全没进候选列表，rerank 无法补救，因此它主要改善 precision rather than recall\" [C3][C4].\n\nNeed perhaps distinguish output count. Could mention top50 -> rerank top20 -> best5 if asked, no. Concise.\n\nEnsure citations correspond. Every conclusion sentence ends with citation. Let's draft Chinese."
             }
           }
         ],
-        "created": 1793030823,
+        "created": 1793031648,
         "model": "MiniMax-M3.1-Flash",
         "object": "chat.completion",
         "usage": {
-          "total_tokens": 1529,
+          "total_tokens": 1406,
           "total_characters": 0,
-          "prompt_tokens": 984,
-          "completion_tokens": 545,
+          "prompt_tokens": 985,
+          "completion_tokens": 421,
           "completion_tokens_details": {
-            "reasoning_tokens": 379
+            "reasoning_tokens": 314
           },
           "prompt_tokens_details": {
-            "cached_tokens": 128
+            "cached_tokens": 768
           }
         },
         "input_sensitive": false,
@@ -224,13 +213,12 @@
         "used": [
           1,
           3,
-          4,
-          5
+          4
         ],
         "unknown": [],
         "coverage": 1.0,
-        "sentences": 4,
-        "cited_sentences": 4
+        "sentences": 2,
+        "cited_sentences": 2
       }
     }
   }
