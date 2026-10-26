@@ -1,78 +1,112 @@
-| 项目 | 内容 |
+> **<font style="color:#DF2A3F;">注意：访问 </font>**[**<font style="color:#DF2A3F;">https://github.com/oceanbase/powercontext/tree/2026-competition</font>**](https://github.com/oceanbase/powercontext/tree/2026-competition)**<font style="color:#DF2A3F;"> 获取基线分支和判题相关的公开资产，在测评平台提交时的分支/commit hash 建议基于此分支进行开发。</font>**
+>
+> **<font style="color:#DF2A3F;">参考资料：</font>**
+>
+> + [GitHub在大赛中的使用说明](https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/qs1povt8zbza6hts)
+> + [比赛仓库地址](https://oceanbase.yuque.com/org-wiki-obtech-vh7w9r/hc3pio/brxxufkegusa86hl)
+>
+
+| 项目 | 说明 |
 | --- | --- |
 | 项目 | PowerContext |
-| 编号 | `processing-01-count-trigger` |
-| 总分 | 10 分 |
-| 任务 | 按待处理 Source 条目数自动启动 Memory 与 Topic Memory |
+| 编号 | `memory-02-embedding-batches` |
+| 总分 | 20 分 |
+| 任务 | 合并并发 Embedding 请求并缓存成功向量，保持 Memory 写入和搜索结果、取消隔离及 usage，满足请求预算 |
 | 提交产物 | 产品仓库 HTTPS URL 和完整 commit SHA |
 | 冻结版本 | [PowerContext v1.2.0](https://github.com/oceanbase/powercontext/tree/9db1753434162c0aa7c9f1189a1722e617880a52)，commit `9db1753434162c0aa7c9f1189a1722e617880a52` |
 
 
 ## 一、题目背景
-Memory 与 Topic Memory 已能按时间自动处理 Source，也能由调用方显式 flush。低频输入可能需要等待时间条件，高频输入则希望积累足够条目后就启动处理。现有窗口上限控制一次读取多少条，不能表达启动门槛。
+Embedding 将文本转换为数值向量，Memory 写入和向量搜索都会使用它。PowerContext 已支持单次调用内的批量计算，也会复用未变化条目的索引向量；多个调用同时提交相同文本时，仍可能重复请求模型。
 
-数量门槛让输入繁忙的 scope 及时启动处理，少量输入继续由既有时间条件兜底。启动时机与单次处理规模分别可调，调用方不必为每条新输入立即请求生成。
+本题增加跨调用的请求合并与有界缓存：请求合并让相同文本共享尚未完成的计算，缓存保存成功向量供后续调用复用。[LangChain 的 Embedding 缓存](https://docs.langchain.com/oss/python/integrations/embeddings#caching)体现了结果复用的用途；这里还需要隔离调用取消和局部失败，并保留各调用的 usage，即请求数和 token 用量。评测连接实际 Memory 写入和搜索，核对向量顺序、结果正确性及底层请求预算。
 
 ## 二、题目内容
 ### 2.1 通用要求与范围
-验收使用默认 `artifact_processing_role="all"`、全局 supervisor、单写入者 SQLite Runtime。使用原生 worker、本地确定性 OpenAI 兼容 provider 和许可公开会话片段，检查真实 Memory/Topic Memory 的输出、检索与精确引用。无需在线模型；本题不评估生成文本质量。
+每个并发场景中的调用在同一事件循环中共享一个模型包装器，由它协调请求合并和向量缓存。未使用包装器的模型调用须保持兼容。评测使用能确定返回向量的离线模型，检查共享请求和产品搜索的结果，不评价模型的语义能力。
+
+请求预算按底层模型的实际调用数判定，不以机器耗时评分；测试超时只用于终止挂起任务。内部队列、Future、后台任务数量和缓冲布局由实现选择。
 
 ### 2.2 接口与数据
-在 `RuntimeConfig` 中新增以下配置。它们默认均为 `None`，表示关闭数量触发；非空值必须是严格的正整数，拒绝布尔值、字符串、浮点数、零和负数。
+在 `powercontext.builtin.inference.coalescing` 实现：
 
 ```python
-memory_source_count_threshold: int | None = None
-topic_memory_source_count_threshold: int | None = None
+model = CoalescingEmbeddingModel(
+    base_model,
+    max_batch_size=64,
+    coalesce_ms=5.0,
+    cache_size=1024,
+)
+result = await model.embed(texts)
 ```
 
-公开输入是 [Trace Commons](https://huggingface.co/datasets/trace-commons/agent-traces) 固定 revision `147684b2fdacbbdcd473e92962f565902b2739d5` 的会话文字采样，通过现有 `CaptureSource` 接口写入，不要求解析上游会话格式。离线 provider 根据原生请求携带的证据产生可核对的确定性输出。
+构造接口为 `CoalescingEmbeddingModel(model, *, max_batch_size=64, coalesce_ms=5.0, cache_size=1024)`。包装器暴露底层模型的 `profile`，异步 `embed(texts)` 返回现有 `EmbeddingResult`。
+
+| 参数或结果 | 要求 |
+| --- | --- |
+| `max_batch_size` | 每次底层请求的去重文本数上限，默认 64。 |
+| `coalesce_ms` | 合并窗口的毫秒数，默认 5.0；支持设为 0。 |
+| `cache_size` | 成功向量的 LRU 缓存容量，默认 1024；设为 0 关闭跨调用缓存。 |
+| `vectors` | 按该调用的原始输入顺序返回，保留重复位置。 |
+| `usage` | 汇总该调用实际等待的不同底层批次用量。 |
+
 
 ### 2.3 关键行为与约束
-数量按每个作用域（scope）、每个处理族（family）独立计算：从该处理器最后一次成功提交的 Source 游标（cursor）之后，到当前 journal 末尾的新条目数。首次处理从 cursor 0 开始。计数依据已持久化的 journal 身份，不依据正文长度、token 数或生成结果数。同一身份的重复 capture、已有 Source 的 receipt 信任升级不增加计数。只允许用于 lineage 的服务端 Source 也占一个 journal 条目；它参与启动计数，仍按原有规则从生成证据中排除。
+| 行为 | 要求 |
+| --- | --- |
+| 文本共享 | 同一调用、合并窗口内的多个调用和仍在执行的请求共享相同文本。晚到调用可复用执行中的请求。 |
+| 批次与空输入 | 每次底层请求的去重文本数不超过上限；空输入不调用底层模型。 |
+| LRU | 只缓存成功结果，容量有界，访问更新最近使用顺序。`cache_size=0` 关闭跨调用缓存，但仍共享执行中的请求。 |
+| 返回顺序 | 去重或跨调用合并后，每个调用仍按原始顺序和重复位置得到向量。 |
+| 局部失败 | 底层异常传给依赖该批次的等待者。失败结果不缓存，可以重试；独立批次仍能完成。 |
+| 向量数量 | 底层向量数量与批次文本数不匹配时抛出 `ValueError`，不限制错误文案。 |
+| 取消隔离 | 取消一个调用不能取消其他调用共同等待的底层工作，也不能使其他调用丢失结果。 |
+| usage | 一个调用对自己等待过的同一底层批次只汇总一次，保留 provider 的 request 和 token 数。共享批次可分别计入各等待者；纯缓存命中的 requests 为 0。 |
+| 原生集成 | 将包装器传入 `open_builtin_contexts(..., embedding_model=model)` 后，真实 Memory 写入和向量搜索结果正确。 |
 
-达到门槛后，Runtime 应自动接受并执行一次原有处理调用，无需显式 flush 或等待时间条件。数量条件与已有时间条件为 OR；任一条件满足即可启动。`None` 保持原有时间行为。显式 `memory.for_scope(...).flush()` 和 `topic_memory.for_scope(...).flush()` 绕过数量门槛。
 
-沿用既有处理器的消费方式。`source_window_limit` 与 `topic_memory_source_window_limit` 仍是每次读取的上限。Memory 成功后按新 cursor 重新判断剩余数量；不足门槛时等待新增输入、时间条件或显式 flush。Topic Memory 已接受的处理批次（wave）继续按原有分窗行为完成，不把门槛重新施加到它的后续窗口。
+公开集成验收在 Embedding 接口边界同步启动 6 个 scope，各写入同一组 24 条文本，配置为：
 
-例如，Memory 门槛为 3、窗口上限为 1，捕获 3 个新条目后自动处理 1 个，剩余 2 个暂不再次数量触发。再捕获 1 个新条目后，待处理数回到 3，自动处理下一窗，剩余 2 个继续等待。不得把一次达到门槛解释成 Memory 必须排空全部输入。
+```python
+model = CoalescingEmbeddingModel(
+    base_model, max_batch_size=6, coalesce_ms=0, cache_size=48
+)
+```
 
-已经接受的调用失败后沿用原有重试，不因重新检查门槛丢弃工作；失败不消耗成功 cursor。关闭并重开同一数据库后，既要保留不足门槛的待处理输入，也要恢复已达到门槛但尚未成功的处理。成功后不能把已消费的历史条目重新计入门槛。不同 scope 及 Memory、Topic Memory 的 cursor 与门槛互不替代。
-
-处理后的 Source 引用必须能通过公开接口读取，重启后仍可读。实现可选择等价的调度与持久化方式，不要求新增特定 checkpoint、队列或 helper。
+底层须恰好收到 4 个批次，每条文本只发送一次。随后 6 次缓存查询不得新增底层请求，向量搜索须命中对应正文。该预算属于功能验收。
 
 ## 三、提交方式
-提交基于表中冻结版本的产品仓库 HTTPS URL 和完整 40 位 commit SHA，组织方须能获取该仓库及 commit。同一仓库和 commit 可以包含多题实现，按所选题目分别验收。
+提交基于表中冻结版本的产品仓库 HTTPS URL 和完整 40 位 commit SHA，平台须能获取该仓库及 commit。同一仓库和 commit 可以包含多题实现，按所选题目分别验收。
 
 产品内部实现可以自由调整，包括新增、重构或删除源码文件；不设逐题文件白名单。保留本题声明的公共接口及兼容行为。
 
-判题仅加载产品的 `src/`，使用固定依赖和资源配置。产品自有测试、文档及其他附带文件可以随 commit 提交，但不进入判题运行环境，也不能替换组织方的测试、输入数据或评分逻辑。产品源码在验收期间只读。
+判题仅加载产品的 `src/`，使用固定依赖和资源配置。产品自有测试、文档及其他附带文件可以随 commit 提交，但不进入判题运行环境，也不能替换平台的测试、输入数据或评分逻辑。产品源码在验收期间只读。
 
 ## 四、评分标准
-公开测试和组织方必测组全部通过得 10 分；任一必测项失败得 0 分，不按子项计部分分。
+公开测试和平台必测组全部通过得 20 分；任一必测项失败得 0 分，不按子项计部分分。
 
 | 必测行为 | 通过要求 |
 | --- | --- |
-| 配置与计数 | 严格正整数、默认关闭、按 journal 身份计数，重复 capture 不增加待处理数。 |
-| 启动与消费边界 | 数量与时间条件 OR，显式 flush 绕过门槛；窗口仍为单次上限，Memory 按剩余数量重判，Topic 沿用已接受 wave。 |
-| 隔离与恢复 | scope/family 独立，成功 cursor 后的输入才计数，不足门槛及已接受工作可在重启后继续，失败不丢输入。 |
-| 原生结果 | 真实 worker 产出可检索 Memory/Topic Memory，精确读取及 Source 引用正确，重启后可读。 |
+| 共享与顺序 | 重复文本、并发调用及晚到等待者共享工作，结果保持原始顺序和重复位置。 |
+| 缓存与批次 | 批次不超上限、LRU 访问刷新；缓存关闭时仍能共享执行中的请求。 |
+| 失败与取消 | 失败结果不缓存，独立批次不受影响，取消不破坏其他等待者。 |
+| usage | request 和 token 用量按每个调用等待的不同批次计一次，缓存不新增 requests。 |
+| 原生预算 | 6 个 scope 的 24 条相同文本只需 4 次底层请求；随后 6 次缓存查询不新增请求，搜索结果正确。 |
 
 
-评测不使用模型裁判或在线服务。每次等待自动处理的上限为 45 秒；不足门槛及单窗后的静默观察为 5 秒，故障后的原生生成尝试等待上限为 30 秒。缺失功能不得跳过。
+评测不调用在线模型或模型裁判，无机器耗时加分。
 
 ## 五、公开测试与提交前检查
-公开测试覆盖配置验证、门槛前后、重复 capture、普通与 lineage 来源的不同写入顺序、单窗边界、scope/family 独立性、时间条件及显式 flush、重启与真实持久化故障恢复。私有验收更换许可会话、门槛、窗口大小与失败时机，不增加未公开要求。
+| 公开测试 | 覆盖 |
+| --- | --- |
+| 并发合并与缓存 | 协议、去重、空输入、顺序、LRU、失败重试、取消、usage 与原生向量搜索。 |
+| 原生请求预算 | 6 个 scope 的并发写入、4 次底层请求、缓存查询和搜索结果。 |
 
-公开测试、样例及必要辅助文件将在 [PowerContext](https://github.com/oceanbase/powercontext) 的公开测评分支统一发布。取得发布文件后，按该分支的环境说明准备 Python 3.12 和固定依赖，将下列路径替换为本地目录运行自测。
+
+公开测试、样例及辅助文件随本目录发布。按[公开自测说明](../../README.md)准备 Python 3.12 和固定依赖后，在产品仓库根目录运行：
 
 ```bash
-export POWERCONTEXT_CANDIDATE=/path/to/product-checkout
-export POWERCONTEXT_PUBLIC=/path/to/public-evaluation-checkout
-PYTHONPATH="$POWERCONTEXT_CANDIDATE/src:$POWERCONTEXT_PUBLIC" \
-  python -m pytest -q -p no:cacheprovider \
-  "$POWERCONTEXT_PUBLIC/challenges/processing-01-count-trigger/acceptance"
+make -C competition test-embedding
 ```
 
-提交前检查不足门槛时没有提前输出，达到门槛后无需 flush 即可检索结果；比较单窗处理后的剩余数量、重启前后的引用和真实写入失败后的恢复。公开测试通过后仍须满足全部必测行为。
-
-公开输入包含 11 条会话片段，只采样参与者自身的可见工作叙述，排除思考、图片和工具读取的第三方正文。归属 Trace Commons contributors，公开样例保留 CC BY 4.0 署名；数据卡对汇编、结构和元数据的许可声明不替第三方材料重新授权。
+提交前检查重复文本、晚到调用和缓存关闭，核对共享批次在每个调用的 usage 中只计一次，并确认取消、失败重试和原生预算同时成立。公开测试通过后仍须满足全部必测行为。公开测试使用合成文本和确定性离线 provider；正文、失败及取消时机由测试控制，不评价向量模型的语义能力。
