@@ -131,7 +131,10 @@ class _SkillGenerator:
         )
 
 
-def test_explicit_external_skill_import_captures_exact_snapshot_and_enters_review(tmp_path: Path) -> None:
+def test_explicit_external_skill_import_captures_exact_snapshot_and_enters_review(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     async def exercise() -> None:
         root = tmp_path / ".agents" / "skills"
         package = _write_skill(root)
@@ -153,6 +156,8 @@ def test_explicit_external_skill_import_captures_exact_snapshot_and_enters_revie
             scope_id = await _create_scope(runtime)
             scoped = runtime.external_skills.for_scope(scope_id)
             registration = (await scoped.scan()).registrations[0]
+            wakes: list[bool] = []
+            monkeypatch.setattr(runtime, "_wake_source_count_triggers", lambda: wakes.append(True))
 
             result = await scoped.import_managed(
                 ImportExternalSkillRequest(
@@ -164,6 +169,7 @@ def test_explicit_external_skill_import_captures_exact_snapshot_and_enters_revie
             )
 
             assert result.candidate is not None
+            assert wakes == [True]
             assert result.candidate.family == "skill"
             assert result.candidate.sources[0].source_type == "external-skill-snapshot"
             assert result.candidate.artifacts == ()

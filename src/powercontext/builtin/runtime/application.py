@@ -250,7 +250,7 @@ from powercontext.builtin.runtime.recall_sufficiency import (
 )
 from powercontext.builtin.runtime.statistics import RelationalScopedStatistics, overview_selection
 from powercontext.builtin.scope import ScopeApplication, ScopeDescriptor, ScopeSelection
-from powercontext.builtin.scope.subject_sources import SubjectSourceService
+from powercontext.builtin.scope.subject_sources import SubjectAuthorization, SubjectSourceService
 from powercontext.builtin.sources import (
     CONTENT_SOURCE_NAME,
     ContentCapture,
@@ -522,6 +522,35 @@ class SourceApplication:
         return ScopedSourceApplication(self._runtime, scope_id)
 
 
+class _RuntimeSubjectSourceApplication:
+    """Wake Source-count discovery after subject Sources commit."""
+
+    def __init__(self, runtime: BuiltinRuntime, service: SubjectSourceService) -> None:
+        self._runtime = runtime
+        self._service = service
+
+    async def create(
+        self,
+        scope_id: str,
+        subject_key: str,
+        content: JsonValue,
+        *,
+        subject_type: str = "user",
+        subject_scope_id: str | None = None,
+        authorize: SubjectAuthorization | None = None,
+    ) -> tuple[str, tuple[SourceRecord, SourceRecord]]:
+        result = await self._service.create(
+            scope_id,
+            subject_key,
+            content,
+            subject_type=subject_type,
+            subject_scope_id=subject_scope_id,
+            authorize=authorize,
+        )
+        self._runtime._wake_source_count_triggers()
+        return result
+
+
 class ScopedRecordApplication:
     """Run base Source and Artifact operations in one Scope."""
 
@@ -536,11 +565,13 @@ class ScopedRecordApplication:
         /,
     ) -> SourceRecord:
         async with self._runtime._scope_operation(self.scope_id), self._runtime._locked(self.scope_id):
-            return await self._runtime._records().create_source(
+            created = await self._runtime._records().create_source(
                 self.scope_id,
                 source_type,
                 content,
             )
+        self._runtime._wake_source_count_triggers()
+        return created
 
     async def get_source(self, source_type: str, source_id: str, /) -> SourceRecord:
         async with self._runtime._scope_operation(self.scope_id):
@@ -568,7 +599,9 @@ class ScopedRecordApplication:
         /,
     ) -> ArtifactCreated:
         async with self._runtime._scope_operation(self.scope_id), self._runtime._locked(self.scope_id):
-            return await self._runtime._records().create_artifact(self.scope_id, family, write)
+            created = await self._runtime._records().create_artifact(self.scope_id, family, write)
+        self._runtime._wake_source_count_triggers()
+        return created
 
     async def get_artifact(self, family: str, artifact_id: str, /) -> ArtifactRecord:
         async with self._runtime._scope_operation(self.scope_id):
@@ -651,13 +684,15 @@ class ScopedRecordApplication:
         /,
     ) -> ArtifactRecord:
         async with self._runtime._scope_operation(self.scope_id), self._runtime._locked(self.scope_id):
-            return await self._runtime._records().replace_artifact(
+            revised = await self._runtime._records().replace_artifact(
                 self.scope_id,
                 family,
                 artifact_id,
                 expected_etag,
                 write,
             )
+        self._runtime._wake_source_count_triggers()
+        return revised
 
 
 class RecordApplication:
@@ -728,7 +763,9 @@ class RemoteIngestionApplication:
 
     async def submit(self, request: SubmitSourceObservation, /) -> SourceReceipt:
         async with self._runtime._scope_operation(request.scope_id):
-            return await self._require_service().submit_source_observation(request)
+            receipt = await self._require_service().submit_source_observation(request)
+        self._runtime._wake_source_count_triggers()
+        return receipt
 
     async def commit(self, request: CommitConnectorCheckpoint, /) -> ConnectorCheckpointState:
         async with self._runtime._scope_operation(request.binding.scope_id):
@@ -1829,14 +1866,18 @@ class ScopedSkillApplication:
         if uploader is None:
             raise _RuntimeStateError("skill-package")
         async with self._runtime._scoped_operation(self.scope_id), self._runtime._locked(self.scope_id):
-            return await uploader(self.scope_id, archive_bytes, reason, target)
+            candidate = await uploader(self.scope_id, archive_bytes, reason, target)
+        self._runtime._wake_source_count_triggers()
+        return candidate
 
     async def record_usage(self, observation: SkillUsageCapture, /) -> SourceReceipt:
         recorder = self._runtime._skill_usage_recorder
         if recorder is None:
             raise _RuntimeStateError("skill-usage")
         async with self._runtime._scoped_operation(self.scope_id), self._runtime._locked(self.scope_id):
-            return await recorder(self.scope_id, observation)
+            receipt = await recorder(self.scope_id, observation)
+        self._runtime._wake_source_count_triggers()
+        return receipt
 
     async def governance(self, artifact_id: str, /) -> ArtifactGovernance:
         reader = self._runtime._skill_governance_reader
@@ -2290,20 +2331,24 @@ class ScopedExternalSkillApplication:
         importer = self._runtime._external_skill_importer
         if importer is None:
             raise ExternalSkillRegistryUnavailableError()
-        async with (
-            self._runtime._scoped_operation(
-                self.scope_id,
-                generation_purpose=ModelUsagePurpose.SKILL_GENERATION,
-            ),
-            self._runtime._locked(self.scope_id),
-        ):
-            return await importer(
-                self.scope_id,
-                request.external_skill_id,
-                request.fingerprint,
-                request.mode,
-                request.reason,
-            )
+        try:
+            async with (
+                self._runtime._scoped_operation(
+                    self.scope_id,
+                    generation_purpose=ModelUsagePurpose.SKILL_GENERATION,
+                ),
+                self._runtime._locked(self.scope_id),
+            ):
+                result = await importer(
+                    self.scope_id,
+                    request.external_skill_id,
+                    request.fingerprint,
+                    request.mode,
+                    request.reason,
+                )
+        finally:
+            self._runtime._wake_source_count_triggers()
+        return result
 
 
 class ExternalSkillApplication:
@@ -3043,7 +3088,9 @@ class BuiltinRuntime:
         self._capabilities = capabilities
         self._review_service = review_service
         self.profiles = profiles
-        self.subject_sources = subject_sources
+        self.subject_sources = (
+            None if subject_sources is None else _RuntimeSubjectSourceApplication(self, subject_sources)
+        )
         self._generation_service = generation_service
         self._dream_service = dream_service
         self._review_evidence_authorizer: ScopedEvidenceAuthorizer | None = None

@@ -215,6 +215,39 @@ def test_incubation_skips_lineage_only_sources_but_advances_the_full_window() ->
     asyncio.run(scenario())
 
 
+def test_artifact_lineage_source_wakes_count_trigger_after_commit(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def scenario() -> None:
+        async with open_builtin_runtime(BuiltinConfig(database=SQLiteConfig())) as runtime:
+            scope = await _create_scope(runtime, "lineage-count-wake")
+            wakes: list[bool] = []
+            monkeypatch.setattr(runtime, "_wake_source_count_triggers", lambda: wakes.append(True))
+
+            created = await runtime.records.for_scope(scope).create_artifact(
+                "memory",
+                ArtifactWrite(content={"entries": [{"kind": "working_note", "text": "Lineage source"}]}),
+            )
+            assert wakes == [True]
+
+            await runtime.records.for_scope(scope).replace_artifact(
+                "memory",
+                created.artifact_id,
+                '"revision:1"',
+                ArtifactWrite(content={"entries": [{"kind": "working_note", "text": "Revised lineage source"}]}),
+            )
+            assert wakes == [True, True]
+
+            await runtime.records.for_scope(scope).create_source("content", "Ordinary source")
+
+            assert wakes == [True, True, True]
+
+            assert runtime.subject_sources is not None
+            await runtime.subject_sources.create(scope, "subject-1", "Subject source")
+
+            assert wakes == [True, True, True, True]
+
+    asyncio.run(scenario())
+
+
 def test_scheduled_incubation_requires_a_configured_pipeline(tmp_path) -> None:
     async def scenario() -> None:
         with pytest.raises(BuiltinConfigurationError, match="Experience incubation"):
