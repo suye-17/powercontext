@@ -10,7 +10,7 @@
     "Takeaways"
   ],
   "synthesis": {
-    "text": "## 研究问题\n\n文章梳理 RAG 的设计空间，重点考察三个问题：检索什么、何时检索，以及如何将检索到的证据融入生成过程；其核心问题是判断 RAG 系统间的质量差异主要来自生成器还是检索环节。[C1]\n\n## 方法\n\n文章沿“检索对象—检索时机—证据融合”三条轴组织系统，并比较稀疏检索、稠密检索与混合融合。[C1] 在具体实现上，按段落级或文档级检索单元分类，比较 BM25 等稀疏检索、稠密双编码器、基于排名融合的混合检索，以及可选的重排序模块。[C2] 评价维度包括召回率、传入生成器的上下文精度、答案可审计性、检索延迟和分块边界的影响。[C3]\n\n## 主要结论\n\n- RAG 系统的大部分质量差异主要来自检索粒度和证据选择，而非生成器本身。[C1]\n- 对术语密集型问题，混合检索可提高召回率；重排序可提高传入生成器的上下文精度。[C3]\n- 输出证据片段及其来源有助于审计，但引用覆盖率仍需实际测量，不能默认生成器会完整使用证据。[C3]\n- 索引处于预热状态时，检索延迟主要来自第一阶段候选搜索；即使底层文档不变，分块边界也可能改变最相关段落的命中结果。[C3]\n- 实践上应优先提升检索质量，保留词法基线，在需要处理释义时加入稠密检索，并按排名而非不可比的原始分数融合证据；同时保留从答案句子回溯到源段落及行号的路径。[C5]\n\n## 适用范围与限制\n\n该阅读地图主要覆盖英文技术文档，不涉及多语言分词；它将重排序器视为黑箱，也未比较不同训练目标。[C4] 多数已有收益来自小型、人工整理的数据集，因此绝对数值不宜直接迁移到其他语料库；此外，“生成器会忠实使用所提供证据”的假设仍需单独进行事实落地检查。[C4]",
+    "text": "### 研究问题\n- 阅读地图围绕三个 RAG 设计问题展开：检索什么、何时检索，以及如何将检索证据融入生成过程。[C1]\n- 文章的核心论点是：多数 RAG 系统的质量差异来自检索粒度和证据选择，而非生成器本身。[C1]\n\n### 方法\n- 按检索单元对系统分类：段落级检索提供更精确的证据片段，文档级检索保留更广泛的上下文。[C2]\n- 比较稀疏检索、稠密检索与混合融合：稠密双编码器学习查询与段落的共享嵌入空间，BM25 等稀疏词法检索擅长罕见词、标识符和精确短语。[C1][C2]\n- 混合方法融合两类候选列表，常用倒数排名融合（RRF），以排名而非不可直接比较的分数进行融合；生成前还可使用重排序器优化候选结果。[C2]\n- 评价涉及召回率、传入生成器上下文的精确率、引用可审计性、检索延迟以及分块边界的影响。[C3]\n\n### 主要结论\n- 在术语密集型问题上，混合检索提高了召回率；重排序则提高了传给生成器的上下文精确率。[C3]\n- 引用证据片段使答案更易审计，但引用覆盖率必须实际测量，不能默认已经实现。[C3]\n- 当索引处于热状态时，检索延迟主要来自第一阶段候选搜索；即使底层文档不变，分块边界也可能改变赢得查询的段落。[C3]\n- 实践上应优先提升检索质量，保留词法检索基线，在需要处理释义时加入稠密检索，并按排名而非原始分数融合；同时保留从答案句子追溯到源段落及其行号的路径。[C5]\n\n### 结论边界\n- 综述主要覆盖英文技术文档，未建模多语言分词，也未比较训练目标；多数增益来自小型精选数据集，不能直接迁移到其他语料库。[C4]\n- 文中默认生成器会忠实使用所提供证据，但这一假设仍需单独的接地检查验证。[C4]",
     "mode": "llm",
     "citations": [
       {
@@ -72,7 +72,7 @@
     "coverage": 1.0,
     "model": "MiniMax-M3.1-Flash",
     "prompt_hash": "1f64a2bdcf24e175",
-    "latency_ms": 10357,
+    "latency_ms": 20035,
     "fallback_reason": null,
     "cached": false,
     "evidence": {
@@ -92,28 +92,28 @@
         "stream": false
       },
       "response": {
-        "id": "072eb11d4ec83c9de491dd722a120f43",
+        "id": "072eb433222cc932526cf2239729c717",
         "choices": [
           {
             "finish_reason": "stop",
             "index": 0,
             "message": {
-              "content": "## 研究问题\n\n文章梳理 RAG 的设计空间，重点考察三个问题：检索什么、何时检索，以及如何将检索到的证据融入生成过程；其核心问题是判断 RAG 系统间的质量差异主要来自生成器还是检索环节。[C1]\n\n## 方法\n\n文章沿“检索对象—检索时机—证据融合”三条轴组织系统，并比较稀疏检索、稠密检索与混合融合。[C1] 在具体实现上，按段落级或文档级检索单元分类，比较 BM25 等稀疏检索、稠密双编码器、基于排名融合的混合检索，以及可选的重排序模块。[C2] 评价维度包括召回率、传入生成器的上下文精度、答案可审计性、检索延迟和分块边界的影响。[C3]\n\n## 主要结论\n\n- RAG 系统的大部分质量差异主要来自检索粒度和证据选择，而非生成器本身。[C1]\n- 对术语密集型问题，混合检索可提高召回率；重排序可提高传入生成器的上下文精度。[C3]\n- 输出证据片段及其来源有助于审计，但引用覆盖率仍需实际测量，不能默认生成器会完整使用证据。[C3]\n- 索引处于预热状态时，检索延迟主要来自第一阶段候选搜索；即使底层文档不变，分块边界也可能改变最相关段落的命中结果。[C3]\n- 实践上应优先提升检索质量，保留词法基线，在需要处理释义时加入稠密检索，并按排名而非不可比的原始分数融合证据；同时保留从答案句子回溯到源段落及行号的路径。[C5]\n\n## 适用范围与限制\n\n该阅读地图主要覆盖英文技术文档，不涉及多语言分词；它将重排序器视为黑箱，也未比较不同训练目标。[C4] 多数已有收益来自小型、人工整理的数据集，因此绝对数值不宜直接迁移到其他语料库；此外，“生成器会忠实使用所提供证据”的假设仍需单独进行事实落地检查。[C4]",
+              "content": "### 研究问题\n- 阅读地图围绕三个 RAG 设计问题展开：检索什么、何时检索，以及如何将检索证据融入生成过程。[C1]\n- 文章的核心论点是：多数 RAG 系统的质量差异来自检索粒度和证据选择，而非生成器本身。[C1]\n\n### 方法\n- 按检索单元对系统分类：段落级检索提供更精确的证据片段，文档级检索保留更广泛的上下文。[C2]\n- 比较稀疏检索、稠密检索与混合融合：稠密双编码器学习查询与段落的共享嵌入空间，BM25 等稀疏词法检索擅长罕见词、标识符和精确短语。[C1][C2]\n- 混合方法融合两类候选列表，常用倒数排名融合（RRF），以排名而非不可直接比较的分数进行融合；生成前还可使用重排序器优化候选结果。[C2]\n- 评价涉及召回率、传入生成器上下文的精确率、引用可审计性、检索延迟以及分块边界的影响。[C3]\n\n### 主要结论\n- 在术语密集型问题上，混合检索提高了召回率；重排序则提高了传给生成器的上下文精确率。[C3]\n- 引用证据片段使答案更易审计，但引用覆盖率必须实际测量，不能默认已经实现。[C3]\n- 当索引处于热状态时，检索延迟主要来自第一阶段候选搜索；即使底层文档不变，分块边界也可能改变赢得查询的段落。[C3]\n- 实践上应优先提升检索质量，保留词法检索基线，在需要处理释义时加入稠密检索，并按排名而非原始分数融合；同时保留从答案句子追溯到源段落及其行号的路径。[C5]\n\n### 结论边界\n- 综述主要覆盖英文技术文档，未建模多语言分词，也未比较训练目标；多数增益来自小型精选数据集，不能直接迁移到其他语料库。[C4]\n- 文中默认生成器会忠实使用所提供证据，但这一假设仍需单独的接地检查验证。[C4]",
               "role": "assistant",
-              "reasoning_content": "We need answer Chinese concise, summarize research question, methods, main conclusions. Must every conclusion sentence end citation labels corresponding snippets. Need carefully cite each sentence. Could structure. Need only based on snippets. Need distinguish research question inferred from central organization. Maybe:\n\n研究问题：本文梳理RAG系统的设计空间，回答“检索什么、何时检索、检索证据如何融入生成”，并考察系统质量主要受哪些因素影响。[C1] \n方法：按检索单元/设计轴组织比较。稀疏、稠密、混合； passage vs document; RRF and reranker. [C2]\n主要结论:\n- Most quality differences come from retrieval granularity and evidence selection, not generator. [C1]\n- Hybrid improves recall on terminology-heavy; reranking context precision. [C3]\n- Evidence spans improve auditability, citation coverage needs measured. [C3]\n- warm index first stage search dominates latency; chunk boundaries affect winners. [C3]\n- recommendation start retrieval, lexical baseline, dense when paraphrase, fuse rank, trace source line. [C5]\nLimitations maybe include relevant to summary: English technical, multilingual no; reranker black box, no training objective; small curated datasets; generator faithful assumption needs separate grounding check. [C4]. We need answer asks research question, methods, major conclusions. Include limitations perhaps \"适用范围与限制\". Since desired 5 but concise. Every conclusion sentence ends with citation marker. Headings don't need citations? They're not conclusion sentences. Bullet fragments perhaps citation at end. Need ensure each sentence ends with citation marker. Could state one sentence per bullet. Chinese punctuation before citation? Requirement \"每个结论句末尾必须用...\" So citation at final before perhaps period? Better Chinese sentence ends \"。[C1]\" Does \"末尾\" mean citation should be last token, no punctuation after perhaps. Let's put citations last, e.g. \"……。[C1]\" Citation at end after punctuation. Fine.\n\nCould title.\n\nNeed not invent \"survey\" perhaps map/notes. \"研究问题\" wording. Let's draft 3 sections and limitations.\n\nNeed perhaps explain RAG couples retriever and LM grounding external evidence. This is background/research framing. Include [C1].\n\nPotential answer:\n\n**研究问题**\n文章围绕RAG的设计与效果来源展开：外部证据由检索器提供，生成器基于证据回答；重点考察检索什么、何时检索、证据如何融合，以及质量差异主要来自生成器还是检索环节。[C1]\n\n\"when retrieval happens\" but excerpts don't detail timing beyond axis. Fine.\n\n**方法**\n按三个轴... compare sparse/dense/hybrid. [C1]\nAt implementation, group retrieval unit passage vs doc, compare dense bi-encoder and BM25, hybrid with RRF, optional reranker. [C2]\nResults evidence across notes on recall, precision, auditability, latency, chunks [C3].\nCould perhaps call method \"文献阅读地图/notes comparison\" but source says \"Across notes we compare\"; safe.\n\n**主要结论**\ncentral claim.\nhybrid etc.\naudit citation.\nlatency and chunks.\nrecommendations.\n**限制**\nscope, etc.\n\nNeed make sure no unsupported \"when retrieval happens\" beyond C1. Fine.\n\nLet's answer in Chinese."
+              "reasoning_content": "We need answer Chinese concise, summarize research question, methods, main conclusions. Must cite every conclusion sentence [C#], based only provided excerpts. Need no thinking. Need distinguish research question inferred from abstract/map design space: what retrieved, when retrieval happens, how evidence fused. Central claim quality differences mostly retrieval granularity/evidence selection not generator. Methods grouping by retrieval unit passage/document, sparse/dense/hybrid, RRF, reranker; comparison perhaps survey reading map. Results specifics hybrid recall terminology-heavy; reranking precision; citations auditability but measure coverage; latency first-stage warm index; chunk boundaries impact winner. Limitations maybe include? User asks research questions, methods, major conclusions. Could mention limitations to qualify conclusions. Every conclusion sentence end with citation. Need ensure citations at end of each sentence. Maybe headings no citation? \"研究问题\" is structural not conclusion perhaps cite. Need every conclusion sentence ends citation. Use bullets and each bullet one or multiple sentences; each sentence citation. Avoid unsupported interpretation.\n\nLet's formulate:\n\n**研究问题**\n- 本文试图组织RAG设计空间，回答三问题：检索什么、何时检索、检索证据如何融合进生成；并检验RAG系统质量差异主要来自生成器还是检索粒度/证据选择。[C1]\nPotential \"并检验\" source says central claim, not necessarily study design. Better \"核心论点是...\" [C1].\n\n**方法**\n- 按检索单元 grouping: passage vs doc tradeoff.\n- compare sparse, dense hybrid; dense shared embedding query/passages; sparse BM25 robust rare etc. C2.\n- hybrid combines candidate lists often RRF ranks avoid incomparable scores; reranker refine top candidates. C2.\n- The survey compares notes, metrics recall/precision, citation audit, latency etc? C3 maybe. Need mention evidence evaluation.\n\n**主要结论**\n- quality differences mainly retrieval granularity/evidence selection, not generator. C1.\n- hybrid improves recall terminology-heavy, reranking precision context. C3.\n- evidence span citations easier audit, coverage must measure. C3.\n- warm index latency dominated first-stage candidate search; chunk boundaries can alter winning passage even same doc. C3.\n- practical takeaway: retrieval quality first, lexical baseline, dense for paraphrase, fusion rank, answer lineage to source and line numbers. C5.\n- Caveats: scope English technical, no multilingual tokenization; reranker black box no training objective comparison; gains small curated sets, not transferable; assumes faithful evidence use, separate grounding check. C4.\n\nNeed be concise. The developer says every conclusion sentence末尾 citation. We can cite heading? No. Every sentence ends. Let's ensure semicolons.\n\nPotential distinction \"研究问题\": Original says organizes design space along axes and central claim. Maybe phrase:\n- 阅读地图围绕三个设计问题：检索什么、何时检索、如何把检索证据融合到生成过程中。[C1]\n- 它还考察RAG系统间的质量差异是否主要来自生成器，文章核心观点是主要来自检索粒度和证据选择。[C1]\nThat's supported.\n\nMethods:\n- 系统按检索单元分组: passage precise spans vs doc broader context [C2]\n- compares sparse/dense/hybrid [C1], definitions.\n- Hybrid fusion candidate lists with RRF, rank instead score; reranker refine [C2].\nCould say \"在所比较的笔记中，从召回率、上下文精确率、可审计性、延迟和分块边界等维度比较\" C3. It's okay.\n\nMain:\n- Hybrid improves recall on terminology-heavy; reranking context precision. [C3]\n- Citations etc [C3]\n- latency/chunk [C3]\n- recommendation [C5]\n\nShould we include limitations. yes under \"结论边界\". Maybe user only asks main conclusions but adding limitations helps. Concise.\n\nNeed no fabricated fact. \"BM25 remains strong\" exactly. \"dense bi-encoders learn shared embedding\" exactly.\n\nLet's answer Chinese."
             }
           }
         ],
-        "created": 1793031710,
+        "created": 1793032500,
         "model": "MiniMax-M3.1-Flash",
         "object": "chat.completion",
         "usage": {
-          "total_tokens": 1945,
+          "total_tokens": 2097,
           "total_characters": 0,
           "prompt_tokens": 874,
-          "completion_tokens": 1071,
+          "completion_tokens": 1223,
           "completion_tokens_details": {
-            "reasoning_tokens": 658
+            "reasoning_tokens": 800
           },
           "prompt_tokens_details": {
             "cached_tokens": 768
@@ -139,8 +139,8 @@
         ],
         "unknown": [],
         "coverage": 1.0,
-        "sentences": 11,
-        "cited_sentences": 11
+        "sentences": 12,
+        "cited_sentences": 12
       }
     }
   }

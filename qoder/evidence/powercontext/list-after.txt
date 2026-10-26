@@ -1,8 +1,8 @@
-paperdesk.progress rev=2 state=active
-  {"paper_id": "rag-survey", "status": "reading", "last_section": "Evaluation", "next_action": "整理 rerank 与 RAG 的关系", "updated_at": "2026-10-26T16:21:01+00:00"}
-paperdesk.profile rev=1 state=active
-  {"language": "zh", "digest_sentences": 3, "citation_style": "inline", "weekly_minutes": 120}
-paperdesk.session rev=1 state=active
-  {"session_id": "session-20261026-162120", "read_papers": ["rag-survey"], "questions": ["rerank 在 RAG 里解决什么问题？"], "next_steps": ["读完 Evaluation 章", "整理 rerank 要点"], "created_at": "2026-10-26T16:21:20+00:00"}
 paperdesk.goal rev=1 state=active
   {"goal_id": "weekly", "text": "本周读完 RAG 相关两篇，并整理 rerank 要点", "tags": ["rag", "rerank"], "deadline": null, "status": "active"}
+paperdesk.profile rev=1 state=active
+  {"language": "zh", "digest_sentences": 3, "citation_style": "inline", "weekly_minutes": 120}
+paperdesk.progress rev=2 state=active
+  {"paper_id": "rag-survey", "status": "reading", "last_section": "Evaluation", "next_action": "整理 rerank 与 RAG 的关系", "updated_at": "2026-10-26T16:34:18+00:00"}
+paperdesk.session rev=1 state=active
+  {"session_id": "session-20261026-163431", "read_papers": ["rag-survey"], "questions": ["rerank 在 RAG 里解决什么问题？"], "next_steps": ["读完 Evaluation 章", "整理 rerank 要点"], "created_at": "2026-10-26T16:34:31+00:00"}

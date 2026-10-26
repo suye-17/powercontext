@@ -1,7 +1,12 @@
 llm · coverage=1.00
-Rerank 在 RAG 中主要解决**第一阶段检索精度不足造成的上下文污染**：它对候选文档逐个进行 query-passage 联合打分和重排，把更相关的文档排到前面，减少无关文档占用生成器上下文及诱发无依据回答。[C1][C4]
+Rerank 在 RAG 中主要解决**上下文污染**问题：第一阶段检索混入的无关文档会占用生成器的有限上下文，并诱发无依据的论断，因此 rerank 是检索与生成之间的精度过滤层。[C4]
 
-它本质上是位于“检索”和“生成”之间的**精度过滤层**，而不是扩大召回范围；如果相关文档在第一阶段就完全未被召回，rerank 也无法补救。[C3][C4]
+它使用 cross-encoder 联合阅读 query 和 passage，捕捉双编码器无法捕获的 token 级交互，从而重新排序候选文档。[C1]
+
+实验表明，rerank 能提升 nDCG@10，并减少生成器上下文中的无关文档。[C5]
+
+但 rerank 不能解决召回遗漏：如果第一阶段候选列表中完全没有相关文档，reranker 也无法补救。[C3]
 [C1] rerank-notes · Method · rerank-notes.md:13
 [C3] rerank-notes · Limitations · rerank-notes.md:19
 [C4] rerank-notes · Abstract · rerank-notes.md:10
+[C5] rerank-notes · Results · rerank-notes.md:16

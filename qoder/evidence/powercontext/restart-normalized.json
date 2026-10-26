@@ -1,6 +1,6 @@
 [
   {
-    "artifact_id": "art_afb6f32da96544d49530a3ee2055d6a2",
+    "artifact_id": "art_01ef7a5d9e53427bad43d595aeea04cd",
     "revision": 1,
     "kind": "paperdesk.goal",
     "text": "{\"goal_id\": \"weekly\", \"text\": \"本周读完 RAG 相关两篇，并整理 rerank 要点\", \"tags\": [\"rag\", \"rerank\"], \"deadline\": null, \"status\": \"active\"}",
@@ -9,7 +9,7 @@
     "merged_into_id": null
   },
   {
-    "artifact_id": "art_9ea255fe105f46509ad757661cc3dc41",
+    "artifact_id": "art_17c29f7add31476481ca8db61436e03a",
     "revision": 1,
     "kind": "paperdesk.profile",
     "text": "{\"language\": \"zh\", \"digest_sentences\": 3, \"citation_style\": \"inline\", \"weekly_minutes\": 120}",
@@ -18,19 +18,19 @@
     "merged_into_id": null
   },
   {
-    "artifact_id": "art_4730ebd0c9014f3787db1483d886d6dd",
+    "artifact_id": "art_8cc2a8cf12614c79a370ab03f1f0336c",
     "revision": 2,
     "kind": "paperdesk.progress",
-    "text": "{\"paper_id\": \"rag-survey\", \"status\": \"reading\", \"last_section\": \"Evaluation\", \"next_action\": \"整理 rerank 与 RAG 的关系\", \"updated_at\": \"2026-10-26T16:21:01+00:00\"}",
+    "text": "{\"paper_id\": \"rag-survey\", \"status\": \"reading\", \"last_section\": \"Evaluation\", \"next_action\": \"整理 rerank 与 RAG 的关系\", \"updated_at\": \"2026-10-26T16:34:18+00:00\"}",
     "state": "active",
     "state_version": 0,
     "merged_into_id": null
   },
   {
-    "artifact_id": "art_a73f26b00531434483c630dab1d3cd92",
+    "artifact_id": "art_e493430bde7947d8a128be598c97b702",
     "revision": 1,
     "kind": "paperdesk.session",
-    "text": "{\"session_id\": \"session-20261026-162120\", \"read_papers\": [\"rag-survey\"], \"questions\": [\"rerank 在 RAG 里解决什么问题？\"], \"next_steps\": [\"读完 Evaluation 章\", \"整理 rerank 要点\"], \"created_at\": \"2026-10-26T16:21:20+00:00\"}",
+    "text": "{\"session_id\": \"session-20261026-163431\", \"read_papers\": [\"rag-survey\"], \"questions\": [\"rerank 在 RAG 里解决什么问题？\"], \"next_steps\": [\"读完 Evaluation 章\", \"整理 rerank 要点\"], \"created_at\": \"2026-10-26T16:34:31+00:00\"}",
     "state": "active",
     "state_version": 0,
     "merged_into_id": null

@@ -30,7 +30,7 @@
       "paper_id": "rag-survey",
       "title": "Retrieval Augmented Generation: A Reading Map",
       "status": "reading",
-      "score": 10.862,
+      "score": 9.651,
       "next_section": "整理 rerank 与 RAG 的关系",
       "tags": [
         "rag",
@@ -67,7 +67,7 @@
       "paper_id": "chunking-notes",
       "title": "Chunking Strategies for Long Technical Documents",
       "status": "unread",
-      "score": 5.771,
+      "score": 4.585,
       "next_section": "Abstract",
       "tags": [
         "chunking",
@@ -84,7 +84,7 @@
       "paper_id": "citation-grounding",
       "title": "Grounding Generated Summaries with Evidence Spans",
       "status": "unread",
-      "score": 5.756,
+      "score": 4.582,
       "next_section": "Abstract",
       "tags": [
         "citation",
@@ -102,7 +102,7 @@
       "paper_id": "agent-memory",
       "title": "Long-Term Memory for Reading Agents",
       "status": "unread",
-      "score": 2.199,
+      "score": 2.0,
       "next_section": "Abstract",
       "tags": [
         "agents",
@@ -110,15 +110,14 @@
         "personalization"
       ],
       "reasons": [
-        "尚未开始，适合按计划推进",
-        "与目标关键词相关"
+        "尚未开始，适合按计划推进"
       ]
     },
     {
       "paper_id": "eval-notes",
       "title": "Evaluating Retrieval and Grounded Answers",
       "status": "done",
-      "score": -0.809,
+      "score": -1.0,
       "next_section": "Abstract",
       "tags": [
         "evaluation",
@@ -126,8 +125,7 @@
         "citation"
       ],
       "reasons": [
-        "已完成，可用于回顾",
-        "与目标关键词相关"
+        "已完成，可用于回顾"
       ]
     }
   ]

@@ -90,13 +90,13 @@
   <button class="button" type="submit">检索</button>
 </form>
 
-<div class="callout callout-warn">向量检索不可用，已回退到全文检索：embedding response did not contain vectors</div>
+
 
 
 <section class="section">
   <div class="section-head">
     <h2>检索结果</h2>
-    <span class="muted">5 个章节分块</span>
+    <span class="muted">12 个章节分块</span>
   </div>
   <div class="hit-list">
     
@@ -104,14 +104,14 @@
         <div class="hit-head">
           <a href="/paper/rag-survey">Retrieval Augmented Generation: A Reading Map</a>
           <span class="badge">Method</span>
-          <span class="score">score 1.442</span>
+          <span class="score">score 0.146</span>
         </div>
         <p class="hit-text">## Method
 We group systems by retrieval unit. Passage-level retrieval offers precise evidence spans, while document-level retrieval preserves broader context. Dense bi-encoders learn a shared embedding space for queries and passages; sparse lexical retrieval such as BM25 remains strong for rare terms, identifiers, and exact phrases. Hybrid fusion combines the two candidate lists, commonly with reciprocal rank fusion (RRF), which is robust because it uses ranks instead of incomparable score scales. A reranker may then refine the top candidates before generation.</p>
         <div class="hit-meta">
           <span>rag-survey.md:13-14</span>
           <span>fts 1.442</span>
-          
+          <span>vector 0.511</span>
           <span class="tag">rag</span><span class="tag">retrieval</span><span class="tag">survey</span>
         </div>
       </article>
@@ -120,14 +120,14 @@ We group systems by retrieval unit. Passage-level retrieval offers precise evide
         <div class="hit-head">
           <a href="/paper/rag-survey">Retrieval Augmented Generation: A Reading Map</a>
           <span class="badge">Abstract</span>
-          <span class="score">score 1.084</span>
+          <span class="score">score 0.145</span>
         </div>
         <p class="hit-text">## Abstract
 Retrieval augmented generation (RAG) couples a document retriever with a language model so that answers can be grounded in external evidence rather than model parameters alone. This reading map organizes the design space along three axes: what is retrieved, when retrieval happens, and how retrieved evidence is fused into generation. The central claim is that most quality differences between RAG systems come from retrieval granularity and evidence selection, not from the generator. We use this map to compare sparse retrieval, dense retrieval, and hybrid fusion.</p>
         <div class="hit-meta">
           <span>rag-survey.md:10-11</span>
           <span>fts 1.084</span>
-          
+          <span>vector 0.569</span>
           <span class="tag">rag</span><span class="tag">retrieval</span><span class="tag">survey</span>
         </div>
       </article>
@@ -136,14 +136,30 @@ Retrieval augmented generation (RAG) couples a document retriever with a languag
         <div class="hit-head">
           <a href="/paper/rerank-notes">Reranking for Retrieval Pipelines</a>
           <span class="badge">Limitations</span>
-          <span class="score">score 0.705</span>
+          <span class="score">score 0.142</span>
         </div>
         <p class="hit-text">## Limitations
 A cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely. Long passages increase cost and may exceed the reranker&#39;s input limit. Training hard negatives from the same retriever can overfit to its failure modes. The notes do not cover learned fusion of multiple rerankers, and nDCG rewards graded relevance that our small corpus does not provide.</p>
         <div class="hit-meta">
           <span>rerank-notes.md:19-20</span>
           <span>fts 0.705</span>
-          
+          <span>vector 0.526</span>
+          <span class="tag">rerank</span><span class="tag">retrieval</span><span class="tag">rag</span>
+        </div>
+      </article>
+    
+      <article class="hit">
+        <div class="hit-head">
+          <a href="/paper/rerank-notes">Reranking for Retrieval Pipelines</a>
+          <span class="badge">Method</span>
+          <span class="score">score 0.139</span>
+        </div>
+        <p class="hit-text">## Method
+A cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture. The input candidate list is produced by BM25, a dense retriever, or a hybrid of both. We compare two-stage and three-stage pipelines: retrieve top 50, rerank top 20, then pass the best 5 to the generator. Training uses query-passage pairs with hard negatives mined from the first-stage results. Reranking scores are not comparable across queries, so pipelines use them only to order candidates within one query.</p>
+        <div class="hit-meta">
+          <span>rerank-notes.md:13-14</span>
+          <span>fts 0.501</span>
+          <span>vector 0.534</span>
           <span class="tag">rerank</span><span class="tag">retrieval</span><span class="tag">rag</span>
         </div>
       </article>
@@ -152,14 +168,62 @@ A cross-encoder reranker cannot fix a candidate list that misses the relevant pa
         <div class="hit-head">
           <a href="/paper/rag-survey">Retrieval Augmented Generation: A Reading Map</a>
           <span class="badge">Results</span>
-          <span class="score">score 0.532</span>
+          <span class="score">score 0.138</span>
         </div>
         <p class="hit-text">## Results
 Across the notes we compare, hybrid retrieval improves recall on terminology-heavy questions, and reranking improves the precision of the context passed to the generator. Systems that cite evidence spans produce answers that are easier to audit, but citation coverage must be measured rather than assumed. Retrieval latency is dominated by the first-stage candidate search when the index is warm. The survey also observes that chunk boundaries can change which passage wins a query even when the underlying document is unchanged.</p>
         <div class="hit-meta">
           <span>rag-survey.md:16-17</span>
           <span>fts 0.532</span>
-          
+          <span>vector 0.450</span>
+          <span class="tag">rag</span><span class="tag">retrieval</span><span class="tag">survey</span>
+        </div>
+      </article>
+    
+      <article class="hit">
+        <div class="hit-head">
+          <a href="/paper/chunking-notes">Chunking Strategies for Long Technical Documents</a>
+          <span class="badge">Abstract</span>
+          <span class="score">score 0.016</span>
+        </div>
+        <p class="hit-text">## Abstract
+Chunking decides what a retriever can see. A chunk that is too small loses the context needed to interpret a claim, while a chunk that is too large dilutes its embedding and wastes the generator context window. This note compares fixed windows, sentence packing, and semantic boundaries on technical documents with headings, formulas, and references.</p>
+        <div class="hit-meta">
+          <span>chunking-notes.md:10-11</span>
+          <span>fts 0.000</span>
+          <span>vector 0.547</span>
+          <span class="tag">chunking</span><span class="tag">rag</span><span class="tag">retrieval</span>
+        </div>
+      </article>
+    
+      <article class="hit">
+        <div class="hit-head">
+          <a href="/paper/chunking-notes">Chunking Strategies for Long Technical Documents</a>
+          <span class="badge">Limitations</span>
+          <span class="score">score 0.016</span>
+        </div>
+        <p class="hit-text">## Limitations
+The study uses a small English corpus and cannot settle the best chunk size for code or tables. Semantic boundaries depend on an embedding model that may not match the retriever. Overlap can cause the same passage to appear twice in the generator context, inflating perceived support. The notes do not measure end-to-end answer quality with human raters.</p>
+        <div class="hit-meta">
+          <span>chunking-notes.md:19-20</span>
+          <span>fts 0.000</span>
+          <span>vector 0.538</span>
+          <span class="tag">chunking</span><span class="tag">rag</span><span class="tag">retrieval</span>
+        </div>
+      </article>
+    
+      <article class="hit">
+        <div class="hit-head">
+          <a href="/paper/rag-survey">Retrieval Augmented Generation: A Reading Map</a>
+          <span class="badge">Limitations</span>
+          <span class="score">score 0.015</span>
+        </div>
+        <p class="hit-text">## Limitations
+The map covers English technical documents and does not model multilingual tokenization. It treats rerankers as a black box and does not compare training objectives. Most reported gains are measured on small curated sets, so absolute numbers should not be transferred across corpora. The notes also assume that the generator faithfully uses the supplied evidence, which requires a separate grounding check.</p>
+        <div class="hit-meta">
+          <span>rag-survey.md:19-20</span>
+          <span>fts 0.000</span>
+          <span>vector 0.531</span>
           <span class="tag">rag</span><span class="tag">retrieval</span><span class="tag">survey</span>
         </div>
       </article>
@@ -167,16 +231,64 @@ Across the notes we compare, hybrid retrieval improves recall on terminology-hea
       <article class="hit">
         <div class="hit-head">
           <a href="/paper/rerank-notes">Reranking for Retrieval Pipelines</a>
+          <span class="badge">Abstract</span>
+          <span class="score">score 0.015</span>
+        </div>
+        <p class="hit-text">## Abstract
+First-stage retrieval must be cheap, so it usually trades precision for recall. A reranker revisits a small candidate list and scores each query-passage pair with a stronger model. The core problem it solves is context pollution: irrelevant passages consume the generator&#39;s limited context window and invite unsupported claims. Reranking is therefore a precision filter placed between retrieval and generation.</p>
+        <div class="hit-meta">
+          <span>rerank-notes.md:10-11</span>
+          <span>fts 0.000</span>
+          <span>vector 0.515</span>
+          <span class="tag">rerank</span><span class="tag">retrieval</span><span class="tag">rag</span>
+        </div>
+      </article>
+    
+      <article class="hit">
+        <div class="hit-head">
+          <a href="/paper/rag-survey">Retrieval Augmented Generation: A Reading Map</a>
+          <span class="badge">Takeaways</span>
+          <span class="score">score 0.015</span>
+        </div>
+        <p class="hit-text">## Takeaways
+Start from retrieval quality, then improve the generator. Keep a lexical baseline, add dense retrieval when paraphrase matters, and fuse by rank rather than raw score. Always preserve a path from an answer sentence back to a source passage and its line numbers.</p>
+        <div class="hit-meta">
+          <span>rag-survey.md:22-23</span>
+          <span>fts 0.000</span>
+          <span>vector 0.513</span>
+          <span class="tag">rag</span><span class="tag">retrieval</span><span class="tag">survey</span>
+        </div>
+      </article>
+    
+      <article class="hit">
+        <div class="hit-head">
+          <a href="/paper/citation-grounding">Grounding Generated Summaries with Evidence Spans</a>
           <span class="badge">Method</span>
-          <span class="score">score 0.501</span>
+          <span class="score">score 0.014</span>
         </div>
         <p class="hit-text">## Method
-A cross-encoder reads the query and passage together, allowing token-level interactions that a bi-encoder cannot capture. The input candidate list is produced by BM25, a dense retriever, or a hybrid of both. We compare two-stage and three-stage pipelines: retrieve top 50, rerank top 20, then pass the best 5 to the generator. Training uses query-passage pairs with hard negatives mined from the first-stage results. Reranking scores are not comparable across queries, so pipelines use them only to order candidates within one query.</p>
+Retrieved chunks are numbered C1 through Cn and passed to the generator with a strict instruction to cite them. The validator parses citation markers, checks them against the chunk set, and computes citation coverage as cited conclusion sentences divided by total conclusion sentences. Unknown markers are removed from the visible summary and recorded in a report. If coverage falls below a threshold, or the model call fails, the system returns an extractive summary built from the chunks, with the same citation numbers. Prompt hashes and latency are logged without storing credentials.</p>
         <div class="hit-meta">
-          <span>rerank-notes.md:13-14</span>
-          <span>fts 0.501</span>
-          
-          <span class="tag">rerank</span><span class="tag">retrieval</span><span class="tag">rag</span>
+          <span>citation-grounding.md:13-14</span>
+          <span>fts 0.000</span>
+          <span>vector 0.510</span>
+          <span class="tag">citation</span><span class="tag">grounding</span><span class="tag">rag</span><span class="tag">evaluation</span>
+        </div>
+      </article>
+    
+      <article class="hit">
+        <div class="hit-head">
+          <a href="/paper/agent-memory">Long-Term Memory for Reading Agents</a>
+          <span class="badge">Results</span>
+          <span class="score">score 0.014</span>
+        </div>
+        <p class="hit-text">## Results
+Restarting the service with the same persistent store reproduces the same active records, which makes continuity testable. Revision history shows how a progress record moved from one section to the next. Semantic recall retrieves a session summary from a paraphrase of the user&#39;s earlier question, while lexical search alone misses it. Continuity changes planning: an in-progress paper is promoted ahead of unread papers with similar tags.</p>
+        <div class="hit-meta">
+          <span>agent-memory.md:16-17</span>
+          <span>fts 0.000</span>
+          <span>vector 0.496</span>
+          <span class="tag">agents</span><span class="tag">memory</span><span class="tag">personalization</span>
         </div>
       </article>
     
