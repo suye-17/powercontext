@@ -106,6 +106,7 @@ class PreparedContextBuild:
     origins: tuple[PreparedContextOrigin, ...]
     omissions: PreparedContextOmissions = PreparedContextOmissions()
     code_origins: tuple[CodeEvidenceRef, ...] = ()
+    fragments: tuple[PreparedContextFragment, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -115,6 +116,16 @@ class MemoryEntryAddress:
     memory: ArtifactAddress
     entry_id: str
     entry_version_id: str
+
+
+@dataclass(frozen=True)
+class PreparedContextFragment:
+    """An unchanged slice of one exact, scoped Memory entry version."""
+
+    address: MemoryEntryAddress
+    start: int
+    end: int
+    text: str
 
 
 PreparedContextOrigin = MemoryCitation | ArtifactRef | MemoryEntryAddress | ArtifactAddress
@@ -211,6 +222,12 @@ class PreparedContextBuilder:
         profile_candidates: Sequence[PreparedProfileCandidate] = (),
         code_candidates: Sequence[PreparedCodeCandidate] = (),
     ) -> PreparedContextBuild:
+        if request.evidence_selection:
+            from powercontext.builtin.runtime.prepared_evidence import select_evidence
+
+            if sum(len(group.hits) for group in memory_candidates) > self.memory_candidate_limit:
+                raise PreparedContextInvariantError("memory-candidate-limit")
+            return select_evidence(query=request.query, max_bytes=request.max_bytes, candidates=memory_candidates)
         if request.include_code:
 
             def historical(history_request: PrepareContextRequest, entries: int) -> PreparedContextBuild:
@@ -276,6 +293,18 @@ class PreparedContextBuilder:
         the same inputs as :meth:`build_scopes_result` are guaranteed to yield the same
         counters because both go through :meth:`_select_entries`.
         """
+
+        if request.evidence_selection:
+            build = self.build_scopes_result(
+                request=request, current_scope_id=current_scope_id, memory_candidates=memory_candidates
+            )
+            return RecallBudgetView(
+                max_bytes=request.max_bytes,
+                delivered_items=len(build.fragments),
+                truncated_items=build.omissions.truncated_items,
+                dropped_items=build.omissions.dropped_items,
+                unused_bytes=request.max_bytes - build.context.content_bytes,
+            )
 
         content, origins, omissions = self._select_entries(
             request=request,

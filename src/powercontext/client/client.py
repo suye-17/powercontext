@@ -1255,6 +1255,12 @@ def _prepare_request(
             and "assembly" not in request.model_fields_set
         ):
             payload.pop("assembly", None)
+        if (
+            operation is PREPARE_CONTEXT
+            and isinstance(request, PrepareContextRequest)
+            and not request.evidence_selection
+        ):
+            payload.pop("evidence_selection", None)
         if operation.request_location == "query":
             request_query.update({key: value for key, value in payload.items() if value is not None})
         else:
