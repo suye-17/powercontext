@@ -42,9 +42,11 @@
 | `39c85f01` | 表已存在时不再重复执行 DDL，并为 seekdb 连接设置读写超时 | `app/src/paperdesk/store.py` |
 | `086af185` | 引用覆盖率断言对齐产品 50% 阈值，同步文档与站点文案 | `scripts/run_scenario.sh`、`RUNBOOK.md`、`sample/scenario/steps.md`、`evidence/README.md`、`site/index.html` |
 | `9d014330` | 进度记忆在内容相同时跳过重写，保证重试后 revision 稳定 | `app/src/paperdesk/memory.py`、`app/tests/test_memory.py` |
-| `305fd7e9` | 最终一轮完整证据与截图（`9d014330` 之后重跑） | `evidence/`、`site/assets/screenshots/` |
+| `3b97ee2f` | 已存在向量列但索引缺失时自动补建索引 | `app/src/paperdesk/store.py` |
+| `4d24f7cf` | 综述证据必须带向量分；重跑时保留已捕获的截图 | `scripts/run_scenario.sh`、`evidence/README.md`、`README.md`、`site/index.html` |
+| `bcc8eb2a` | 最终一轮完整证据与截图（`4d24f7cf` 之后重跑） | `evidence/`、`site/assets/screenshots/` |
 
-本轮证据在 `9d014330` 提交后由 `qoder/scripts/run_scenario.sh` 从空运行时重跑生成，`evidence/run-status.txt` 记录 `commit=9d014330` 与 `status=complete`。此前 `1c4d5923`、`abe3270e` 两轮证据已被本轮取代。
+本轮证据在 `4d24f7cf` 提交后由 `qoder/scripts/run_scenario.sh` 从空运行时重跑生成，`evidence/run-status.txt` 记录 `commit=4d24f7cf` 与 `status=complete`；综述证据的 6 条命中同时带 `fts_score` 与 `vector_score`。此前 `305fd7e9`、`1c4d5923`、`abe3270e` 等证据轮次已被本轮取代。
 
 ## 建议截取的对话
 
