@@ -57,6 +57,15 @@ def test_pack_wire_format_uses_canonical_json_digest_and_byte_count() -> None:
     assert ContextPack.from_bytes(wire) == pack
 
 
+def test_delta_decoder_accepts_valid_json_whitespace_and_key_order() -> None:
+    base = ContextPack.build((b"a",))
+    target = ContextPack.build((b"a", b"b"))
+    delta = ContextPackDelta.between(base, target)
+    wire = json.dumps(json.loads(delta.to_bytes())).encode("utf-8")
+
+    assert ContextPackDelta.from_bytes(wire) == delta
+
+
 def test_runtime_package_exports_context_pack_contract() -> None:
     assert public_runtime.ContextPack is ContextPack
     assert public_runtime.ContextPackDelta is ContextPackDelta

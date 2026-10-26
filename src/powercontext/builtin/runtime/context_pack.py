@@ -228,7 +228,7 @@ class ContextPackDelta:
 
     @classmethod
     def from_bytes(cls, data: bytes) -> ContextPackDelta:
-        """Decode a delta and validate its exact wire representation."""
+        """Decode a delta, accepting JSON whitespace and key-order variations."""
         payload = _decode_json(data)
         if set(payload) != {"schema", "base_digest", "target_digest", "prefix_items", "appended"}:
             raise ContextPackError("delta fields do not match the schema")
@@ -242,8 +242,6 @@ class ContextPackDelta:
             prefix_items=payload["prefix_items"],
             appended=_decode_items(payload["appended"]),
         )
-        if delta.to_bytes() != data:
-            raise ContextPackError("delta JSON is not canonical")
         return delta
 
 
