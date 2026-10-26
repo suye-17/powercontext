@@ -378,15 +378,24 @@ class PaperStore:
         if self._has_embedding_column:
             if stored is None:
                 self._set_meta(_EMBEDDING_DIM_KEY, str(dimension))
+            if not self._has_vector_index():
+                self._create_vector_index()
             return
         self._cursor.execute(f"ALTER TABLE pd_chunks ADD COLUMN embedding VECTOR({int(dimension)}) NULL")
+        self._create_vector_index()
+        self._has_embedding_column = True
+        self._set_meta(_EMBEDDING_DIM_KEY, str(dimension))
+
+    def _has_vector_index(self) -> bool:
+        rows = self._fetchall("SHOW INDEX FROM pd_chunks")
+        return any(row[2] == "ix_chunk_embedding" for row in rows)
+
+    def _create_vector_index(self) -> None:
         self._cursor.execute(
             "CREATE VECTOR INDEX ix_chunk_embedding ON pd_chunks (embedding) "
             "WITH (distance=cosine, type=hnsw, lib=vsag)"
         )
         self._conn.commit()
-        self._has_embedding_column = True
-        self._set_meta(_EMBEDDING_DIM_KEY, str(dimension))
 
     def _validate_embeddings(
         self,
