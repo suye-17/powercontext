@@ -308,6 +308,12 @@ def test_csv_row_source_id_encodes_components_independently(
     assert csv_row_source_id(document_id, primary_key_value) == expected
 
 
+@pytest.mark.parametrize("document_id", ("", " ", " doc "))
+def test_csv_row_source_id_rejects_invalid_document_id(document_id: str) -> None:
+    with pytest.raises(ValueError):
+        csv_row_source_id(document_id, "key")
+
+
 def test_csv_row_source_id_prevents_component_delimiter_collisions() -> None:
     assert csv_row_source_id("a:b", "c") != csv_row_source_id("a", "b:c")
 

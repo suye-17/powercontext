@@ -41,6 +41,8 @@ class CSVRowSource(Source):
 
 
 def csv_row_source_id(document_id: str, primary_key_value: str) -> str:
+    if not document_id or document_id != document_id.strip():
+        raise ValueError("document_id must be non-empty and have no leading or trailing whitespace")  # noqa: TRY003
     source_id = f"csv:{quote(document_id, safe='')}:{quote(primary_key_value, safe='')}"
     if len(source_id) > MAX_SOURCE_ID_LENGTH:
         raise InvalidSourceReferenceError("source_id", f"must not exceed {MAX_SOURCE_ID_LENGTH} characters")
