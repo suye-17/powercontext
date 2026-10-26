@@ -153,7 +153,7 @@ hybrid  {'recall@1': 0.6, 'recall@3': 0.9, 'recall@5': 1.0, 'mrr': 0.7533, 'embe
 
 脚本启动 `paperdesk serve --port 8080`，请求 8 个页面并把 HTML 保存到 `evidence/web/`。
 
-**期望**：`http-status.txt` 中 8 行全部为 `200`；`health.json` 中 `papers=6`、`chunks=30`、`embeddings=30`、`llm_available=true`、`powercontext=true`。
+**期望**：`http-status.txt` 中 8 行全部为 `200`；`health.json` 中 `papers=6`、`chunks=30`、`embeddings=30`、`llm_available=true`、`powercontext=true`。资料库页必须带向量得分；若嵌入服务瞬时失败导致页面回退为仅全文检索，脚本会重试请求而不保留降级证据。
 
 浏览器打开 `http://127.0.0.1:8080/` 可以看到：
 

@@ -46,7 +46,7 @@
 | `4d24f7cf` | 综述证据必须带向量分；重跑时保留已捕获的截图 | `scripts/run_scenario.sh`、`evidence/README.md`、`README.md`、`site/index.html` |
 | `bcc8eb2a` | 最终一轮完整证据与截图（`4d24f7cf` 之后重跑） | `evidence/`、`site/assets/screenshots/` |
 
-本轮证据在 `4d24f7cf` 提交后由 `qoder/scripts/run_scenario.sh` 从空运行时重跑生成，`evidence/run-status.txt` 记录 `commit=4d24f7cf` 与 `status=complete`；综述证据的 6 条命中同时带 `fts_score` 与 `vector_score`。此前 `305fd7e9`、`1c4d5923`、`abe3270e` 等证据轮次已被本轮取代。
+本轮证据在 `4d24f7cf` 提交后由 `qoder/scripts/run_scenario.sh` 从空运行时重跑生成，`evidence/run-status.txt` 记录 `commit=4d24f7cf` 与 `status=complete`；综述证据的 6 条命中同时带 `fts_score` 与 `vector_score`。此前 `305fd7e9` 及更早的证据轮次已被本轮取代。
 
 ## 建议截取的对话
 

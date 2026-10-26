@@ -9,7 +9,7 @@ cd qoder
 scripts/run_scenario.sh
 ```
 
-脚本从空运行时开始，依次执行导入、检索、记忆写入、模型综述、会话写回、PowerContext 重启、评测和 Web 请求。任一步骤的断言失败都会终止脚本。每次运行先清空 `seekdb/`、`powercontext/`、`llm/`、`eval/`、`web/` 五个生成目录，再由 `run-status.txt` 记录 `running` / `complete` / `failed`、起止时间与当前 commit；只有 `status=complete` 的目录可作为一轮完整结果。
+脚本从空运行时开始，依次执行导入、检索、记忆写入、模型综述、会话写回、PowerContext 重启、评测和 Web 请求。任一步骤的断言失败都会终止脚本。每次运行清空 `seekdb/`、`powercontext/`、`llm/`、`eval/` 四个生成目录以及 `web/` 下的页面文件，保留 `web/screenshots/`；`run-status.txt` 记录 `running` / `complete` / `failed`、起止时间与当前 commit，只有 `status=complete` 的目录可作为一轮完整结果。
 
 ## 验证环境
 

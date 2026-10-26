@@ -353,19 +353,32 @@ if ! curl -fsS "http://127.0.0.1:$WEB_PORT/health" >/dev/null 2>&1; then
   echo "error: web app did not become healthy; see $DATA_DIR/web.log" >&2
   exit 1
 fi
-: >"$EVIDENCE/web/http-status.txt"
-for path in "/" "/library" "/library?q=hybrid+fusion" "/paper/rag-survey" "/session" "/debug/retrieval?q=hybrid+fusion" "/memory" "/ask?q=rerank+in+RAG"; do
-  name="${path//[^a-zA-Z0-9]/_}"
-  code="$(curl -sS -o "$EVIDENCE/web/${name}.html" --max-time 120 -w '%{http_code}' "http://127.0.0.1:$WEB_PORT$path")"
-  echo "$code $path" | tee -a "$EVIDENCE/web/http-status.txt"
-done
-"$PY" - "$EVIDENCE/web/http-status.txt" <<'PY'
+fetch_web_pages() {
+  : >"$EVIDENCE/web/http-status.txt"
+  for path in "/" "/library" "/library?q=hybrid+fusion" "/paper/rag-survey" "/session" "/debug/retrieval?q=hybrid+fusion" "/memory" "/ask?q=rerank+in+RAG"; do
+    name="${path//[^a-zA-Z0-9]/_}"
+    code="$(curl -sS -o "$EVIDENCE/web/${name}.html" --max-time 120 -w '%{http_code}' "http://127.0.0.1:$WEB_PORT$path")"
+    echo "$code $path" | tee -a "$EVIDENCE/web/http-status.txt"
+  done
+  "$PY" - "$EVIDENCE/web/http-status.txt" <<'PY'
 import sys
 rows = [line.split(None, 1) for line in open(sys.argv[1], encoding="utf-8") if line.strip()]
 bad = [line for line in rows if line[0] != "200"]
 assert not bad, bad
 print("web pages:", len(rows), "all 200")
 PY
+  # A transient embedding failure would silently record a keyword-only page;
+  # retry instead of committing degraded retrieval evidence.
+  if grep -l '向量检索不可用' "$EVIDENCE"/web/*.html; then
+    echo "error: a web page fell back to keyword-only retrieval" >&2
+    return 1
+  fi
+  if ! grep -q 'vector [0-9]' "$EVIDENCE/web/_library_q_hybrid_fusion.html"; then
+    echo "error: library page has no vector score" >&2
+    return 1
+  fi
+}
+retry "web" 4 fetch_web_pages
 curl -fsS "http://127.0.0.1:$WEB_PORT/health" | tee "$EVIDENCE/web/health.json"
 
 write_status complete
