@@ -9,7 +9,7 @@ from typing import Any
 import pytest
 
 from powercontext.builtin.artifacts.memory import EmbeddingProfile, MemoryEntryInput
-from powercontext.builtin.inference import EmbeddingResult, InferenceUsage
+from powercontext.builtin.inference import EmbeddingResult, InferenceUsage, QueryEmbeddingModel
 from powercontext.builtin.inference.coalescing import CoalescingEmbeddingModel
 from powercontext.builtin.persistence.sqlite import SQLiteConfig
 from powercontext.builtin.runtime import BuiltinConfig, open_builtin_contexts
@@ -236,6 +236,67 @@ def test_cache_hits_do_not_charge_usage_again() -> None:
         cached = await model.embed(("first",))
         assert cached.usage.requests == 0
         assert cached.usage.input_tokens in (None, 0)
+
+    asyncio.run(scenario())
+
+
+def test_embed_query_uses_separate_lane_for_query_aware_base() -> None:
+    class QueryAware(RecordingEmbedding):
+        def __init__(self) -> None:
+            super().__init__()
+            self.query_calls: list[tuple[str, ...]] = []
+
+        async def embed_query(self, texts: tuple[str, ...], /) -> EmbeddingResult:
+            self.query_calls.append(tuple(texts))
+            return EmbeddingResult(vectors=tuple((9.0, 9.0) for _ in texts), usage=InferenceUsage(requests=1))
+
+    async def scenario() -> None:
+        base = QueryAware()
+        model = CoalescingEmbeddingModel(base, coalesce_ms=0, cache_size=4)
+
+        assert isinstance(model, QueryEmbeddingModel)
+        assert (await model.embed(("same",))).vectors == ((4.0, 1.0),)
+        assert (await model.embed_query(("same",))).vectors == ((9.0, 9.0),)
+        assert base.calls == [("same",)]
+        assert base.query_calls == [("same",)]
+
+        await model.embed_query(("same",))
+        await model.embed(("same",))
+        assert base.query_calls == [("same",)]
+        assert base.calls == [("same",)]
+
+    asyncio.run(scenario())
+
+
+def test_embed_query_falls_back_to_document_lane_for_symmetric_base() -> None:
+    async def scenario() -> None:
+        base = RecordingEmbedding()
+        model = CoalescingEmbeddingModel(base, coalesce_ms=0, cache_size=2)
+
+        assert (await model.embed(("same",))).vectors == ((4.0, 1.0),)
+        assert (await model.embed_query(("same",))).vectors == ((4.0, 1.0),)
+        assert base.calls == [("same",)]
+
+    asyncio.run(scenario())
+
+
+def test_base_exception_reaches_waiters_without_hanging() -> None:
+    class Fatal(BaseException):
+        pass
+
+    class FatalEmbedding(RecordingEmbedding):
+        async def embed(self, texts: tuple[str, ...], /) -> EmbeddingResult:
+            self.calls.append(tuple(texts))
+            raise Fatal("fatal")
+
+    async def scenario() -> None:
+        model = CoalescingEmbeddingModel(FatalEmbedding(), coalesce_ms=0)
+        raised = False
+        try:
+            await asyncio.wait_for(model.embed(("fatal",)), timeout=1)
+        except Fatal:
+            raised = True
+        assert raised
 
     asyncio.run(scenario())
 
