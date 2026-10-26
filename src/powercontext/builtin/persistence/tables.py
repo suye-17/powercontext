@@ -1180,6 +1180,30 @@ RECURRENCE_OBSERVATION_TABLE = Table(
 
 RECURRENCE_TABLES = (RECURRENCE_MATCH_TABLE, RECURRENCE_OBSERVATION_TABLE)
 
+SOURCE_LIFECYCLE_STATES_TABLE = Table(
+    "pc_source_lifecycle_states",
+    SHARED_METADATA,
+    Column("scope_id", identity_string(MAX_SCOPE_ID_LENGTH), primary_key=True),
+    Column("payload", _canonical_payload_type(), nullable=False),
+    ForeignKeyConstraint(("scope_id",), ("pc_scopes.scope_id",), ondelete="CASCADE"),
+)
+
+
+SOURCE_LIFECYCLE_UNAVAILABLE_TOPICS_TABLE = Table(
+    "pc_source_lifecycle_unavailable_topics",
+    SHARED_METADATA,
+    Column("scope_id", identity_string(MAX_SCOPE_ID_LENGTH), primary_key=True),
+    Column("family", identity_string(MAX_ARTIFACT_FAMILY_LENGTH), primary_key=True),
+    Column("artifact_id", identity_string(MAX_ARTIFACT_ID_LENGTH), primary_key=True),
+    Column("revision", Integer, primary_key=True),
+    ForeignKeyConstraint(
+        ("scope_id", "family", "artifact_id", "revision"),
+        ("pc_artifacts.scope_id", "pc_artifacts.family", "pc_artifacts.artifact_id", "pc_artifacts.revision"),
+        ondelete="CASCADE",
+    ),
+)
+
+
 BUILTIN_TABLES = (
     SCOPE_TABLES
     + SHARED_TABLES
@@ -1187,5 +1211,11 @@ BUILTIN_TABLES = (
     + MEMORY_TABLES
     + STATISTICS_TABLES
     + RECURRENCE_TABLES
-    + (ARTIFACT_TAGS_TABLE, DREAM_RUNS_TABLE, RECEIPT_MIGRATION_REVIEW_TABLE)
+    + (
+        ARTIFACT_TAGS_TABLE,
+        DREAM_RUNS_TABLE,
+        RECEIPT_MIGRATION_REVIEW_TABLE,
+        SOURCE_LIFECYCLE_STATES_TABLE,
+        SOURCE_LIFECYCLE_UNAVAILABLE_TOPICS_TABLE,
+    )
 )

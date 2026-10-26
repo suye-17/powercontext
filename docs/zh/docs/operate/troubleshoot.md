@@ -255,6 +255,9 @@ collation，但不会包含数据库 URL 或凭据。
 
    旧版本没有 `pc_topic_memory_work_budgets` 时可从清单移除该表；若该表存在，必须与 Cursor 一起恢复，
    保留已消耗的失败额度，避免迁移后重置累计成本。
+   源数据库早于来源生命周期功能时，只有导出中不存在对应表，才能从第 2 层移除
+   `pc_source_lifecycle_states` 和 `pc_source_lifecycle_unavailable_topics`。若表存在，必须恢复两张表，
+   保留依赖图、已接受事件与 Topic 使用资格。
 
    第 1 层包含父表和无外键的表：
 
@@ -268,7 +271,7 @@ collation，但不会包含数据库 URL 或凭据。
 
    ```bash
    obloader <connection-options> -D <new-database> --csv \
-     --table 'pc_dream_runs,pc_scope_context_references,pc_scope_external_references,pc_scope_creation_requests,pc_scope_settings,pc_scope_bindings,pc_artifact_heads,pc_artifact_lineage_sources,pc_artifact_lineage_artifacts,pc_artifact_publications,pc_artifact_candidate_versions,pc_topic_memory_revision_publications,pc_memory_entry_versions' \
+     --table 'pc_dream_runs,pc_scope_context_references,pc_scope_external_references,pc_scope_creation_requests,pc_scope_settings,pc_scope_bindings,pc_artifact_heads,pc_artifact_lineage_sources,pc_artifact_lineage_artifacts,pc_artifact_publications,pc_artifact_candidate_versions,pc_topic_memory_revision_publications,pc_memory_entry_versions,pc_source_lifecycle_states,pc_source_lifecycle_unavailable_topics' \
      -f <export-directory>
    ```
 

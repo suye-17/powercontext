@@ -264,6 +264,9 @@ so the previous database remains available for recovery:
    `pc_skill_publications`), the Profile tables, `pc_topic_memory_work_budgets`, or
    `pc_receipt_migration_review`, remove the absent tables from their respective layers.
    When a work-budget table exists, restore it together with Cursors so failure allowances survive the migration.
+   If the source predates source lifecycle support, omit `pc_source_lifecycle_states` and
+   `pc_source_lifecycle_unavailable_topics` from Layer 2 only when they are absent from the export.
+   When present, restore both tables to preserve the graph, accepted events, and Topic availability.
 
    Layer 1 contains parents and tables without foreign keys:
 
@@ -277,7 +280,7 @@ so the previous database remains available for recovery:
 
    ```bash
    obloader <connection-options> -D <new-database> --csv \
-     --table 'pc_dream_runs,pc_scope_context_references,pc_scope_external_references,pc_scope_creation_requests,pc_scope_settings,pc_scope_bindings,pc_artifact_heads,pc_artifact_lineage_sources,pc_artifact_lineage_artifacts,pc_artifact_publications,pc_artifact_candidate_versions,pc_topic_memory_revision_publications,pc_memory_entry_versions' \
+     --table 'pc_dream_runs,pc_scope_context_references,pc_scope_external_references,pc_scope_creation_requests,pc_scope_settings,pc_scope_bindings,pc_artifact_heads,pc_artifact_lineage_sources,pc_artifact_lineage_artifacts,pc_artifact_publications,pc_artifact_candidate_versions,pc_topic_memory_revision_publications,pc_memory_entry_versions,pc_source_lifecycle_states,pc_source_lifecycle_unavailable_topics' \
      -f <export-directory>
    ```
 
