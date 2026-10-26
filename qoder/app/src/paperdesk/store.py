@@ -56,9 +56,12 @@ class PaperStore:
                 database="test",
                 charset="utf8mb4",
                 autocommit=False,
+                connect_timeout=10,
+                read_timeout=30,
+                write_timeout=30,
             )
             self._cursor = self._conn.cursor()
-            self._ensure_schema()
+            self._prepare_schema()
             if embedding_dim is not None:
                 self._ensure_embedding_column(embedding_dim)
             stored_dim = self.embedding_dim
@@ -312,6 +315,14 @@ class PaperStore:
             for chunk_id, score in ranked[:limit]
         ]
 
+    def _prepare_schema(self) -> None:
+        # No-op DDL on every CLI start raced with the embedded server's startup
+        # housekeeping and could wedge the connection; only create when missing.
+        tables = {row[0] for row in self._fetchall("SHOW TABLES")}
+        if not {"pd_documents", "pd_chunks", "pd_meta"} <= tables:
+            self._ensure_schema()
+        self._has_embedding_column = bool(self._fetchall("SHOW COLUMNS FROM pd_chunks LIKE 'embedding'"))
+
     def _ensure_schema(self) -> None:
         self._cursor.execute(
             """
@@ -359,8 +370,6 @@ class PaperStore:
             """
         )
         self._conn.commit()
-        columns = self._fetchall("SHOW COLUMNS FROM pd_chunks LIKE 'embedding'")
-        self._has_embedding_column = bool(columns)
 
     def _ensure_embedding_column(self, dimension: int) -> None:
         stored = self.embedding_dim
