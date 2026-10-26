@@ -47,10 +47,12 @@ DEFAULT_GOAL = Goal(
 
 def _answer_text(value: str) -> str:
     lines = []
-    for line in value.splitlines():
-        text = line.replace("**", "")
-        if text.startswith("- "):
-            text = "• " + text[2:]
+    for raw in value.splitlines():
+        text = raw.replace("**", "").strip()
+        if text.startswith("#"):
+            text = text.lstrip("#").strip()
+        elif text.startswith(("- ", "* ")):
+            text = "• " + text[2:].strip()
         lines.append(text)
     return "\n".join(lines)
 

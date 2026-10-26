@@ -91,7 +91,7 @@ qoder/
 
 ## 验证
 
-- 应用测试：`cd qoder/app && .venv/bin/python -m pytest -q`，57 项通过（解析、存储、检索、记忆、模型校验、评测、服务层）。
+- 应用测试：`cd qoder/app && .venv/bin/python -m pytest -q`，58 项通过（解析、存储、检索、记忆、模型校验、评测、服务层）。
 - 场景验证：`scripts/run_scenario.sh`，断言导入数量、过滤结果、记忆版本、重启一致性、引用映射、评测阈值与 8 个 Web 页面状态。
 - 实际运行记录：`qoder/evidence/`；技术参与方式与证据对照见 [evidence/README.md](evidence/README.md)。
 

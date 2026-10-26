@@ -30,7 +30,7 @@
 | 方案设计 | 设计 `pd_documents` / `pd_chunks` / `pd_meta`、记忆 kind、继续卡片与引用校验流程 | `app/src/paperdesk/store.py`、`memory.py`、`service.py` |
 | 实现 | 生成解析器、seekdb 存取与混合检索、嵌入客户端、PowerContext 客户端、FastAPI 页面、CLI 与测试 | `app/src/paperdesk/`、`app/tests/` |
 | 调试 | 修复 Jinja `TemplateResponse` 调用、继续卡片排序、记忆测试中的可变 payload、RRF 权重与评测期望 | 对应测试与 `app/src/paperdesk/` 的最终实现 |
-| 验证 | 运行 57 项测试，执行完整场景脚本，检查 Web 页面、记忆重启复用与引用映射 | `evidence/` 全部目录 |
+| 验证 | 运行 58 项测试，执行完整场景脚本，检查 Web 页面、记忆重启复用与引用映射 | `evidence/` 全部目录 |
 | 发布（待执行） | 使用个人 Qoder 账号发布 `site/`，设置公开可见并在无痕窗口核验 | `site/PUBLISH.md`、本目录截图 |
 
 ## 代码对应关系
