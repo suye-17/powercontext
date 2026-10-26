@@ -20,21 +20,35 @@ from collections import Counter
 from datetime import timedelta
 
 import pytest
+from sqlalchemy import select
 
+from powercontext import SourceMaterialization
+from powercontext.builtin.artifacts.topic_memory import TOPIC_MEMORY_SOURCE_WINDOW_BINDING
+from powercontext.builtin.persistence.cursors import SourceCursorRepository
 from powercontext.builtin.persistence.errors import ArtifactProcessingLeadershipLostError
 from powercontext.builtin.persistence.processing_intents import ArtifactProcessingIntentRepository
+from powercontext.builtin.persistence.sources import SourceRepository
 from powercontext.builtin.persistence.sqlite import SQLiteConfig, SQLiteProfile
 from powercontext.builtin.persistence.supervision import (
     ArtifactProcessingBindingStateRepository,
     ArtifactProcessingLeaseRepository,
 )
-from powercontext.builtin.persistence.tables import SHARED_TABLES
+from powercontext.builtin.persistence.tables import SHARED_TABLES, SOURCE_JOURNAL_HEADS_TABLE
 from powercontext.builtin.runtime import artifact_processing as processing
 from powercontext.builtin.runtime.artifact_processing import ArtifactProcessingBinding, ArtifactProcessingSupervisor
 from powercontext.builtin.runtime.processing_contracts import (
     ArtifactProcessingWorkerCompletion,
     ArtifactProcessingWorkerOutcome,
 )
+from powercontext.builtin.runtime.processing_discovery import SourceProcessingPendingProvider
+from powercontext.builtin.sources import (
+    BUILTIN_SOURCE_REGISTRY,
+    ContentSource,
+    ContentSourceInternal,
+    ContentSourceTarget,
+    SourceCursor,
+)
+from powercontext.builtin.triggers import SOURCE_WINDOW_TRIGGER_NAME
 
 
 async def _wait(predicate, timeout_seconds=5):
@@ -69,6 +83,46 @@ async def _intent(database, binding, scope):
         return await ArtifactProcessingIntentRepository().load(connection, scope, binding)
 
 
+async def _capture_sources(database, scope, count, *, start=0):
+    sources = SourceRepository(BUILTIN_SOURCE_REGISTRY)
+    async with database.transaction() as connection:
+        for number in range(start, start + count):
+            await sources.add(
+                connection,
+                scope,
+                ContentSource(
+                    name=f"source-{number}",
+                    materialization=SourceMaterialization.CAPTURED,
+                    content=f"persisted source {number}",
+                ),
+            )
+
+
+async def _save_cursor(database, scope, binding, sequence):
+    async with database.transaction() as connection:
+        await SourceCursorRepository().save(
+            connection, scope, binding, SourceCursor(sequence=sequence), expected_generation=None
+        )
+
+
+async def _advance_source_cursor(database, scope, binding, *, count=None):
+    async with database.transaction() as connection:
+        head = await connection.scalar(
+            select(SOURCE_JOURNAL_HEADS_TABLE.c.position).where(SOURCE_JOURNAL_HEADS_TABLE.c.scope_id == scope)
+        )
+        current = await SourceCursorRepository().load(connection, scope, binding)
+        after = 0 if current is None else current.cursor.sequence
+        sequence = int(head or 0) if count is None else min(int(head or 0), after + count)
+        await SourceCursorRepository().save(
+            connection,
+            scope,
+            binding,
+            SourceCursor(sequence=sequence),
+            expected_generation=None if current is None else current.generation,
+        )
+        return sequence, int(head or 0)
+
+
 class _Launcher:
     def __init__(self, database, *, on_work=None, gates=None):
         self.database = database
@@ -78,6 +132,9 @@ class _Launcher:
         self.active = set()
         self.maximum_active = 0
         self.terminated = []
+        self.remaining_work = False
+        self.advance_cursor = False
+        self.cursor_advance_limit: int | None = None
 
     async def start(self, assignment):
         key = (assignment.binding_name, assignment.scope_id)
@@ -103,6 +160,14 @@ class _Handle:
                 completion = await self.launcher.on_work(work)
                 if completion is not None:
                     return completion
+            if self.launcher.advance_cursor:
+                sequence, head = await _advance_source_cursor(
+                    self.launcher.database,
+                    work.scope_id,
+                    work.binding_name,
+                    count=self.launcher.cursor_advance_limit,
+                )
+                self.launcher.remaining_work = sequence < head
             async with self.launcher.database.transaction() as connection:
                 await ArtifactProcessingLeaseRepository().require_fence(connection, work.fence)
                 intents = ArtifactProcessingIntentRepository()
@@ -113,8 +178,9 @@ class _Handle:
                     work.scope_id,
                     work.binding_name,
                     work.claimed_request_generation,
-                    clean_generation=row.dirty_generation,
+                    clean_generation=None if self.launcher.remaining_work else row.dirty_generation,
                 )
+            self.launcher.remaining_work = False
             return ArtifactProcessingWorkerCompletion()
         finally:
             self.launcher.active.discard((work.binding_name, work.scope_id))
@@ -627,5 +693,436 @@ def test_overflow_flush_cannot_advance_retry_and_cached_failures_cannot_extend_g
                 assert attempts["overflow"][1] - attempts["overflow"][0] >= 0.78
                 assert supervisor.max_resident <= 1 + 4 + 1
                 assert (await _intent(profile.database, "memory-binding", "healthy-tail")).handled_generation == 1
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(("source_count", "accepted"), [(2, False), (3, True)])
+def test_count_threshold_admits_only_when_unconsumed_journal_count_reaches_threshold(tmp_path, source_count, accepted):
+    async def scenario():
+        async with _profile(tmp_path, f"count-{source_count}") as profile:
+            await _capture_sources(profile.database, "scope", source_count)
+            binding = SOURCE_WINDOW_TRIGGER_NAME
+            launcher = _Launcher(profile.database)
+            launcher.advance_cursor = True
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(
+                    ArtifactProcessingBinding(
+                        binding,
+                        "memory",
+                        launcher,
+                        pending_provider=SourceProcessingPendingProvider(profile.database, binding, "memory"),
+                        source_count_threshold=3,
+                    ),
+                ),
+                lease_mode="single-process",
+            ) as supervisor:
+                if accepted:
+                    await _wait(lambda: supervisor.family_status["memory"]["completed"] == 1)
+                else:
+                    await asyncio.sleep(0.1)
+                    assert not launcher.assignments
+                intent = await _intent(profile.database, binding, "scope")
+                assert intent is not None
+                assert intent.requested_generation == int(accepted)
+                assert (intent.dirty_generation > intent.clean_generation) is not accepted
+
+    asyncio.run(scenario())
+
+
+def test_count_threshold_uses_independent_family_cursors(tmp_path):
+    async def scenario():
+        async with _profile(tmp_path, "count-family-cursors") as profile:
+            await _capture_sources(profile.database, "scope", 3)
+            memory_binding = SOURCE_WINDOW_TRIGGER_NAME
+            topic_binding = TOPIC_MEMORY_SOURCE_WINDOW_BINDING
+            await _save_cursor(profile.database, "scope", memory_binding, 1)
+            memory = _Launcher(profile.database)
+            topic = _Launcher(profile.database)
+            memory.advance_cursor = True
+            topic.advance_cursor = True
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(
+                    ArtifactProcessingBinding(
+                        memory_binding,
+                        "memory",
+                        memory,
+                        pending_provider=SourceProcessingPendingProvider(profile.database, memory_binding, "memory"),
+                        source_count_threshold=3,
+                    ),
+                    ArtifactProcessingBinding(
+                        topic_binding,
+                        "topic-memory",
+                        topic,
+                        pending_provider=SourceProcessingPendingProvider(
+                            profile.database, topic_binding, "topic-memory"
+                        ),
+                        source_count_threshold=3,
+                    ),
+                ),
+                lease_mode="single-process",
+            ) as supervisor:
+                await _wait(lambda: supervisor.family_status["topic-memory"]["completed"] == 1)
+                await asyncio.sleep(0.05)
+                assert not memory.assignments
+                assert (await _intent(profile.database, memory_binding, "scope")).requested_generation == 0
+                assert (await _intent(profile.database, topic_binding, "scope")).handled_generation == 1
+
+    asyncio.run(scenario())
+
+
+def test_memory_single_window_rechecks_remaining_count_after_new_capture(tmp_path):
+    async def scenario():
+        async with _profile(tmp_path, "count-memory-window") as profile:
+            await _capture_sources(profile.database, "scope", 3)
+            binding = SOURCE_WINDOW_TRIGGER_NAME
+            launcher = _Launcher(profile.database)
+            launcher.advance_cursor = True
+            launcher.cursor_advance_limit = 1
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(
+                    ArtifactProcessingBinding(
+                        binding,
+                        "memory",
+                        launcher,
+                        pending_provider=SourceProcessingPendingProvider(profile.database, binding, "memory"),
+                        source_count_threshold=3,
+                    ),
+                ),
+                lease_mode="single-process",
+            ) as supervisor:
+                await _wait(lambda: supervisor.family_status["memory"]["completed"] == 1)
+                await asyncio.sleep(0.1)
+                assert [work.scope_id for work in launcher.assignments] == ["scope"]
+                partial = await _intent(profile.database, binding, "scope")
+                assert partial is not None and partial.dirty_generation > partial.clean_generation
+                await _capture_sources(profile.database, "scope", 1, start=3)
+                supervisor.wake(binding)
+                await _wait(lambda: supervisor.family_status["memory"]["completed"] == 2)
+                assert [work.scope_id for work in launcher.assignments] == ["scope", "scope"]
+                async with profile.database.transaction() as connection:
+                    cursor = await SourceCursorRepository().load(connection, "scope", binding)
+                assert cursor is not None and cursor.cursor.sequence == 2
+
+    asyncio.run(scenario())
+
+
+def test_timed_admission_remains_available_below_count_threshold(tmp_path):
+    async def scenario():
+        async with _profile(tmp_path, "count-timed-or") as profile:
+            await _capture_sources(profile.database, "scope", 1)
+            binding = SOURCE_WINDOW_TRIGGER_NAME
+            launcher = _Launcher(profile.database)
+            launcher.advance_cursor = True
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(
+                    ArtifactProcessingBinding(
+                        binding,
+                        "memory",
+                        launcher,
+                        automatic_processing_interval=timedelta(hours=1),
+                        pending_provider=SourceProcessingPendingProvider(profile.database, binding, "memory"),
+                        source_count_threshold=3,
+                    ),
+                ),
+                lease_mode="single-process",
+            ) as supervisor:
+                await _wait(lambda: supervisor.family_status["memory"]["completed"] == 1)
+                intent = await _intent(profile.database, binding, "scope")
+                assert intent is not None and intent.handled_generation == 1
+                async with profile.database.transaction() as connection:
+                    state = await ArtifactProcessingBindingStateRepository().load(connection, binding)
+                assert state is not None and state.last_schedule_checkpoint_at is not None
+
+    asyncio.run(scenario())
+
+
+def test_repeated_count_wake_reuses_one_durable_request(tmp_path):
+    async def scenario():
+        async with _profile(tmp_path, "count-wake-idempotent") as profile:
+            await _capture_sources(profile.database, "scope", 3)
+            binding = SOURCE_WINDOW_TRIGGER_NAME
+            release = asyncio.Event()
+            launcher = _Launcher(profile.database, gates={"scope": release})
+            launcher.advance_cursor = True
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(
+                    ArtifactProcessingBinding(
+                        binding,
+                        "memory",
+                        launcher,
+                        pending_provider=SourceProcessingPendingProvider(profile.database, binding, "memory"),
+                        source_count_threshold=3,
+                    ),
+                ),
+                lease_mode="single-process",
+            ) as supervisor:
+                await _wait(lambda: len(launcher.assignments) == 1)
+                for _ in range(3):
+                    supervisor.wake(binding)
+                await asyncio.sleep(0.05)
+                intent = await _intent(profile.database, binding, "scope")
+                assert intent is not None and intent.requested_generation == 1
+                assert len(launcher.assignments) == 1
+                release.set()
+                await _wait(lambda: supervisor.family_status["memory"]["completed"] == 1)
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize(
+    ("binding", "family"),
+    [(SOURCE_WINDOW_TRIGGER_NAME, "memory"), (TOPIC_MEMORY_SOURCE_WINDOW_BINDING, "topic-memory")],
+)
+def test_explicit_request_bypasses_count_threshold(tmp_path, binding, family):
+    async def scenario():
+        async with _profile(tmp_path, f"count-explicit-{family}") as profile:
+            await _capture_sources(profile.database, "scope", 1)
+            launcher = _Launcher(profile.database)
+            launcher.advance_cursor = True
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(
+                    ArtifactProcessingBinding(
+                        binding,
+                        family,
+                        launcher,
+                        pending_provider=SourceProcessingPendingProvider(profile.database, binding, family),
+                        source_count_threshold=3,
+                    ),
+                ),
+                lease_mode="single-process",
+            ) as supervisor:
+                await _request(profile.database, binding, "scope", dirty=False)
+                supervisor.wake(binding)
+                await _wait(lambda: supervisor.family_status[family]["completed"] == 1)
+                intent = await _intent(profile.database, binding, "scope")
+                assert intent is not None and intent.handled_generation == 1
+                assert len(launcher.assignments) == 1
+
+    asyncio.run(scenario())
+
+
+def test_below_threshold_dirty_input_survives_supervisor_restart(tmp_path):
+    async def scenario():
+        async with _profile(tmp_path, "count-below-restart") as profile:
+            await _capture_sources(profile.database, "scope", 2)
+            binding = SOURCE_WINDOW_TRIGGER_NAME
+
+            def make_binding(launcher):
+                return ArtifactProcessingBinding(
+                    binding,
+                    "memory",
+                    launcher,
+                    pending_provider=SourceProcessingPendingProvider(profile.database, binding, "memory"),
+                    source_count_threshold=3,
+                )
+
+            first = _Launcher(profile.database)
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(make_binding(first),),
+                lease_mode="single-process",
+            ):
+                await asyncio.sleep(0.1)
+                assert not first.assignments
+                pending = await _intent(profile.database, binding, "scope")
+                assert pending is not None and pending.requested_generation == 0
+                assert pending.dirty_generation > pending.clean_generation
+
+            second = _Launcher(profile.database)
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(make_binding(second),),
+                lease_mode="single-process",
+            ):
+                await asyncio.sleep(0.1)
+                assert not second.assignments
+                pending = await _intent(profile.database, binding, "scope")
+                assert pending is not None and pending.requested_generation == 0
+                assert pending.dirty_generation > pending.clean_generation
+
+    asyncio.run(scenario())
+
+
+def test_startup_count_reconciliation_covers_all_pages_and_scopes(tmp_path, monkeypatch):
+    monkeypatch.setattr(processing, "_DISCOVERY_PAGE_SIZE", 1)
+
+    async def scenario():
+        async with _profile(tmp_path, "count-startup-pages") as profile:
+            for scope in ("scope-a", "scope-b", "scope-c"):
+                await _capture_sources(profile.database, scope, 1)
+            binding = SOURCE_WINDOW_TRIGGER_NAME
+            launcher = _Launcher(profile.database)
+            launcher.advance_cursor = True
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(
+                    ArtifactProcessingBinding(
+                        binding,
+                        "memory",
+                        launcher,
+                        pending_provider=SourceProcessingPendingProvider(profile.database, binding, "memory"),
+                        source_count_threshold=1,
+                        max_workers=1,
+                    ),
+                ),
+                lease_mode="single-process",
+            ) as supervisor:
+                await _wait(lambda: supervisor.family_status["memory"]["completed"] == 3)
+                assert {work.scope_id for work in launcher.assignments} == {"scope-a", "scope-b", "scope-c"}
+
+    asyncio.run(scenario())
+
+
+def test_accepted_count_request_retries_after_supervisor_restart(tmp_path, caplog):
+    caplog.set_level(logging.CRITICAL, logger=processing.__name__)
+
+    async def scenario():
+        async with _profile(tmp_path, "count-accepted-restart") as profile:
+            await _capture_sources(profile.database, "scope", 3)
+            binding = SOURCE_WINDOW_TRIGGER_NAME
+            async with profile.database.transaction() as connection:
+                await connection.exec_driver_sql("""
+                    CREATE TRIGGER reject_count_cursor_insert
+                    BEFORE INSERT ON pc_source_cursors
+                    BEGIN
+                        SELECT RAISE(ABORT, 'forced cursor persistence failure');
+                    END;
+                """)
+
+            def make_binding(launcher):
+                return ArtifactProcessingBinding(
+                    binding,
+                    "memory",
+                    launcher,
+                    pending_provider=SourceProcessingPendingProvider(profile.database, binding, "memory"),
+                    source_count_threshold=3,
+                )
+
+            async def fail_cursor_commit(work):
+                async with profile.database.transaction() as connection:
+                    await SourceCursorRepository().save(
+                        connection,
+                        work.scope_id,
+                        work.binding_name,
+                        SourceCursor(sequence=1),
+                        expected_generation=None,
+                    )
+
+            first = _Launcher(profile.database, on_work=fail_cursor_commit)
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(make_binding(first),),
+                lease_mode="single-process",
+                retry_base_seconds=1,
+                retry_cap_seconds=1,
+                retry_jitter=lambda: 1,
+            ) as supervisor:
+                await _wait(lambda: supervisor.family_status["memory"]["failed"] == 1)
+                accepted = await _intent(profile.database, binding, "scope")
+                assert accepted is not None
+                assert accepted.requested_generation == 1 and accepted.handled_generation == 0
+                assert accepted.dirty_generation > accepted.clean_generation
+                async with profile.database.transaction() as connection:
+                    assert await SourceCursorRepository().load(connection, "scope", binding) is None
+
+        async with _profile(tmp_path, "count-accepted-restart") as profile:
+            async with profile.database.transaction() as connection:
+                await connection.exec_driver_sql("DROP TRIGGER reject_count_cursor_insert")
+
+            def make_binding(launcher):
+                return ArtifactProcessingBinding(
+                    binding,
+                    "memory",
+                    launcher,
+                    pending_provider=SourceProcessingPendingProvider(profile.database, binding, "memory"),
+                    source_count_threshold=3,
+                )
+
+            second = _Launcher(profile.database)
+            second.advance_cursor = True
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(make_binding(second),),
+                lease_mode="single-process",
+            ) as supervisor:
+                await _wait(lambda: supervisor.family_status["memory"]["completed"] == 1)
+                recovered = await _intent(profile.database, binding, "scope")
+                assert recovered is not None
+                assert recovered.requested_generation == recovered.handled_generation == 1
+                assert recovered.dirty_generation == recovered.clean_generation
+                assert len(second.assignments) == 1
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("lineage_first", [False, True])
+def test_duplicate_and_receipt_upgrade_do_not_inflate_lineage_count(tmp_path, lineage_first):
+    async def scenario():
+        async with _profile(tmp_path, f"count-lineage-{lineage_first}") as profile:
+            sources = SourceRepository(BUILTIN_SOURCE_REGISTRY)
+            ordinary = ContentSource(
+                name="ordinary",
+                materialization=SourceMaterialization.CAPTURED,
+                content="ordinary source",
+            )
+            lineage = ContentSource(
+                name="lineage",
+                materialization=SourceMaterialization.CAPTURED,
+                content="lineage source",
+                internal=ContentSourceInternal(
+                    role="lineage_only",
+                    operation="artifact_create",
+                    target=ContentSourceTarget(
+                        scope_id="scope", family="future-family", artifact_id="artifact", revision=1
+                    ),
+                ),
+            )
+            ordered = (lineage, ordinary) if lineage_first else (ordinary, lineage)
+            async with profile.database.transaction() as connection:
+                inserted = [await sources.add_with_status(connection, "scope", source) for source in ordered]
+                replay, replay_created = await sources.add_with_status(connection, "scope", ordinary)
+                untrusted = ContentSource(
+                    name="receipt",
+                    materialization=SourceMaterialization.CAPTURED,
+                    content="receipt source",
+                )
+                trusted = untrusted.model_copy(update={"handoff_receipt": True})
+                receipt, receipt_created = await sources.add_with_status(connection, "scope", untrusted)
+                upgraded, upgrade_created = await sources.add_with_status(connection, "scope", trusted)
+            assert [stored.journal_position for stored, _created in inserted] == [1, 2]
+            assert all(created for _stored, created in inserted)
+            ordinary_position = (
+                inserted[0][0].journal_position if not lineage_first else inserted[1][0].journal_position
+            )
+            assert not replay_created and replay.journal_position == ordinary_position
+            assert receipt_created and not upgrade_created
+            assert upgraded.journal_position == receipt.journal_position == 3
+            assert isinstance(upgraded.value, ContentSource) and upgraded.value.handoff_receipt
+
+            binding = SOURCE_WINDOW_TRIGGER_NAME
+            launcher = _Launcher(profile.database)
+            launcher.advance_cursor = True
+            async with ArtifactProcessingSupervisor(
+                database=profile.database,
+                bindings=(
+                    ArtifactProcessingBinding(
+                        binding,
+                        "memory",
+                        launcher,
+                        pending_provider=SourceProcessingPendingProvider(profile.database, binding, "memory"),
+                        source_count_threshold=3,
+                    ),
+                ),
+                lease_mode="single-process",
+            ) as supervisor:
+                await _wait(lambda: supervisor.family_status["memory"]["completed"] == 1)
+                assert len(launcher.assignments) == 1
 
     asyncio.run(scenario())

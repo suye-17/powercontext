@@ -141,6 +141,24 @@ class ArtifactProcessingIntentRepository:
             StoredArtifactProcessingIntent, await self.load(connection, scope_id, binding_name, for_update=True)
         )
 
+    async def request_if_unaccepted(
+        self, connection: AsyncConnection, scope_id: str, binding_name: str, /
+    ) -> tuple[StoredArtifactProcessingIntent | None, bool]:
+        """Persist one request for dirty work unless an accepted request is still pending."""
+
+        current = await self.load(connection, scope_id, binding_name, for_update=True)
+        if current is None or current.dirty_generation <= current.clean_generation:
+            return current, False
+        if current.requested_generation > current.handled_generation:
+            return current, False
+        table = ARTIFACT_PROCESSING_INTENTS_TABLE
+        await connection.execute(
+            update(table)
+            .where(table.c.scope_id == scope_id, table.c.binding_name == binding_name)
+            .values(requested_generation=current.requested_generation + 1)
+        )
+        return await self.load(connection, scope_id, binding_name, for_update=True), True
+
     async def acknowledge(
         self,
         connection: AsyncConnection,

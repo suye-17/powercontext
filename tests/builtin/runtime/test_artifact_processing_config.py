@@ -247,3 +247,13 @@ def test_unknown_processing_mode_and_unregistered_schedule_fields_rejected():
         RuntimeConfig.model_validate({"artifact_processing_supervisor_mode": "custom"})
     with pytest.raises(ValidationError):
         RuntimeConfig.model_validate({"skill_schedule_seconds": 10})
+
+
+@pytest.mark.parametrize("field", ["memory_source_count_threshold", "topic_memory_source_count_threshold"])
+def test_source_count_thresholds_require_strict_positive_integers(field: str) -> None:
+    assert getattr(RuntimeConfig(), field) is None
+    assert getattr(RuntimeConfig.model_validate({field: 3}), field) == 3
+
+    for invalid in (True, False, "3", 3.0, 0, -1):
+        with pytest.raises(ValidationError):
+            RuntimeConfig.model_validate({field: invalid})

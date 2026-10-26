@@ -41,6 +41,7 @@ from powercontext.builtin.persistence.tables import (
 from powercontext.builtin.runtime import BuiltinConfig, InferenceConfig, RuntimeConfig, composition
 from powercontext.builtin.runtime.artifact_processing import (
     ArtifactProcessingBinding,
+    ArtifactProcessingPendingProvider,
     ArtifactProcessingSupervisorStatus,
 )
 from powercontext.builtin.runtime.composition import (
@@ -297,6 +298,41 @@ def test_api_can_declare_topic_processing_without_constructing_models_or_control
         model_opener.assert_not_called()
 
     asyncio.run(scenario())
+
+
+def test_processing_composition_applies_independent_source_count_thresholds() -> None:
+    provider = SimpleNamespace(count_threshold_reached=AsyncMock())
+    bindings = (
+        ArtifactProcessingBinding(
+            "memory-source-window",
+            "memory",
+            AsyncMock(),
+            pending_provider=cast(ArtifactProcessingPendingProvider, provider),
+        ),
+        ArtifactProcessingBinding(
+            _BINDING,
+            "topic-memory",
+            AsyncMock(),
+            pending_provider=cast(ArtifactProcessingPendingProvider, provider),
+        ),
+    )
+    config = BuiltinConfig(
+        database=_OCEANBASE,
+        runtime=RuntimeConfig(
+            artifact_processing_role="api",
+            memory_source_count_threshold=3,
+            topic_memory_source_count_threshold=7,
+        ),
+    )
+
+    configured = composition._artifact_processing_bindings(
+        config, cast(RelationalContexts, SimpleNamespace()), bindings
+    )
+
+    assert [(binding.artifact_family, binding.source_count_threshold) for binding in configured] == [
+        ("memory", 3),
+        ("topic-memory", 7),
+    ]
 
 
 @pytest.mark.parametrize("mode", ["global", "dedicated"])
