@@ -9,10 +9,10 @@
         "vector"
       ],
       "memory": {
-        "artifact_id": "art_96101294515c4166b0f03db9d7ae7dbf",
+        "artifact_id": "art_01960d16ec2c4cd783ae3cda859f5817",
         "revision": 2,
         "kind": "paperdesk.progress",
-        "text": "{\"paper_id\": \"rag-survey\", \"status\": \"reading\", \"last_section\": \"Evaluation\", \"next_action\": \"整理 rerank 与 RAG 的关系\", \"updated_at\": \"2026-10-26T13:43:24+00:00\"}",
+        "text": "{\"paper_id\": \"rag-survey\", \"status\": \"reading\", \"last_section\": \"Evaluation\", \"next_action\": \"整理 rerank 与 RAG 的关系\", \"updated_at\": \"2026-10-26T14:39:27+00:00\"}",
         "state": "active",
         "state_version": 0,
         "merged_into_id": null
@@ -24,7 +24,7 @@
         "vector"
       ],
       "memory": {
-        "artifact_id": "art_669477b38508400f86219475b6e4a6b2",
+        "artifact_id": "art_4d67ca229bb24d7495de5adba2df5a37",
         "revision": 1,
         "kind": "paperdesk.goal",
         "text": "{\"goal_id\": \"weekly\", \"text\": \"本周读完 RAG 相关两篇，并整理 rerank 要点\", \"tags\": [\"rag\", \"rerank\"], \"deadline\": null, \"status\": \"active\"}",
@@ -39,7 +39,7 @@
         "vector"
       ],
       "memory": {
-        "artifact_id": "art_21730ccfc1b3488e831656789f011b06",
+        "artifact_id": "art_84634cdb7a9c4855b4b18a33ea51965c",
         "revision": 1,
         "kind": "paperdesk.profile",
         "text": "{\"language\": \"zh\", \"digest_sentences\": 3, \"citation_style\": \"inline\", \"weekly_minutes\": 120}",
@@ -54,10 +54,10 @@
         "vector"
       ],
       "memory": {
-        "artifact_id": "art_41864d471b714359a1a888340e8e98d0",
+        "artifact_id": "art_bac02717558247c3abd646126babb5fa",
         "revision": 1,
         "kind": "paperdesk.session",
-        "text": "{\"session_id\": \"session-20261026-134329\", \"read_papers\": [\"rag-survey\"], \"questions\": [\"rerank 在 RAG 里解决什么问题？\"], \"next_steps\": [\"读完 Evaluation 章\", \"整理 rerank 要点\"], \"created_at\": \"2026-10-26T13:43:29+00:00\"}",
+        "text": "{\"session_id\": \"session-20261026-143931\", \"read_papers\": [\"rag-survey\"], \"questions\": [\"rerank 在 RAG 里解决什么问题？\"], \"next_steps\": [\"读完 Evaluation 章\", \"整理 rerank 要点\"], \"created_at\": \"2026-10-26T14:39:31+00:00\"}",
         "state": "active",
         "state_version": 0,
         "merged_into_id": null

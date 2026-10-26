@@ -1,0 +1,151 @@
+{
+  "query": "chunk boundaries",
+  "note": "向量检索不可用，已回退到全文检索：embedding transport error: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1000)",
+  "hits": [
+    {
+      "chunk_id": "ad6fe93060ae70b0142582da33389cc7",
+      "paper_id": "chunking-notes",
+      "title": "Chunking Strategies for Long Technical Documents",
+      "section": "Abstract",
+      "path": "chunking-notes.md",
+      "start_line": 10,
+      "end_line": 11,
+      "score": 1.0148,
+      "fts_score": 1.0148,
+      "vector_score": null,
+      "tags": [
+        "chunking",
+        "rag",
+        "retrieval"
+      ],
+      "text": "## Abstract\nChunking decides what a retriever can see. A chunk that is too small loses the context needed to interpret a claim, while a chunk that is too large dilutes its embedding and wastes the generator context window. This note compares fixed windows, sentence packing, and semantic boundaries on technical documents with headings, formulas, and references."
+    },
+    {
+      "chunk_id": "86ebd58e9af8abd86acd7a697c2b39fb",
+      "paper_id": "chunking-notes",
+      "title": "Chunking Strategies for Long Technical Documents",
+      "section": "Limitations",
+      "path": "chunking-notes.md",
+      "start_line": 19,
+      "end_line": 20,
+      "score": 0.7984,
+      "fts_score": 0.7984,
+      "vector_score": null,
+      "tags": [
+        "chunking",
+        "rag",
+        "retrieval"
+      ],
+      "text": "## Limitations\nThe study uses a small English corpus and cannot settle the best chunk size for code or tables. Semantic boundaries depend on an embedding model that may not match the retriever. Overlap can cause the same passage to appear twice in the generator context, inflating perceived support. The notes do not measure end-to-end answer quality with human raters."
+    },
+    {
+      "chunk_id": "bbdd63bf39fc7cf8a47c3e9297b60147",
+      "paper_id": "chunking-notes",
+      "title": "Chunking Strategies for Long Technical Documents",
+      "section": "Results",
+      "path": "chunking-notes.md",
+      "start_line": 16,
+      "end_line": 17,
+      "score": 0.6953,
+      "fts_score": 0.6953,
+      "vector_score": null,
+      "tags": [
+        "chunking",
+        "rag",
+        "retrieval"
+      ],
+      "text": "## Results\nSentence packing improves readability of retrieved evidence and slightly raises recall for short factual queries. Semantic boundaries help queries that depend on a section's argument, but they produce uneven chunk sizes and can reduce recall when a relevant fact sits in a long paragraph. Overlap reduces boundary misses at the cost of duplicate evidence and a larger index. Heading-aware chunks make citations easier for readers to verify."
+    },
+    {
+      "chunk_id": "29862ab7c300ac4d9156e4b3bee55a66",
+      "paper_id": "rag-survey",
+      "title": "Retrieval Augmented Generation: A Reading Map",
+      "section": "Results",
+      "path": "rag-survey.md",
+      "start_line": 16,
+      "end_line": 17,
+      "score": 0.6612,
+      "fts_score": 0.6612,
+      "vector_score": null,
+      "tags": [
+        "rag",
+        "retrieval",
+        "survey"
+      ],
+      "text": "## Results\nAcross the notes we compare, hybrid retrieval improves recall on terminology-heavy questions, and reranking improves the precision of the context passed to the generator. Systems that cite evidence spans produce answers that are easier to audit, but citation coverage must be measured rather than assumed. Retrieval latency is dominated by the first-stage candidate search when the index is warm. The survey also observes that chunk boundaries can change which passage wins a query even when the underlying document is unchanged."
+    },
+    {
+      "chunk_id": "ee917447cc0cff76a5019fefb474ff8e",
+      "paper_id": "chunking-notes",
+      "title": "Chunking Strategies for Long Technical Documents",
+      "section": "Method",
+      "path": "chunking-notes.md",
+      "start_line": 13,
+      "end_line": 14,
+      "score": 0.623,
+      "fts_score": 0.623,
+      "vector_score": null,
+      "tags": [
+        "chunking",
+        "rag",
+        "retrieval"
+      ],
+      "text": "## Method\nFixed windows split text every N tokens with an overlap. Sentence packing accumulates whole sentences until a token budget is reached, which avoids cutting mid-sentence but can still cross a topic boundary. Semantic chunking uses paragraph or heading boundaries, optionally confirmed by embedding similarity between adjacent sentences. We evaluate each strategy with the same retriever and generator so that chunking is the only variable. Each chunk keeps its document path, section title, and line range for citation."
+    },
+    {
+      "chunk_id": "a3c1fda12aabe225be4dae057dea3666",
+      "paper_id": "eval-notes",
+      "title": "Evaluating Retrieval and Grounded Answers",
+      "section": "Method",
+      "path": "eval-notes.md",
+      "start_line": 13,
+      "end_line": 14,
+      "score": 0.3423,
+      "fts_score": 0.3423,
+      "vector_score": null,
+      "tags": [
+        "evaluation",
+        "retrieval",
+        "citation"
+      ],
+      "text": "## Method\nWe build a query set with expected paper identifiers and section titles. Recall at k measures whether any expected section appears in the top k results; MRR records the rank of the first relevant hit. For answers, we count citation coverage as the share of conclusion sentences that carry a valid source marker, and we check each marker against the retrieved chunk list. A citation that points to a non-existent chunk is treated as unknown evidence, not as support. Evaluation runs are stored as JSON so that metrics can be recomputed."
+    },
+    {
+      "chunk_id": "8eb99543e2f6ffbc71ffe3846a4cc5b1",
+      "paper_id": "chunking-notes",
+      "title": "Chunking Strategies for Long Technical Documents",
+      "section": "Takeaways",
+      "path": "chunking-notes.md",
+      "start_line": 22,
+      "end_line": 23,
+      "score": 0.3242,
+      "fts_score": 0.3242,
+      "vector_score": null,
+      "tags": [
+        "chunking",
+        "rag",
+        "retrieval"
+      ],
+      "text": "## Takeaways\nPrefer heading-aware sentence packing for technical notes, keep line numbers, and make chunk size configurable. Treat the recall-precision tradeoff as a corpus-specific tuning problem, not a universal constant."
+    },
+    {
+      "chunk_id": "ba5bf04a949501179cea8e8eda4870d8",
+      "paper_id": "citation-grounding",
+      "title": "Grounding Generated Summaries with Evidence Spans",
+      "section": "Limitations",
+      "path": "citation-grounding.md",
+      "start_line": 19,
+      "end_line": 20,
+      "score": 0.2322,
+      "fts_score": 0.2322,
+      "vector_score": null,
+      "tags": [
+        "citation",
+        "grounding",
+        "rag",
+        "evaluation"
+      ],
+      "text": "## Limitations\nCitation validity is not entailment. The validator does not verify that the cited sentence actually supports the conclusion, which would require a separate entailment model. Coverage can be gamed by short, trivial sentences. The notes also assume chunk-level evidence rather than character-level spans, so a citation points to a range that may contain more than the cited claim."
+    }
+  ]
+}

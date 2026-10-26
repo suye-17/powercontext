@@ -22,17 +22,6 @@
     {
       "index": 3,
       "marker": "[C3]",
-      "chunk_id": "091ebb004a61cf0c03eed44479970e7a",
-      "paper_id": "rerank-notes",
-      "title": "Reranking for Retrieval Pipelines",
-      "section": "Abstract",
-      "path": "rerank-notes.md",
-      "start_line": 10,
-      "end_line": 11
-    },
-    {
-      "index": 4,
-      "marker": "[C4]",
       "chunk_id": "503ec6d4fe5230c5941ae7a8673e5f67",
       "paper_id": "rerank-notes",
       "title": "Reranking for Retrieval Pipelines",
@@ -40,6 +29,17 @@
       "path": "rerank-notes.md",
       "start_line": 19,
       "end_line": 20
+    },
+    {
+      "index": 4,
+      "marker": "[C4]",
+      "chunk_id": "091ebb004a61cf0c03eed44479970e7a",
+      "paper_id": "rerank-notes",
+      "title": "Reranking for Retrieval Pipelines",
+      "section": "Abstract",
+      "path": "rerank-notes.md",
+      "start_line": 10,
+      "end_line": 11
     },
     {
       "index": 5,
@@ -70,8 +70,8 @@
     ],
     "unknown": [],
     "coverage": 1.0,
-    "sentences": 4,
-    "cited_sentences": 4
+    "sentences": 3,
+    "cited_sentences": 3
   },
   "fallback_reason": null
 }

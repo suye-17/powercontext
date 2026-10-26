@@ -52,20 +52,21 @@
       <h2>综述</h2>
       <span class="pill">模型生成</span>
     </div>
-    <p class="digest-text">在 RAG 中，**rerank（重排序）是检索与生成之间的精度筛选层**：第一阶段以低成本换取召回率，随后由更强模型重新审查候选文档，减少无关内容占用生成器上下文并诱发无依据陈述。[C3]
+    <p class="digest-text">## Rerank 在 RAG 中的作用
 
-- **工作方式**：cross-encoder 将查询和文档一起读取，通过 token 级交互进行联合判断；候选可来自 BM25、稠密检索或二者混合。[C1]
-- **典型流程**：先召回 Top 50，再重排 Top 20，最后将最佳 5 条交给生成器。[C1]
-- **训练方式**：使用查询—文档对，并从第一阶段结果中挖掘 hard negatives。[C1]
-- **分数使用限制**：不同查询之间的重排分数不可比较，只能用于同一查询内部排序。[C1]
-- **效果**：重排提升了 nDCG@10，并减少生成器上下文中的无关文档；对稀有实体问题、稀疏与稠密检索结果不一致的问题，以及相关文档最初排在第 12 名的情形尤其有帮助。[C5]
-- **成本控制**：延迟随重排文档对数量近似线性增长，因此应限制候选深度。[C5]
-- **实践建议**：将重排视为有明确预算的精度阶段，保持候选深度可配置，并记录第一阶段与重排后的排名；如果生成器仍看到无关上下文，应检查 reranker，而不是扩大上下文窗口。[C2]
-- **主要局限**：reranker 无法补回第一阶段完全漏掉的文档；长文档成本更高且可能超过输入长度限制；使用同一检索器挖掘 hard negatives 可能过拟合其失败模式。[C4]</p>
+• Rerank 是检索与生成之间的精度过滤层：第一阶段通常以低成本换取高召回率，reranker 再对少量候选文档与查询的组合进行精细评分，以减少无关文档占用生成器上下文并诱发无依据陈述。[C3]
+• 候选列表可由 BM25、稠密检索器或二者混合产生；示例流水线先召回前 50 个候选，再重排前 20 个，最后将最佳的 5 个交给生成器。[C1]
+• Cross-encoder 会同时读取查询和文档，能够捕捉 bi-encoder 无法建模的 token 级交互；训练数据使用查询—文档对，并从第一阶段结果中挖掘困难负样本。[C1]
+• Rerank 分数不能跨查询比较，因此只能用于同一查询内部的候选排序。[C1]
+• 实验中，reranking 提升了 nDCG@10，并减少了生成器上下文中的无关文档；对稀有实体查询、稀疏与稠密检索结果不一致的查询，以及相关文档位于第 12 名而非第 1 名的情况，帮助尤其明显。[C5]
+• 重排延迟随待重排的查询—文档对数量线性增长，因此候选深度是主要成本控制手段。[C5]
+• Rerank 无法补救第一阶段完全漏掉相关文档的情况；长文档还会增加成本或超过重排器输入上限，使用同一检索器的困难负样本可能导致其过拟合该检索器的失败模式。[C4]
+• 实践上应将 reranking 视为有明确预算的精度阶段，保持候选深度可配置，并记录第一阶段与重排后的排名以便调试；如果生成器仍看到无关上下文，应检查 reranker，而不是直接扩大上下文窗口。[C2]
+• 从更广的 RAG 设计角度看，检索粒度和证据选择通常比生成器本身更能解释系统间的质量差异，因此 rerank 是改善 RAG 证据选择质量的重要环节。[C6]</p>
     <div class="hit-meta">
-      <span>引用覆盖 100%</span>
+      <span>引用覆盖 90%</span>
       <span>MiniMax-M3.1-Flash</span>
-      <span>14765 ms</span>
+      <span>8898 ms</span>
       
     </div>
     <ol class="citation-list">
@@ -79,6 +80,8 @@
         <li><strong>[C4]</strong> Reranking for Retrieval Pipelines · Limitations · <span class="muted">rerank-notes.md:19</span></li>
       
         <li><strong>[C5]</strong> Reranking for Retrieval Pipelines · Results · <span class="muted">rerank-notes.md:16</span></li>
+      
+        <li><strong>[C6]</strong> Retrieval Augmented Generation: A Reading Map · Abstract · <span class="muted">rag-survey.md:10</span></li>
       
     </ol>
   </article>

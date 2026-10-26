@@ -1,26 +1,8 @@
 # chunk boundaries, no filters
 {
   "query": "chunk boundaries",
-  "note": null,
+  "note": "向量检索不可用，已回退到全文检索：embedding transport error: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1000)",
   "hits": [
-    {
-      "chunk_id": "86ebd58e9af8abd86acd7a697c2b39fb",
-      "paper_id": "chunking-notes",
-      "title": "Chunking Strategies for Long Technical Documents",
-      "section": "Limitations",
-      "path": "chunking-notes.md",
-      "start_line": 19,
-      "end_line": 20,
-      "score": 0.1447,
-      "fts_score": 0.7984,
-      "vector_score": 0.4582,
-      "tags": [
-        "chunking",
-        "rag",
-        "retrieval"
-      ],
-      "text": "## Limitations\nThe study uses a small English corpus and cannot settle the best chunk size for code or tables. Semantic boundaries depend on an embedding model that may not match the retriever. Overlap can cause the same passage to appear twice in the generator context, inflating perceived support. The notes do not measure end-to-end answer quality with human raters."
-    },
     {
       "chunk_id": "ad6fe93060ae70b0142582da33389cc7",
       "paper_id": "chunking-notes",
@@ -29,15 +11,33 @@
       "path": "chunking-notes.md",
       "start_line": 10,
       "end_line": 11,
-      "score": 0.144,
+      "score": 1.0148,
       "fts_score": 1.0148,
-      "vector_score": 0.3937,
+      "vector_score": null,
       "tags": [
         "chunking",
         "rag",
         "retrieval"
       ],
       "text": "## Abstract\nChunking decides what a retriever can see. A chunk that is too small loses the context needed to interpret a claim, while a chunk that is too large dilutes its embedding and wastes the generator context window. This note compares fixed windows, sentence packing, and semantic boundaries on technical documents with headings, formulas, and references."
+    },
+    {
+      "chunk_id": "86ebd58e9af8abd86acd7a697c2b39fb",
+      "paper_id": "chunking-notes",
+      "title": "Chunking Strategies for Long Technical Documents",
+      "section": "Limitations",
+      "path": "chunking-notes.md",
+      "start_line": 19,
+      "end_line": 20,
+      "score": 0.7984,
+      "fts_score": 0.7984,
+      "vector_score": null,
+      "tags": [
+        "chunking",
+        "rag",
+        "retrieval"
+      ],
+      "text": "## Limitations\nThe study uses a small English corpus and cannot settle the best chunk size for code or tables. Semantic boundaries depend on an embedding model that may not match the retriever. Overlap can cause the same passage to appear twice in the generator context, inflating perceived support. The notes do not measure end-to-end answer quality with human raters."
     },
     {
       "chunk_id": "bbdd63bf39fc7cf8a47c3e9297b60147",
@@ -47,9 +47,9 @@
       "path": "chunking-notes.md",
       "start_line": 16,
       "end_line": 17,
-      "score": 0.1434,
+      "score": 0.6953,
       "fts_score": 0.6953,
-      "vector_score": 0.5064,
+      "vector_score": null,
       "tags": [
         "chunking",
         "rag",
@@ -65,9 +65,9 @@
       "path": "rag-survey.md",
       "start_line": 16,
       "end_line": 17,
-      "score": 0.1383,
+      "score": 0.6612,
       "fts_score": 0.6612,
-      "vector_score": 0.4127,
+      "vector_score": null,
       "tags": [
         "rag",
         "retrieval",
@@ -83,33 +83,15 @@
       "path": "chunking-notes.md",
       "start_line": 13,
       "end_line": 14,
-      "score": 0.138,
+      "score": 0.623,
       "fts_score": 0.623,
-      "vector_score": 0.4456,
+      "vector_score": null,
       "tags": [
         "chunking",
         "rag",
         "retrieval"
       ],
       "text": "## Method\nFixed windows split text every N tokens with an overlap. Sentence packing accumulates whole sentences until a token budget is reached, which avoids cutting mid-sentence but can still cross a topic boundary. Semantic chunking uses paragraph or heading boundaries, optionally confirmed by embedding similarity between adjacent sentences. We evaluate each strategy with the same retriever and generator so that chunking is the only variable. Each chunk keeps its document path, section title, and line range for citation."
-    },
-    {
-      "chunk_id": "8eb99543e2f6ffbc71ffe3846a4cc5b1",
-      "paper_id": "chunking-notes",
-      "title": "Chunking Strategies for Long Technical Documents",
-      "section": "Takeaways",
-      "path": "chunking-notes.md",
-      "start_line": 22,
-      "end_line": 23,
-      "score": 0.1341,
-      "fts_score": 0.3242,
-      "vector_score": 0.445,
-      "tags": [
-        "chunking",
-        "rag",
-        "retrieval"
-      ],
-      "text": "## Takeaways\nPrefer heading-aware sentence packing for technical notes, keep line numbers, and make chunk size configurable. Treat the recall-precision tradeoff as a corpus-specific tuning problem, not a universal constant."
     },
     {
       "chunk_id": "a3c1fda12aabe225be4dae057dea3666",
@@ -119,15 +101,33 @@
       "path": "eval-notes.md",
       "start_line": 13,
       "end_line": 14,
-      "score": 0.1337,
+      "score": 0.3423,
       "fts_score": 0.3423,
-      "vector_score": 0.3816,
+      "vector_score": null,
       "tags": [
         "evaluation",
         "retrieval",
         "citation"
       ],
       "text": "## Method\nWe build a query set with expected paper identifiers and section titles. Recall at k measures whether any expected section appears in the top k results; MRR records the rank of the first relevant hit. For answers, we count citation coverage as the share of conclusion sentences that carry a valid source marker, and we check each marker against the retrieved chunk list. A citation that points to a non-existent chunk is treated as unknown evidence, not as support. Evaluation runs are stored as JSON so that metrics can be recomputed."
+    },
+    {
+      "chunk_id": "8eb99543e2f6ffbc71ffe3846a4cc5b1",
+      "paper_id": "chunking-notes",
+      "title": "Chunking Strategies for Long Technical Documents",
+      "section": "Takeaways",
+      "path": "chunking-notes.md",
+      "start_line": 22,
+      "end_line": 23,
+      "score": 0.3242,
+      "fts_score": 0.3242,
+      "vector_score": null,
+      "tags": [
+        "chunking",
+        "rag",
+        "retrieval"
+      ],
+      "text": "## Takeaways\nPrefer heading-aware sentence packing for technical notes, keep line numbers, and make chunk size configurable. Treat the recall-precision tradeoff as a corpus-specific tuning problem, not a universal constant."
     },
     {
       "chunk_id": "ba5bf04a949501179cea8e8eda4870d8",
@@ -137,9 +137,9 @@
       "path": "citation-grounding.md",
       "start_line": 19,
       "end_line": 20,
-      "score": 0.1315,
+      "score": 0.2322,
       "fts_score": 0.2322,
-      "vector_score": 0.4215,
+      "vector_score": null,
       "tags": [
         "citation",
         "grounding",
@@ -153,7 +153,7 @@
 # chunk boundaries, year >= 2023 (drops the 2022 chunking note)
 {
   "query": "chunk boundaries",
-  "note": null,
+  "note": "向量检索不可用，已回退到全文检索：embedding transport error: [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1000)",
   "hits": [
     {
       "chunk_id": "29862ab7c300ac4d9156e4b3bee55a66",
@@ -163,9 +163,9 @@
       "path": "rag-survey.md",
       "start_line": 16,
       "end_line": 17,
-      "score": 0.1452,
+      "score": 0.6612,
       "fts_score": 0.6612,
-      "vector_score": 0.4127,
+      "vector_score": null,
       "tags": [
         "rag",
         "retrieval",
@@ -181,9 +181,9 @@
       "path": "eval-notes.md",
       "start_line": 13,
       "end_line": 14,
-      "score": 0.1424,
+      "score": 0.3423,
       "fts_score": 0.3423,
-      "vector_score": 0.3816,
+      "vector_score": null,
       "tags": [
         "evaluation",
         "retrieval",
@@ -199,9 +199,9 @@
       "path": "citation-grounding.md",
       "start_line": 19,
       "end_line": 20,
-      "score": 0.1417,
+      "score": 0.2322,
       "fts_score": 0.2322,
-      "vector_score": 0.4215,
+      "vector_score": null,
       "tags": [
         "citation",
         "grounding",
@@ -218,9 +218,9 @@
       "path": "citation-grounding.md",
       "start_line": 16,
       "end_line": 17,
-      "score": 0.1404,
+      "score": 0.2112,
       "fts_score": 0.2112,
-      "vector_score": 0.4368,
+      "vector_score": null,
       "tags": [
         "citation",
         "grounding",
@@ -237,9 +237,9 @@
       "path": "citation-grounding.md",
       "start_line": 13,
       "end_line": 14,
-      "score": 0.1366,
+      "score": 0.1849,
       "fts_score": 0.1849,
-      "vector_score": 0.3843,
+      "vector_score": null,
       "tags": [
         "citation",
         "grounding",
@@ -247,67 +247,13 @@
         "evaluation"
       ],
       "text": "## Method\nRetrieved chunks are numbered C1 through Cn and passed to the generator with a strict instruction to cite them. The validator parses citation markers, checks them against the chunk set, and computes citation coverage as cited conclusion sentences divided by total conclusion sentences. Unknown markers are removed from the visible summary and recorded in a report. If coverage falls below a threshold, or the model call fails, the system returns an extractive summary built from the chunks, with the same citation numbers. Prompt hashes and latency are logged without storing credentials."
-    },
-    {
-      "chunk_id": "203cb9c0eb80f9f1a19be1b603b067e9",
-      "paper_id": "rerank-notes",
-      "title": "Reranking for Retrieval Pipelines",
-      "section": "Takeaways",
-      "path": "rerank-notes.md",
-      "start_line": 22,
-      "end_line": 23,
-      "score": 0.0164,
-      "fts_score": 0.0,
-      "vector_score": 0.5047,
-      "tags": [
-        "rerank",
-        "retrieval",
-        "rag"
-      ],
-      "text": "## Takeaways\nTreat reranking as a precision stage with an explicit budget. Keep the candidate depth configurable and log both first-stage and reranked ranks for debugging. If the generator still sees irrelevant context, inspect the reranker rather than increasing the context window."
-    },
-    {
-      "chunk_id": "5372579d1ec68f6e8d6d427dd7b34629",
-      "paper_id": "rag-survey",
-      "title": "Retrieval Augmented Generation: A Reading Map",
-      "section": "Takeaways",
-      "path": "rag-survey.md",
-      "start_line": 22,
-      "end_line": 23,
-      "score": 0.0161,
-      "fts_score": 0.0,
-      "vector_score": 0.5003,
-      "tags": [
-        "rag",
-        "retrieval",
-        "survey"
-      ],
-      "text": "## Takeaways\nStart from retrieval quality, then improve the generator. Keep a lexical baseline, add dense retrieval when paraphrase matters, and fuse by rank rather than raw score. Always preserve a path from an answer sentence back to a source passage and its line numbers."
-    },
-    {
-      "chunk_id": "503ec6d4fe5230c5941ae7a8673e5f67",
-      "paper_id": "rerank-notes",
-      "title": "Reranking for Retrieval Pipelines",
-      "section": "Limitations",
-      "path": "rerank-notes.md",
-      "start_line": 19,
-      "end_line": 20,
-      "score": 0.0159,
-      "fts_score": 0.0,
-      "vector_score": 0.4527,
-      "tags": [
-        "rerank",
-        "retrieval",
-        "rag"
-      ],
-      "text": "## Limitations\nA cross-encoder reranker cannot fix a candidate list that misses the relevant passage entirely. Long passages increase cost and may exceed the reranker's input limit. Training hard negatives from the same retriever can overfit to its failure modes. The notes do not cover learned fusion of multiple rerankers, and nDCG rewards graded relevance that our small corpus does not provide."
     }
   ]
 }
 # rerank, status=reading only
 {
   "query": "rerank",
-  "note": null,
+  "note": "向量检索不可用，已回退到全文检索：embedding transport error: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate (_ssl.c:1000)",
   "hits": [
     {
       "chunk_id": "9e0319752b32fa59f8c546c9c39081df",
@@ -317,9 +263,9 @@
       "path": "rerank-notes.md",
       "start_line": 13,
       "end_line": 14,
-      "score": 0.1473,
+      "score": 1.0687,
       "fts_score": 1.0687,
-      "vector_score": 0.6585,
+      "vector_score": null,
       "tags": [
         "rerank",
         "retrieval",
@@ -335,9 +281,9 @@
       "path": "rerank-notes.md",
       "start_line": 22,
       "end_line": 23,
-      "score": 0.1454,
+      "score": 1.0016,
       "fts_score": 1.0016,
-      "vector_score": 0.7165,
+      "vector_score": null,
       "tags": [
         "rerank",
         "retrieval",
@@ -353,9 +299,9 @@
       "path": "rerank-notes.md",
       "start_line": 10,
       "end_line": 11,
-      "score": 0.1424,
+      "score": 0.8399,
       "fts_score": 0.8399,
-      "vector_score": 0.5403,
+      "vector_score": null,
       "tags": [
         "rerank",
         "retrieval",
@@ -371,9 +317,9 @@
       "path": "rerank-notes.md",
       "start_line": 19,
       "end_line": 20,
-      "score": 0.1409,
+      "score": 0.8248,
       "fts_score": 0.8248,
-      "vector_score": 0.6056,
+      "vector_score": null,
       "tags": [
         "rerank",
         "retrieval",
@@ -389,9 +335,9 @@
       "path": "rerank-notes.md",
       "start_line": 16,
       "end_line": 17,
-      "score": 0.1387,
+      "score": 0.8105,
       "fts_score": 0.8105,
-      "vector_score": 0.5953,
+      "vector_score": null,
       "tags": [
         "rerank",
         "retrieval",
