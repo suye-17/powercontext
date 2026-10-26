@@ -29,7 +29,7 @@
 | 需求拆解 | 阅读赛题与仓库约束，确定「seekdb 检索 + PowerContext 记忆」的双技术方案，明确验收四项与不做什么 | `README.md`、`sample/scenario/steps.md` |
 | 方案设计 | 设计 `pd_documents` / `pd_chunks` / `pd_meta`、记忆 kind、继续卡片与引用校验流程 | `app/src/paperdesk/store.py`、`memory.py`、`service.py` |
 | 实现 | 生成解析器、seekdb 存取与混合检索、嵌入客户端、PowerContext 客户端、FastAPI 页面、CLI 与测试 | `app/src/paperdesk/`、`app/tests/` |
-| 调试 | 修复 Jinja `TemplateResponse` 调用、继续卡片排序、记忆测试中的可变 payload、RRF 权重与评测期望 | 对应测试与 `app/src/paperdesk/` 的最终实现 |
+| 调试 | 修复 Jinja `TemplateResponse` 调用、继续卡片排序、记忆测试中的可变 payload、RRF 权重与评测期望；定位 seekdb 重复 DDL 导致查询挂起，以及 503 重试导致的 progress 修订漂移 | 对应测试与 `app/src/paperdesk/` 的最终实现 |
 | 验证 | 运行 59 项测试，执行完整场景脚本，检查 Web 页面、记忆重启复用与引用映射 | `evidence/` 全部目录 |
 | 发布（待执行） | 使用个人 Qoder 账号发布 `site/`，设置公开可见并在无痕窗口核验 | `site/PUBLISH.md`、本目录截图 |
 
@@ -39,9 +39,12 @@
 | --- | --- | --- |
 | `f07c724f` | PaperDesk 应用、样例、场景脚本、文档与站点 | `app/src/paperdesk/`、`app/tests/`、`scripts/`、`sample/`、`README.md`、`RUNBOOK.md`、`site/` |
 | `1c4d5923` | 查询证据加严：必须带向量分，失败重试并标记失败状态 | `scripts/run_scenario.sh`、`sample/scenario/steps.md`、`evidence/README.md` |
-| `abe3270e` | 最终一轮完整证据与截图（`1c4d5923` 之后重跑） | `evidence/`、`site/assets/screenshots/` |
+| `39c85f01` | 表已存在时不再重复执行 DDL，并为 seekdb 连接设置读写超时 | `app/src/paperdesk/store.py` |
+| `086af185` | 引用覆盖率断言对齐产品 50% 阈值，同步文档与站点文案 | `scripts/run_scenario.sh`、`RUNBOOK.md`、`sample/scenario/steps.md`、`evidence/README.md`、`site/index.html` |
+| `9d014330` | 进度记忆在内容相同时跳过重写，保证重试后 revision 稳定 | `app/src/paperdesk/memory.py`、`app/tests/test_memory.py` |
+| `305fd7e9` | 最终一轮完整证据与截图（`9d014330` 之后重跑） | `evidence/`、`site/assets/screenshots/` |
 
-本轮证据在 `1c4d5923` 提交后由 `qoder/scripts/run_scenario.sh` 从空运行时重跑生成，`evidence/run-status.txt` 记录 `commit=1c4d5923` 与 `status=complete`。`61572947` 是此前一轮证据提交，已被本轮取代。
+本轮证据在 `9d014330` 提交后由 `qoder/scripts/run_scenario.sh` 从空运行时重跑生成，`evidence/run-status.txt` 记录 `commit=9d014330` 与 `status=complete`。此前 `1c4d5923`、`abe3270e` 两轮证据已被本轮取代。
 
 ## 建议截取的对话
 
