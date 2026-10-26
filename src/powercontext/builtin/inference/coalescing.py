@@ -86,7 +86,10 @@ class CoalescingEmbeddingModel:
             entries[text] = entry
 
         if entries:
-            results = await asyncio.gather(*(asyncio.shield(entry.future) for entry in entries.values()))
+            waiters = tuple(asyncio.shield(entry.future) for entry in entries.values())
+            for waiter in waiters:
+                waiter.add_done_callback(_consume_exception)
+            results = await asyncio.gather(*waiters)
             for text, vector in zip(entries, results, strict=True):
                 vectors[text] = vector
 
