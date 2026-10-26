@@ -91,5 +91,5 @@ scripts/run_scenario.sh
 
 - 记忆检索的 hybrid 模式使用真实嵌入服务；如果服务端限流，客户端会回退 fts 并在 `fallback_reason` 中注明。成功运行的 `scope.json` 与 `search-hybrid.json` 应为 `mode=hybrid`。
 - 评测数值由固定语料和固定查询集产生，嵌入模型变化会导致数值变化；脚本断言关键词模式 `embedding=false`、混合模式 `embedding=true`，并检查 `recall@5 >= 0.9` 与 `MRR >= 0.6`，避免嵌入失效时静默退化为关键词基线。
-- 模型综述的措辞可能因采样而变化，但脚本会断言 `mode=llm`、`coverage=1.0` 且无 `fallback_reason`，引用映射逐条校验。
+- 模型综述的措辞与覆盖率会因采样而变化，但脚本会断言 `mode=llm`、`coverage>=0.5` 且无 `fallback_reason`，引用映射逐条校验。
 - 本目录不包含 API 密钥、令牌或个人信息；密钥只存在于被忽略的 `qoder/.env`。

@@ -73,7 +73,7 @@ scripts/run_scenario.sh
 6. 运行关键词与混合检索评测，断言混合模式 `embedding=true`，并检查 `recall@5 >= 0.9`、`MRR >= 0.6`；
 7. 启动 Web 工作台，请求 8 个页面，断言全部 200。
 
-脚本还会断言导入数量与向量数、过滤查询的命中范围、`mode=llm` 且 `coverage=1.0` 的综述、4 条记忆与 progress revision 2，并把本轮状态写入 `evidence/run-status.txt`。
+脚本还会断言导入数量与向量数、过滤查询的命中范围、`mode=llm` 且覆盖率不低于 50% 的综述、4 条记忆与 progress revision 2，并把本轮状态写入 `evidence/run-status.txt`。
 
 成功后终端输出：
 
@@ -86,7 +86,7 @@ scenario complete
 
 浏览器打开 <http://127.0.0.1:8080/> 核对「继续上次」卡片、资料库检索、检索调试和记忆页。逐项期望结果见 [sample/scenario/steps.md](sample/scenario/steps.md)。
 
-模型的措辞每次可能不同，但引用编号必须对应检索分块，`coverage` 应为 1.00；抽取式回退的覆盖率为 0.50，属于设计行为。
+模型的措辞每次可能不同，但引用编号必须对应检索分块，`coverage` 应不低于 0.50；低于阈值时自动回退为抽取式（覆盖率 0.50），并在 `fallback_reason` 说明原因。
 
 ## 5. 分步运行
 

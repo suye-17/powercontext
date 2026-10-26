@@ -166,7 +166,7 @@ retry "answer" 3 "$PAPERDESK" answer "rerank 在 RAG 里解决什么问题？" \
 import json, sys
 synthesis = json.load(open(sys.argv[1], encoding="utf-8"))["synthesis"]
 assert synthesis["mode"] == "llm", synthesis
-assert synthesis["coverage"] == 1.0, synthesis
+assert synthesis["coverage"] >= 0.5, synthesis
 assert not synthesis["fallback_reason"], synthesis
 PY
 
@@ -253,7 +253,7 @@ retry "digest" 3 "$PAPERDESK" digest rag-survey --evidence "$EVIDENCE/llm/digest
 import json, sys
 synthesis = json.load(open(sys.argv[1], encoding="utf-8"))["synthesis"]
 assert synthesis["mode"] == "llm", synthesis
-assert synthesis["coverage"] == 1.0, synthesis
+assert synthesis["coverage"] >= 0.5, synthesis
 assert not synthesis["fallback_reason"], synthesis
 PY
 

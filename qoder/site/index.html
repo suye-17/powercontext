@@ -182,7 +182,7 @@
             <div class="window-bar"><span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="window-title">/ask?q=rerank in RAG</span></div>
             <div class="window-body">
               <h4>带引用的中文综述</h4>
-              <div class="sub">模型生成 · coverage 1.00 · 引用全部映射到检索分块</div>
+              <div class="sub">模型生成 · 覆盖率阈值 50% · 引用全部映射到检索分块</div>
               <p class="answer-line">Rerank 在 RAG 中主要解决<strong>上下文污染</strong>：第一阶段检索为降低成本通常牺牲精度，无关段落会占用生成器的有限上下文。<span class="cite">C3</span></p>
               <p class="answer-line">它通过更强的模型联合分析 query 和 passage，对候选重新排序；实验中 rerank 提高了 nDCG@10，并减少了上下文中的无关段落。<span class="cite">C1</span><span class="cite">C5</span></p>
               <p class="answer-line">Rerank <strong>不能解决召回缺失</strong>：如果候选列表里没有相关段落，reranker 也无法把它找回来。<span class="cite">C4</span></p>
@@ -298,7 +298,7 @@ PowerContext 1.4.0（本地 HTTP 服务）</pre>
             <ul class="check">
               <li><strong>seekdb</strong>：6 篇 / 30 块 / 30 向量；DDL 中含 FULLTEXT 与 HNSW；四组带过滤的查询结果。</li>
               <li><strong>PowerContext</strong>：4 条记忆；进度 rev 2；重启前后条目完全一致；继续卡片变为 Evaluation。</li>
-              <li><strong>引用</strong>：综述覆盖率 1.00，每个 <span class="cite">Cn</span> 都能回到章节与行号。</li>
+              <li><strong>引用</strong>：综述覆盖率有 50% 下限，低于阈值自动回退抽取式；每个 <span class="cite">Cn</span> 都能回到章节与行号。</li>
               <li><strong>Web</strong>：8 个页面全部 200，健康检查显示 6 篇、30 块、30 向量。</li>
             </ul>
           </div>

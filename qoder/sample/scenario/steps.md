@@ -110,7 +110,7 @@ cd app && .venv/bin/paperdesk ingest --json
 **期望**：
 
 - 计划前两名是 `rag-survey`、`rerank-notes`；继续卡片指向 `rag-survey · Results`。
-- 综述由模型生成（`mode=llm`、`coverage=1.0`、无 `fallback_reason`），含 `[C1]` 形式的引用，引用编号全部对应检索分块；`evidence/llm/citation-report.json` 记录覆盖率和校验结果。
+- 综述由模型生成（`mode=llm`、覆盖率不低于 0.50、无 `fallback_reason`），含 `[C1]` 形式的引用，引用编号全部对应检索分块；`evidence/llm/citation-report.json` 记录覆盖率和校验结果。
 - 结束会话后 `progress` 修订到 revision 2，并新增一条 `paperdesk.session` 摘要。
 
 ### 3.7 重启并复用记忆
@@ -182,7 +182,7 @@ hybrid  {'recall@1': 0.6, 'recall@3': 0.9, 'recall@5': 1.0, 'mrr': 0.7533, 'embe
 sample/scenario/reset.sh
 ```
 
-然后重新执行 `scripts/run_scenario.sh` 即可得到同样的初始状态。评测数值由固定语料和固定查询集产生；模型综述的措辞可能不同，但引用校验结果和覆盖率应保持一致。
+然后重新执行 `scripts/run_scenario.sh` 即可得到同样的初始状态。评测数值由固定语料和固定查询集产生；模型综述的措辞和覆盖率会随采样略变，但引用校验规则与不低于 0.50 的阈值保持一致。
 
 ## 6. 技术分工
 
