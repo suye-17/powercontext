@@ -3,10 +3,11 @@ import hashlib
 
 import pytest
 
-from powercontext.artifacts import ArtifactRef, MemoryCitation
+from powercontext.artifacts import ArtifactRef
 from powercontext.builtin.artifacts.memory import MemoryEntryVersion, MemoryHit
 from powercontext.builtin.runtime.models import (
     GetMemoryEntryRequest,
+    MemoryEntriesPage,
     MemoryEntryRecord,
     MemorySearchPage,
     SearchMemoryRequest,
@@ -124,137 +125,167 @@ def test_page_sources_keep_exact_input_projection_and_revision_identity() -> Non
     asyncio.run(scenario())
 
 
-def _search_entry(index: int, sources: tuple[SourceRef, ...]) -> tuple[MemoryHit, MemoryEntryRecord]:
-    reference = ArtifactRef(family="memory", artifact_id="reports", revision=3)
-    hit = MemoryHit(
-        memory_ref=reference,
-        entry_id=f"entry-{index:03}",
-        entry_version_id=f"version-{index:03}",
-        text=f"Page text {index}",
-        score=1,
-        matched_by=("fts",),
-    )
-    record = MemoryEntryRecord(
-        memory_ref=reference,
+_REFERENCE = ArtifactRef(family="memory", artifact_id="reports", revision=3)
+
+
+def _page_source(page_number: int, *, document_id: str = "doc", digest: str = "a" * 64) -> SourceRef:
+    registry = SourceDefinitionRegistry((api.PDF_PAGE_SOURCE_DEFINITION,))
+    page = api.PDFPageInput(document_id=document_id, document_sha256=digest, page_number=page_number, text="")
+    return SourceRef(source_type="pdf-page", source_id=asyncio.run(registry.resolve(page)).name)
+
+
+def _record(index: int, text: str, sources: tuple[SourceRef, ...]) -> MemoryEntryRecord:
+    return MemoryEntryRecord(
+        memory_ref=_REFERENCE,
         state="active",
         entry=MemoryEntryVersion(
-            memory_artifact_id=reference.artifact_id,
-            entry_id=hit.entry_id,
-            entry_version_id=hit.entry_version_id,
+            memory_artifact_id=_REFERENCE.artifact_id,
+            entry_id=f"entry-{index:03}",
+            entry_version_id=f"version-{index:03}",
             version=1,
             previous_version_id=None,
             kind="source-evidence",
-            text=hit.text,
+            text=text,
             entry_content_hash="a" * 64,
             created_in_revision=1,
             sources=sources,
         ),
     )
-    return hit, record
 
 
-class _MemoryFixture:
-    def __init__(self, entries: tuple[tuple[MemoryHit, MemoryEntryRecord], ...], rankings=None) -> None:
-        self.entries = {record.citation.entry_id: record for _, record in entries}
-        self.default_hits = tuple(hit for hit, _ in entries)
-        self.rankings = rankings or {}
+def _page_record(index: int, page_number: int, body: str, *, document_id: str = "doc") -> MemoryEntryRecord:
+    return _record(index, f"{document_id}\n{body}", (_page_source(page_number, document_id=document_id),))
+
+
+class _ListingMemory:
+    """Memory facade that exposes the scoped entry listing."""
+
+    def __init__(self, records: tuple[MemoryEntryRecord, ...]) -> None:
+        self.records = records
+        self.list_calls = 0
+        self.search_calls = 0
+
+    async def list(self, /, *, include_inactive: bool = False) -> MemoryEntriesPage:
+        self.list_calls += 1
+        return MemoryEntriesPage(memory_ref=_REFERENCE, entries=self.records)
+
+    async def search(self, request: SearchMemoryRequest, /) -> MemorySearchPage:
+        self.search_calls += 1
+        return MemorySearchPage(memory_ref=_REFERENCE, mode="fts", hits=())
+
+    async def get(self, request: GetMemoryEntryRequest, /) -> MemoryEntryRecord:
+        raise AssertionError("the listing path must not read entries one by one")  # noqa: TRY003
+
+
+class _HitMemory:
+    """Memory facade with search and get but no entry listing."""
+
+    def __init__(self, records: tuple[MemoryEntryRecord, ...]) -> None:
+        self.records = {record.entry.entry_id: record for record in records}
         self.requests: list[SearchMemoryRequest] = []
-        self.reads: list[MemoryCitation] = []
 
     async def search(self, request: SearchMemoryRequest, /) -> MemorySearchPage:
         self.requests.append(request)
-        return MemorySearchPage(
-            memory_ref=None, mode="fts", hits=self.rankings.get(request.query, self.default_hits)[: request.limit]
+        hits = tuple(
+            MemoryHit(
+                memory_ref=record.memory_ref,
+                entry_id=record.entry.entry_id,
+                entry_version_id=record.entry.entry_version_id,
+                text=record.entry.text,
+                score=1,
+                matched_by=("fts",),
+            )
+            for record in self.records.values()
         )
+        return MemorySearchPage(memory_ref=_REFERENCE, mode="fts", hits=hits[: request.limit])
 
     async def get(self, request: GetMemoryEntryRequest, /) -> MemoryEntryRecord:
-        self.reads.append(request.citation)
-        record = self.entries[request.citation.entry_id]
-        assert request.citation == record.citation
-        return record
+        return self.records[request.citation.entry_id]
 
 
-def test_search_overfetches_and_filters_before_returning_distinct_pages() -> None:
-    entries = tuple(
-        _search_entry(
-            index,
-            (
-                SourceRef(
-                    source_type="content" if index < 70 else "pdf-page",
-                    source_id="same-page" if index < 80 else f"page-{index}",
-                ),
-            ),
-        )
-        for index in range(100)
-    )
-    memory = _MemoryFixture(entries)
-    citations = asyncio.run(api.search_pdf_pages(memory, "Annual revenue and operating income", limit=20))
-    assert len(citations) == 20
-    assert {memory.entries[c.entry_id].entry.sources[0].source_type for c in citations} == {"pdf-page"}
-    assert len({memory.entries[c.entry_id].entry.sources[0].source_id for c in citations}) == 20
-    assert memory.requests[0].query == "Annual revenue and operating income"
-    assert all(request.limit == 100 and request.mode == "fts" for request in memory.requests)
-    assert len(memory.requests) <= 4
-    assert len(memory.reads) <= 100
+def test_search_returns_only_entries_citing_exactly_one_pdf_page() -> None:
+    other = SourceRef(source_type="content", source_id="note")
+    mixed = _record(0, "doc\nlegal proceedings", (_page_source(1), other))
+    text_only = _record(1, "doc\nlegal proceedings", (other,))
+    exact = _page_record(2, 3, "legal proceedings and litigation")
+    memory = _ListingMemory((mixed, text_only, exact))
+    citations = asyncio.run(api.search_pdf_pages(memory, "legal proceedings", limit=10))
+    assert citations == (exact.citation,)
 
 
-@pytest.mark.parametrize(("limit", "candidate_limit"), [(1, 20), (10, 50), (20, 100), (1000, 100)])
-def test_search_candidate_and_readback_budgets(limit: int, candidate_limit: int) -> None:
-    memory = _MemoryFixture(
-        tuple(_search_entry(i, (SourceRef(source_type="pdf-page", source_id=f"p-{i}"),)) for i in range(120))
-    )
-    citations = asyncio.run(api.search_pdf_pages(memory, "debt", limit=limit))
-    assert len(citations) == min(limit, candidate_limit)
-    assert len(memory.requests) == 1
-    assert memory.requests[0].limit == candidate_limit
-    assert len(memory.reads) <= candidate_limit
-
-
-def test_search_returns_short_tuple_when_candidates_are_ambiguous_or_insufficient() -> None:
-    page = SourceRef(source_type="pdf-page", source_id="one")
-    other = SourceRef(source_type="pdf-page", source_id="two")
-    memory = _MemoryFixture(
-        tuple(_search_entry(i, sources) for i, sources in enumerate(((), (page, other), (page,), (page,))))
-    )
-    citations = asyncio.run(api.search_pdf_pages(memory, "debt", limit=20))
-    assert citations == (memory.entries["entry-002"].citation,)
-
-
-def test_search_rejects_citations_mixing_a_pdf_page_with_other_evidence() -> None:
-    memory = _MemoryFixture((
-        _search_entry(
-            0,
-            (
-                SourceRef(source_type="pdf-page", source_id="page"),
-                SourceRef(source_type="content", source_id="note"),
-            ),
-        ),
+def test_search_returns_distinct_pages_for_entries_that_share_a_page() -> None:
+    source = _page_source(7)
+    memory = _ListingMemory((
+        _record(0, "doc\nrevenue growth", (source,)),
+        _record(1, "doc\nrevenue growth", (source,)),
     ))
-    assert asyncio.run(api.search_pdf_pages(memory, "debt", limit=20)) == ()
+    citations = asyncio.run(api.search_pdf_pages(memory, "revenue growth", limit=10))
+    assert len(citations) == 1
 
 
-def test_search_merges_generic_query_variants_and_preserves_exact_citations() -> None:
-    entries = tuple(_search_entry(i, (SourceRef(source_type="pdf-page", source_id=f"p-{i}"),)) for i in range(3))
-    first, second, third = (entry[0] for entry in entries)
-    question = "alpha beta gamma delta epsilon zeta"
-    memory = _MemoryFixture(
-        entries,
-        {
-            question: (first, second),
-            "alpha beta": (second,),
-            "gamma delta": (third,),
-            "epsilon zeta": (second,),
-        },
+def test_search_ranks_matching_pages_above_unrelated_pages() -> None:
+    unrelated = _page_record(0, 1, "annual report cover page")
+    matching = _page_record(1, 2, "operating income and depreciation")
+    memory = _ListingMemory((unrelated, matching))
+    citations = asyncio.run(api.search_pdf_pages(memory, "operating income", limit=10))
+    assert citations == (matching.citation,)
+
+
+def test_search_weights_the_page_heading_field() -> None:
+    filler = "\n".join([
+        "filler line one",
+        "filler line two",
+        "filler line three",
+        "filler line four",
+        "filler line five",
+    ])
+    heading_page = _page_record(0, 1, "Item 3. Legal Proceedings\nWe describe the matter below.")
+    body_only = _page_record(1, 2, f"{filler}\nThe legal team reviewed the contract.")
+    memory = _ListingMemory((body_only, heading_page))
+    citations = asyncio.run(api.search_pdf_pages(memory, "legal proceedings", limit=1))
+    assert citations == (heading_page.citation,)
+
+
+def test_search_promotes_a_matching_neighbour_of_a_strong_page() -> None:
+    filler = " ".join(["filler"] * 60)
+    records = (
+        _page_record(0, 10, "alpha beta gamma delta"),
+        _page_record(1, 11, f"gamma {filler}"),
+        _page_record(2, 20, "alpha beta gamma"),
+        _page_record(3, 30, "alpha beta"),
+        _page_record(4, 40, "alpha"),
     )
-    citations = asyncio.run(api.search_pdf_pages(memory, question, limit=3))
-    assert citations == tuple(memory.entries[hit.entry_id].citation for hit in (second, first, third))
-    assert len(memory.reads) == 3
-    assert len(memory.requests) <= 4
+    memory = _ListingMemory(records)
+    citations = asyncio.run(api.search_pdf_pages(memory, "alpha beta gamma delta", limit=3))
+    entry_ids = [citation.entry_id for citation in citations]
+    assert entry_ids[:2] == ["entry-000", "entry-002"]
+    assert "entry-001" in entry_ids
 
 
-@pytest.mark.parametrize("limit", [0, -1])
-def test_search_rejects_non_positive_limits(limit: int) -> None:
-    memory = _MemoryFixture(())
+def test_search_is_deterministic_and_respects_the_limit() -> None:
+    records = tuple(_page_record(index, index + 1, "revenue growth analysis") for index in range(30))
+    memory = _ListingMemory(records)
+    first = asyncio.run(api.search_pdf_pages(memory, "revenue growth", limit=5))
+    second = asyncio.run(api.search_pdf_pages(memory, "revenue growth", limit=5))
+    assert first == second
+    assert len(first) == 5
+    assert len({citation.entry_id for citation in first}) == 5
+    assert memory.list_calls == 2
+
+
+def test_search_falls_back_to_lexical_hits_without_a_listing() -> None:
+    record = _page_record(0, 1, "doc\nlegal proceedings")
+    memory = _HitMemory((record,))
+    citations = asyncio.run(api.search_pdf_pages(memory, "legal proceedings", limit=5))
+    assert citations == (record.citation,)
+    assert memory.requests and all(request.mode == "fts" for request in memory.requests)
+
+
+def test_search_rejects_blank_questions_and_non_positive_limits() -> None:
+    memory = _ListingMemory(())
+    for limit in (0, -1):
+        with pytest.raises(ValueError):
+            asyncio.run(api.search_pdf_pages(memory, "debt", limit=limit))
     with pytest.raises(ValueError):
-        asyncio.run(api.search_pdf_pages(memory, "debt", limit=limit))
-    assert memory.requests == []
+        asyncio.run(api.search_pdf_pages(memory, "   ", limit=5))
+    assert memory.list_calls == 0
