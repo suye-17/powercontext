@@ -1,0 +1,121 @@
+{
+  "reviewed_commit": "dfd0a12bb5eaaa52a213820942fa185b7722c702",
+  "base_commit": "afeac9d0551d439560a36169dba5b3c44991f878",
+  "verdict": "local_delivery_ready",
+  "findings": {
+    "critical": [],
+    "important": [],
+    "minor": []
+  },
+  "tests": {
+    "passed": 58,
+    "skipped": 0,
+    "seconds": 38.41,
+    "python": "3.12.3",
+    "pylibseekdb": "1.3.0.post5"
+  },
+  "comparison": {
+    "dataset": "synthetic-173-documents-20-topics",
+    "environment": {
+      "python": "3.12.3",
+      "pylibseekdb": "1.3.0.post5",
+      "sqlalchemy": "2.0.51",
+      "pyobvector": "0.2.28"
+    },
+    "documents": 173,
+    "queries": 20,
+    "scopes": 3,
+    "measured_queries": 60,
+    "candidate_statements_per_query": 1,
+    "frozen_candidate_statements_per_query": 2,
+    "all_hit_checks_passed": true,
+    "per_query_quality_nonregression": true,
+    "evidence_recall_at_10": 1.0,
+    "mrr_at_10": 1.0,
+    "p50_latency_ms": 46.57469099947775,
+    "median_latency_ratio": 0.9643486779906448,
+    "complete_tuple_equal_rate": 0,
+    "numeric_gates_passed": true,
+    "official_acceptance": false
+  },
+  "probe_setup": {
+    "selected_scope_candidates": 12,
+    "closer_foreign_scope_candidates": 40,
+    "closer_foreign_memory_candidates": 40,
+    "candidate_limit": 3,
+    "distance": "l2",
+    "dimension": 384
+  },
+  "different_distance_probes": [
+    {
+      "tag_match": null,
+      "expected_vector_ids": [
+        0,
+        1,
+        2
+      ],
+      "actual_vector_ids": [
+        0,
+        1,
+        2
+      ],
+      "explain_operators": "================================================================================================================\n|ID|OPERATOR                                         |NAME                               |EST.ROWS|EST.TIME(us)|\n----------------------------------------------------------------------------------------------------------------\n|0 |SORT                                             |                                   |6       |1221        |\n|1 |└─UNION ALL                                      |                                   |6       |1217        |\n|2 |  ├─SUBPLAN SCAN                                 |lexical                            |3       |979         |\n|3 |  │ └─TOP-N SORT                                 |                                   |3       |979         |\n|4 |  │   └─NESTED-LOOP JOIN                         |                                   |12      |976         |\n|5 |  │     ├─TEXT RETRIEVAL SCAN                    |m(ix_pc_memory_entry_heads_fts)    |12      |783         |\n|6 |  │     └─TABLE GET                              |v                                  |1       |16          |\n|7 |  └─SUBPLAN SCAN                                 |semantic                           |3       |238         |\n|8 |    └─TOP-N SORT                                 |                                   |3       |238         |\n|9 |      └─NESTED-LOOP JOIN                         |                                   |12      |236         |\n|10|        ├─VECTOR INDEX ADAPTIVE SCAN (PRE-FILTER)|m(uq_pc_memory_vector_entries_head)|12      |43          |\n|11|        └─TABLE GET                              |v                                  |1       |16          |\n================================================================================================================"
+    },
+    {
+      "tag_match": "any",
+      "expected_vector_ids": [
+        6,
+        7,
+        8
+      ],
+      "actual_vector_ids": [
+        6,
+        7,
+        8
+      ],
+      "explain_operators": "==================================================================================================================\n|ID|OPERATOR                                           |NAME                               |EST.ROWS|EST.TIME(us)|\n------------------------------------------------------------------------------------------------------------------\n|0 |SORT                                               |                                   |4       |1241        |\n|1 |└─UNION ALL                                        |                                   |4       |1239        |\n|2 |  ├─SUBPLAN SCAN                                   |lexical                            |3       |1188        |\n|3 |  │ └─TOP-N SORT                                   |                                   |3       |1188        |\n|4 |  │   └─SUBPLAN FILTER                             |                                   |4       |1185        |\n|5 |  │     ├─NESTED-LOOP JOIN                         |                                   |12      |976         |\n|6 |  │     │ ├─TEXT RETRIEVAL SCAN                    |m(ix_pc_memory_entry_heads_fts)    |12      |783         |\n|7 |  │     │ └─TABLE GET                              |v                                  |1       |16          |\n|8 |  │     └─SCALAR GROUP BY                          |                                   |1       |18          |\n|9 |  │       └─TABLE GET                              |tags                               |2       |18          |\n|10|  └─SUBPLAN SCAN                                   |semantic                           |1       |51          |\n|11|    └─TOP-N SORT                                   |                                   |1       |51          |\n|12|      └─NESTED-LOOP JOIN                           |                                   |1       |51          |\n|13|        ├─NESTED-LOOP JOIN                         |                                   |1       |35          |\n|14|        │ ├─SUBPLAN SCAN                           |eligible                           |1       |11          |\n|15|        │ │ └─MERGE GROUP BY                       |                                   |1       |11          |\n|16|        │ │   └─TABLE RANGE SCAN                   |tags                               |8       |4           |\n|17|        │ └─VECTOR INDEX ADAPTIVE SCAN (PRE-FILTER)|m(uq_pc_memory_vector_entries_head)|1       |24          |\n|18|        └─TABLE GET                                |v                                  |1       |16          |\n=================================================================================================================="
+    },
+    {
+      "tag_match": "all",
+      "expected_vector_ids": [
+        9,
+        10,
+        11
+      ],
+      "actual_vector_ids": [
+        9,
+        10,
+        11
+      ],
+      "explain_operators": "==================================================================================================================\n|ID|OPERATOR                                           |NAME                               |EST.ROWS|EST.TIME(us)|\n------------------------------------------------------------------------------------------------------------------\n|0 |SORT                                               |                                   |4       |1241        |\n|1 |└─UNION ALL                                        |                                   |4       |1239        |\n|2 |  ├─SUBPLAN SCAN                                   |lexical                            |3       |1188        |\n|3 |  │ └─TOP-N SORT                                   |                                   |3       |1188        |\n|4 |  │   └─SUBPLAN FILTER                             |                                   |4       |1185        |\n|5 |  │     ├─NESTED-LOOP JOIN                         |                                   |12      |976         |\n|6 |  │     │ ├─TEXT RETRIEVAL SCAN                    |m(ix_pc_memory_entry_heads_fts)    |12      |783         |\n|7 |  │     │ └─TABLE GET                              |v                                  |1       |16          |\n|8 |  │     └─SCALAR GROUP BY                          |                                   |1       |18          |\n|9 |  │       └─TABLE GET                              |tags                               |2       |18          |\n|10|  └─SUBPLAN SCAN                                   |semantic                           |1       |51          |\n|11|    └─TOP-N SORT                                   |                                   |1       |51          |\n|12|      └─NESTED-LOOP JOIN                           |                                   |1       |51          |\n|13|        ├─NESTED-LOOP JOIN                         |                                   |1       |35          |\n|14|        │ ├─SUBPLAN SCAN                           |eligible                           |1       |11          |\n|15|        │ │ └─MERGE GROUP BY                       |                                   |1       |11          |\n|16|        │ │   └─TABLE RANGE SCAN                   |tags                               |8       |4           |\n|17|        │ └─VECTOR INDEX ADAPTIVE SCAN (PRE-FILTER)|m(uq_pc_memory_vector_entries_head)|1       |24          |\n|18|        └─TABLE GET                                |v                                  |1       |16          |\n=================================================================================================================="
+    }
+  ],
+  "static_checks": {
+    "changed_python_files_ruff_format_ty_py311": "passed",
+    "git_diff_check": "passed",
+    "full_project_ty_minimal_runtime_environment": {
+      "status": "failed",
+      "diagnostics": 65,
+      "missing_dependencies": [
+        "langchain",
+        "time_machine",
+        "datamodel_code_generator",
+        "typer"
+      ],
+      "python": "3.12.3"
+    },
+    "full_project_ty_complete_tool_environment": {
+      "status": "passed",
+      "python": "3.13.12",
+      "command": "ty check --python /home/enovo/workspace/powercontext/.venv"
+    }
+  },
+  "unverified": [
+    "pylibseekdb==1.3.0.post4 compatibility",
+    "official acceptance",
+    "official corpus per-query quality and latency",
+    "full suite and cross-Python suite",
+    "remote availability of the local commits"
+  ],
+  "design_note": "Tag eligibility aggregation and indexed lookups scale with eligible identity count; output candidate_limit is not an input work bound."
+}
