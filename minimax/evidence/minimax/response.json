@@ -1,0 +1,37 @@
+{
+  "id": "072e4d7d4f188ff96400c84c210ad0c7",
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "--- a/tasklite/service.py\n+++ b/tasklite/service.py\n@@ -8,8 +8,13 @@ def list_tasks(\n     include_archived: bool = False,\n     min_priority: int | None = None,\n ) -> list[Task]:\n-    del min_priority\n-    visible = [task for task in tasks if include_archived or not task.archived]\n+    visible = [\n+        task\n+        for task in tasks\n+        if (include_archived or not task.archived)\n+        and (min_priority is None or task.priority >= min_priority)\n+    ]\n     return sorted(visible, key=lambda task: (-task.priority, task.id))\n \n \n def add_task(tasks: list[Task], title: str, priority: int) -> Task:\n+    if type(priority) is not int or not 0 <= priority <= 5:\n+        raise ValueError(\"priority must be an integer between 0 and 5\")\n     task = Task(id=str(len(tasks) + 1), title=title, priority=priority)\n     tasks.append(task)\n     return task",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1793006205,
+  "model": "MiniMax-M3.1-Flash",
+  "object": "chat.completion",
+  "usage": {
+    "total_tokens": 1445,
+    "total_characters": 0,
+    "prompt_tokens": 1028,
+    "completion_tokens": 417,
+    "completion_tokens_details": {
+      "reasoning_tokens": 180
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 128
+    }
+  },
+  "input_sensitive": false,
+  "output_sensitive": false,
+  "input_sensitive_type": 0,
+  "output_sensitive_type": 0,
+  "output_sensitive_int": 0,
+  "base_resp": {
+    "status_code": 0,
+    "status_msg": ""
+  }
+}

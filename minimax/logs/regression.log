@@ -1,0 +1,9 @@
+# regression tests
+# command: .venv/bin/pytest -q -k "<existing four tests>"   (cwd: snapshots/after/tasklite)
+# frozen base: d647275c308e09b7b623f322a26f5c4e85734fb0
+# branch head: c7f8f345508d8fd2a7c7960d21f8e439e57bf4e0
+# snapshot sha256: 6294e6a68386a5b4e56ec12d7ea0ebbee73328e2fd6df7cac9b2b50a758bee75
+# exit code: 0
+
+....                                                                     [100%]
+4 passed, 9 deselected in 0.01s

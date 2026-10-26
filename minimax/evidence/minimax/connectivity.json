@@ -1,0 +1,18 @@
+{
+  "status": "ok",
+  "url": "https://api.minimaxi.com/v1/chat/completions",
+  "model": "MiniMax-M3.1-Flash",
+  "content": "ok",
+  "usage": {
+    "total_tokens": 221,
+    "total_characters": 0,
+    "prompt_tokens": 207,
+    "completion_tokens": 14,
+    "completion_tokens_details": {
+      "reasoning_tokens": 10
+    },
+    "prompt_tokens_details": {
+      "cached_tokens": 197
+    }
+  }
+}

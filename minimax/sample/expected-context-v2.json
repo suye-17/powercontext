@@ -1,0 +1,17 @@
+{
+  "task": "实现 SPEC-003 的 min_priority 过滤和 SPEC-004 的 priority 校验，涉及 list_tasks 与 add_task，目标测试是 test_list_tasks_filters_by_min_priority 和 test_add_task_rejects_invalid_priority",
+  "required_specs": [
+    "SPEC-003",
+    "SPEC-004"
+  ],
+  "required_code": [
+    "tasklite/service.py#list_tasks",
+    "tasklite/service.py#add_task"
+  ],
+  "required_tests": [
+    "test_list_tasks_filters_by_min_priority",
+    "test_add_task_rejects_invalid_priority"
+  ],
+  "spec_003_text": "SPEC-003 最小优先级过滤\n传入 min_priority 时，只返回 priority 不低于 min_priority 的任务。",
+  "note": "v2 只用于验证规格更新后重新导入会改变上下文输出；措辞与 v1 语义等价，代码修改与测试仍然有效。"
+}

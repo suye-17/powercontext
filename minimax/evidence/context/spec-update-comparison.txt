@@ -1,0 +1,15 @@
+# SPEC update comparison (v1 -> v2)
+
+## SPEC-003
+v1: SPEC-003 最小优先级过滤
+传入 min_priority 时，只返回 priority >= min_priority 的任务。
+v2: SPEC-003 最小优先级过滤
+传入 min_priority 时，只返回 priority 不低于 min_priority 的任务。
+changed: True
+
+## SPEC-004
+v1: SPEC-004 优先级校验
+add_task 的 priority 必须是 0 到 5 之间的整数，否则抛出 ValueError。
+v2: SPEC-004 优先级校验
+add_task 的 priority 必须是 0 到 5 之间的整数，否则抛出 ValueError。
+changed: False

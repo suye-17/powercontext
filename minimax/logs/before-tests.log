@@ -1,0 +1,105 @@
+# before snapshot tests
+# command: .venv/bin/pytest -q   (cwd: snapshots/before/tasklite)
+# frozen base: d647275c308e09b7b623f322a26f5c4e85734fb0
+# branch head: c7f8f345508d8fd2a7c7960d21f8e439e57bf4e0
+# snapshot sha256: c5d945ad0520572a236126fcc1f2e972a0ccc581a5ece43283756dc61d6aa04a
+# worktree status:
+?? minimax/.env.example
+?? minimax/.gitignore
+?? minimax/PLAN.md
+?? minimax/logs/
+?? minimax/pyproject.toml
+?? minimax/snapshots/
+?? minimax/src/
+?? minimax/uv.lock
+# exit code: 1
+
+....F.FFFFF..                                                            [100%]
+=================================== FAILURES ===================================
+___________________ test_list_tasks_filters_by_min_priority ____________________
+
+    def test_list_tasks_filters_by_min_priority():
+        result = list_tasks(make_tasks(), min_priority=3)
+    
+>       assert [task.id for task in result] == ["e", "a", "b"]
+E       AssertionError: assert ['e', 'a', 'b', 'd'] == ['e', 'a', 'b']
+E         
+E         Left contains one more item: 'd'
+E         
+E         Full diff:
+E           [
+E               'e',
+E               'a',
+E               'b',
+E         +     'd',
+E           ]
+
+tests/test_service.py:48: AssertionError
+__________________ test_add_task_rejects_invalid_priority[-1] __________________
+
+priority = -1
+
+    @pytest.mark.parametrize("priority", [-1, 6, True, 3.5, "3"])
+    def test_add_task_rejects_invalid_priority(priority):
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_service.py:59: Failed
+__________________ test_add_task_rejects_invalid_priority[6] ___________________
+
+priority = 6
+
+    @pytest.mark.parametrize("priority", [-1, 6, True, 3.5, "3"])
+    def test_add_task_rejects_invalid_priority(priority):
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_service.py:59: Failed
+_________________ test_add_task_rejects_invalid_priority[True] _________________
+
+priority = True
+
+    @pytest.mark.parametrize("priority", [-1, 6, True, 3.5, "3"])
+    def test_add_task_rejects_invalid_priority(priority):
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_service.py:59: Failed
+_________________ test_add_task_rejects_invalid_priority[3.5] __________________
+
+priority = 3.5
+
+    @pytest.mark.parametrize("priority", [-1, 6, True, 3.5, "3"])
+    def test_add_task_rejects_invalid_priority(priority):
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_service.py:59: Failed
+__________________ test_add_task_rejects_invalid_priority[3] ___________________
+
+priority = '3'
+
+    @pytest.mark.parametrize("priority", [-1, 6, True, 3.5, "3"])
+    def test_add_task_rejects_invalid_priority(priority):
+>       with pytest.raises(ValueError):
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/test_service.py:59: Failed
+=========================== short test summary info ============================
+FAILED tests/test_service.py::test_list_tasks_filters_by_min_priority - AssertionError: assert ['e', 'a', 'b', 'd'] == ['e', 'a', 'b']
+  
+  Left contains one more item: 'd'
+  
+  Full diff:
+    [
+        'e',
+        'a',
+        'b',
+  +     'd',
+    ]
+FAILED tests/test_service.py::test_add_task_rejects_invalid_priority[-1] - Failed: DID NOT RAISE <class 'ValueError'>
+FAILED tests/test_service.py::test_add_task_rejects_invalid_priority[6] - Failed: DID NOT RAISE <class 'ValueError'>
+FAILED tests/test_service.py::test_add_task_rejects_invalid_priority[True] - Failed: DID NOT RAISE <class 'ValueError'>
+FAILED tests/test_service.py::test_add_task_rejects_invalid_priority[3.5] - Failed: DID NOT RAISE <class 'ValueError'>
+FAILED tests/test_service.py::test_add_task_rejects_invalid_priority[3] - Failed: DID NOT RAISE <class 'ValueError'>
+6 failed, 7 passed in 0.06s

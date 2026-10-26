@@ -1,0 +1,6 @@
+dry-run -p1: exit=0
+checking file tasklite/service.py
+
+apply -p1: exit=0
+patching file tasklite/service.py
+

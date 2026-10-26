@@ -1,0 +1,102 @@
+{
+  "task": "实现 SPEC-003 的 min_priority 过滤和 SPEC-004 的 priority 校验，涉及 list_tasks 与 add_task，目标测试是 test_list_tasks_filters_by_min_priority 和 test_add_task_rejects_invalid_priority",
+  "specs": [
+    {
+      "kind": "spec",
+      "path": "specs/tasklite.md",
+      "start_line": 11,
+      "end_line": 14,
+      "text": "SPEC-003 最小优先级过滤\n传入 min_priority 时，只返回 priority 不低于 min_priority 的任务。",
+      "score": 10.0,
+      "spec_id": "SPEC-003"
+    },
+    {
+      "kind": "spec",
+      "path": "specs/tasklite.md",
+      "start_line": 15,
+      "end_line": 17,
+      "text": "SPEC-004 优先级校验\nadd_task 的 priority 必须是 0 到 5 之间的整数，否则抛出 ValueError。",
+      "score": 10.0,
+      "spec_id": "SPEC-004"
+    },
+    {
+      "kind": "spec",
+      "path": "specs/tasklite.md",
+      "start_line": 7,
+      "end_line": 10,
+      "text": "SPEC-002 排序\n结果按 priority 降序排列；priority 相同时按 id 升序排列。",
+      "score": 1.6386,
+      "spec_id": "SPEC-002"
+    }
+  ],
+  "code": [
+    {
+      "kind": "code",
+      "path": "tasklite/service.py",
+      "start_line": 6,
+      "end_line": 18,
+      "text": "def list_tasks(\n    tasks: Iterable[Task],\n    *,\n    include_archived: bool = False,\n    min_priority: int | None = None,\n) -> list[Task]:\n    visible = [\n        task\n        for task in tasks\n        if (include_archived or not task.archived)\n        and (min_priority is None or task.priority >= min_priority)\n    ]\n    return sorted(visible, key=lambda task: (-task.priority, task.id))",
+      "score": 10.0,
+      "symbol": "list_tasks"
+    },
+    {
+      "kind": "code",
+      "path": "tasklite/service.py",
+      "start_line": 21,
+      "end_line": 26,
+      "text": "def add_task(tasks: list[Task], title: str, priority: int) -> Task:\n    if type(priority) is not int or not 0 <= priority <= 5:\n        raise ValueError(\"priority must be an integer between 0 and 5\")\n    task = Task(id=str(len(tasks) + 1), title=title, priority=priority)\n    tasks.append(task)\n    return task",
+      "score": 10.0,
+      "symbol": "add_task"
+    },
+    {
+      "kind": "code",
+      "path": "tasklite/cli.py",
+      "start_line": 19,
+      "end_line": 48,
+      "text": "def main(argv: list[str] | None = None) -> int:\n    parser = argparse.ArgumentParser(prog=\"tasklite\")\n    subparsers = parser.add_subparsers(dest=\"command\", required=True)\n\n    list_parser = subparsers.add_parser(\"list\")\n    list_parser.add_argument(\"--include-archived\", action=\"store_true\")\n    list_parser.add_argument(\"--min-priority\", type=int)\n    list_parser.add_argument(\"--data\", default=\"fixtures/tasks.json\")\n\n    add_parser = subparsers.add_parser(\"add\")\n    add_parser.add_argument(\"--title\", required=True)\n    add_parser.add_argument(\"--priority\", type=int, required=True)\n    add_parser.add_argument(\"--data\", default=\"fixtures/tasks.json\")\n\n    args = parser.parse_args(argv)\n    tasks = _load(args.data)\n\n    if args.command == \"list\":\n        result = list_tasks(\n            tasks,\n            include_archived=args.include_archived,\n            min_priority=args.min_priority,\n        )\n        print(json.dumps([task.__dict__ for task in result], ensure_ascii=False))\n        return 0\n\n    task = add_task(tasks, args.title, args.priority)\n    _save(args.data, tasks)\n    print(json.dumps(task.__dict__, ensure_ascii=False))\n    return 0",
+      "score": 0.6239,
+      "symbol": "main"
+    }
+  ],
+  "tests": [
+    {
+      "kind": "test",
+      "path": "tests/test_service.py",
+      "start_line": 45,
+      "end_line": 48,
+      "text": "def test_list_tasks_filters_by_min_priority():\n    result = list_tasks(make_tasks(), min_priority=3)\n\n    assert [task.id for task in result] == [\"e\", \"a\", \"b\"]",
+      "score": 10.0,
+      "test_name": "test_list_tasks_filters_by_min_priority"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_service.py",
+      "start_line": 57,
+      "end_line": 60,
+      "text": "@pytest.mark.parametrize(\"priority\", [-1, 6, True, 3.5, \"3\"])\ndef test_add_task_rejects_invalid_priority(priority):\n    with pytest.raises(ValueError):\n        add_task([], \"Invalid\", priority)",
+      "score": 10.0,
+      "test_name": "test_add_task_rejects_invalid_priority"
+    },
+    {
+      "kind": "test",
+      "path": "tests/test_service.py",
+      "start_line": 51,
+      "end_line": 54,
+      "text": "def test_list_tasks_min_priority_none_keeps_all():\n    result = list_tasks(make_tasks(), min_priority=None)\n\n    assert [task.id for task in result] == [\"e\", \"a\", \"b\", \"d\"]",
+      "score": 1.139,
+      "test_name": "test_list_tasks_min_priority_none_keeps_all"
+    }
+  ],
+  "state": {},
+  "sources": [
+    "specs/tasklite.md#SPEC-003",
+    "specs/tasklite.md#SPEC-004",
+    "specs/tasklite.md#SPEC-002",
+    "tasklite/service.py#list_tasks",
+    "tasklite/service.py#add_task",
+    "tasklite/cli.py#main",
+    "tests/test_service.py#test_list_tasks_filters_by_min_priority",
+    "tests/test_service.py#test_add_task_rejects_invalid_priority",
+    "tests/test_service.py#test_list_tasks_min_priority_none_keeps_all"
+  ]
+}

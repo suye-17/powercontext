@@ -1,0 +1,11 @@
+SELECT kind, COUNT(*) AS chunk_count FROM pc_corpus_chunks GROUP BY kind ORDER BY kind
+rows: (('code', 6), ('spec', 4), ('test', 8))
+
+SELECT c.spec_id, d.path, c.start_line, c.end_line, MATCH(c.searchable_text) AGAINST (%s IN NATURAL LANGUAGE MODE) AS score FROM pc_corpus_chunks c JOIN pc_corpus_documents d ON d.id = c.document_id WHERE c.kind = 'spec' AND MATCH(c.searchable_text) AGAINST (%s IN NATURAL LANGUAGE MODE) ORDER BY score DESC, d.path, c.start_line LIMIT 5
+rows: (('SPEC-003', 'specs/tasklite.md', 11, 14, 5.31256814428316), ('SPEC-002', 'specs/tasklite.md', 7, 10, 1.6385734382349177), ('SPEC-004', 'specs/tasklite.md', 15, 17, 1.4806430122419714), ('SPEC-001', 'specs/tasklite.md', 3, 6, 1.1700712526502546))
+
+SELECT c.symbol, d.path, c.start_line, c.end_line FROM pc_corpus_chunks c JOIN pc_corpus_documents d ON d.id = c.document_id WHERE c.kind = 'code' AND c.symbol = 'list_tasks'
+rows: (('list_tasks', 'tasklite/service.py', 6, 18),)
+
+SELECT c.test_name, d.path, c.start_line, c.end_line FROM pc_corpus_chunks c JOIN pc_corpus_documents d ON d.id = c.document_id WHERE c.kind = 'test' AND c.test_name = 'test_add_task_rejects_invalid_priority'
+rows: (('test_add_task_rejects_invalid_priority', 'tests/test_service.py', 57, 60),)

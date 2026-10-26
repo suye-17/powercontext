@@ -1,0 +1,10 @@
+# Test set identity check
+
+## test_service.py hashes
+before: 97fa2202381670ee5da6273767542871ee025ecb1ea1c9e4287df73638bd3e3c  snapshots/before/tasklite/tests/test_service.py
+after:  97fa2202381670ee5da6273767542871ee025ecb1ea1c9e4287df73638bd3e3c  snapshots/after/tasklite/tests/test_service.py
+demo:   97fa2202381670ee5da6273767542871ee025ecb1ea1c9e4287df73638bd3e3c  demo/tasklite/tests/test_service.py
+
+## patch paths
+--- a/tasklite/service.py
++++ b/tasklite/service.py

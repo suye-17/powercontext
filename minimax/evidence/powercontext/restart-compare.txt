@@ -1,0 +1,2 @@
+# compare state before and after PowerContext restart
+IDENTICAL

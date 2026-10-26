@@ -1,0 +1,7 @@
+[
+  {"id": "b", "title": "Write spec", "priority": 3, "archived": false},
+  {"id": "a", "title": "Read spec", "priority": 3, "archived": false},
+  {"id": "c", "title": "Archive old", "priority": 5, "archived": true},
+  {"id": "d", "title": "Low priority", "priority": 1, "archived": false},
+  {"id": "e", "title": "High priority", "priority": 5, "archived": false}
+]

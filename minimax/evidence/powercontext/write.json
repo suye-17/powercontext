@@ -1,0 +1,22 @@
+{
+  "scope_id": "scp_294k05kdwdk8arbryah0rb4g99",
+  "bytes": 445,
+  "kind": "sdd-task-state",
+  "result": {
+    "changed": true,
+    "records": [
+      {
+        "artifact": {
+          "family": "atomic-memory",
+          "artifact_id": "art_5ccfa4002e094062b03453eace875543",
+          "revision": 1
+        },
+        "kind": "sdd-task-state",
+        "text": "{\"task_id\":\"tasklite-min-priority\",\"objective\":\"实现 SPEC-003 的 min_priority 过滤和 SPEC-004 的 priority 校验\",\"completed\":[\"规格、代码、测试导入 seekdb\",\"before 快照与目标测试\",\"上下文构建\"],\"todo\":[\"MiniMax 生成补丁\",\"after 目标测试\",\"回归测试\"],\"verification\":[{\"command\":\".venv/bin/pytest -q\",\"stage\":\"before\",\"exit_code\":1,\"result\":\"6 failed, 7 passed\"}],\"updated_at\":\"2026-10-26T17:12:00+08:00\"}",
+        "state": "active",
+        "state_version": 0,
+        "merged_into_id": null
+      }
+    ]
+  }
+}

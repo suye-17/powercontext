@@ -1,0 +1,11 @@
+{
+  "root": "/home/duan/workspace/powercontext-minimax/minimax/snapshots/before/tasklite",
+  "db_path": "/home/duan/workspace/powercontext-minimax/minimax/.runtime/seekdb",
+  "documents": 6,
+  "chunks": 18,
+  "counts": {
+    "code": 6,
+    "spec": 4,
+    "test": 8
+  }
+}
