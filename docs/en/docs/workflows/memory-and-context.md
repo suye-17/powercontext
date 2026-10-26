@@ -48,3 +48,54 @@ It is not enabled by a basic explicit Memory write; inspect the Topic Memory set
 in [Configuration](../operate/configuration.md).
 
 Use [Handoff](memory-and-handoff.md) to transfer the current task boundary, and [Sources](sources.md) to preserve raw evidence.
+
+## Deactivate and restore content by source dependencies
+
+The built-in Python Runtime exposes `runtime.lifecycle.for_scope(scope_id)` for explicit Source, Memory, and Topic Memory
+dependencies. Each Scope has one writer. Register parents first; a node's reference, parents, and policy cannot change after
+registration. `all` requires every parent to support the complete body; `any` means each parent can independently support
+that complete body.
+
+```python
+from powercontext.builtin.runtime.source_lifecycle import SourceLifecycleEvent
+
+lifecycle = runtime.lifecycle.for_scope(scope_id)
+await lifecycle.register_source("source-a", captured.source_ref, revision=3)
+await lifecycle.register_memory(
+    "memory-a", saved.entry.citation, parents=("source-a",), policy="all"
+)
+await lifecycle.register_topic(
+    "topic-a", topic_ref, parents=("memory-a",), policy="any"
+)
+
+active_ids = await lifecycle.apply(
+    SourceLifecycleEvent(
+        node_id="source-a", revision=3, sequence=1,
+        available=False, reason="Source withdrawn",
+    )
+)
+audit_reference = await lifecycle.resolve("memory-a", purpose="audit")
+```
+
+Here, `runtime` comes from `open_builtin_runtime()`, `scope_id` is registered, `captured` is a Source capture result in that
+Scope, `saved` is an explicit Memory write result with an `entry`, and `topic_ref` is an already published, exactly readable
+Topic Memory ArtifactRef. The caller chooses the lifecycle `revision`; it is independent of Memory and Topic body revisions.
+Every registered reference must be readable in the current Scope. This built-in Python entry point adds no HTTP or MCP
+operation.
+
+A Source starts available. Derived nodes immediately inherit their parents' current availability, including nodes registered
+after withdrawal. Each Source has an independent, monotonically increasing event sequence. An incorrect revision, a lower
+sequence, or different content at the same sequence raises `SourceLifecycleError`. Replaying an identical event creates no
+additional Memory revision. To restore a Source, send a higher sequence with `available=True`.
+
+One registration or event updates the graph, native Memory state, and Topic retrieval eligibility in the same database
+transaction. A failed write or cancellation rolls back the operation; retry the same event. Registrations, events, and
+eligibility survive restarts and remain isolated by Scope. Recovery does not require rewriting bodies or regenerating
+summaries.
+
+Unavailable Memory leaves current lists, search, and PreparedContext; `include_inactive=True` still exposes its state.
+Unavailable Topic Memory leaves current browsing, native search, and PreparedContext, while its original ArtifactRef still
+reads the exact complete body. Resolution with `purpose="generation"` rejects unavailable nodes; `purpose="audit"` returns
+the stored original reference. After restoration, generation resolution returns that same reference. Memory state revisions
+may advance, but the bound body version and historical citation remain unchanged. Do not externally revise the bound Memory
+body version while it is registered.

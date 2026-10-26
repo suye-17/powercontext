@@ -49,6 +49,7 @@ from powercontext.builtin.persistence.artifacts import ArtifactRepository
 from powercontext.builtin.persistence.errors import InvalidRepositoryArgumentError
 from powercontext.builtin.persistence.family_management import FamilyManagementWriterRegistry
 from powercontext.builtin.persistence.records import RelationalRecordService
+from powercontext.builtin.persistence.source_lifecycle import SourceLifecycleRepository
 from powercontext.builtin.persistence.sources import SourceRepository
 from powercontext.builtin.persistence.sqlite import SQLiteConfig, SQLiteProfile
 from powercontext.builtin.persistence.sqlite.topic_memory_index import (
@@ -1827,5 +1828,110 @@ def test_sqlite_vector_probe_rejects_unwritable_metadata(table_name: str) -> Non
                 "SELECT count(*) FROM pc_topic_memory_chunk_vec",
             ):
                 assert (await connection.exec_driver_sql(query)).scalar_one() == 0
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("vector", [False, True])
+def test_lifecycle_filters_each_topic_channel_before_its_candidate_limit(vector: bool) -> None:
+    async def scenario() -> None:
+        embedding_profile = EmbeddingProfile(profile_id="lifecycle", model="offline", dimension=2)
+        fts = SQLiteTopicMemoryFTSIndex()
+        vectors = SQLiteTopicMemoryVectorIndex(embedding_profile) if vector else None
+        index = CompositeTopicMemoryIndex(fts, vectors) if vectors is not None else CompositeTopicMemoryIndex(fts)
+        repository = TopicMemoryRepository(index=index)
+        lifecycle = SourceLifecycleRepository()
+        async with SQLiteProfile.open(
+            SQLiteConfig(), tables=BUILTIN_TABLES + index.tables, load_vector_extension=vector
+        ) as profile:
+            async with profile.database.transaction() as connection:
+                await repository.initialize(connection)
+                references = {}
+                for identity, embedding in (("a-withdrawn", (1.0, 0.0)), ("z-supported", (0.96, 0.28))):
+                    content = TopicMemoryContent(title="evidence", summary="evidence", detail="evidence")
+                    base = prepare_topic_memory_projection(content)
+                    projection = (
+                        prepare_topic_memory_projection(
+                            content,
+                            topic_embedding=embedding,
+                            chunk_embeddings=(embedding,) * len(base.chunks),
+                            embedding_profile=embedding_profile,
+                        )
+                        if vector
+                        else base
+                    )
+                    published = await repository.publish_create(
+                        connection, "scope-a", identity, _draft(content), projection
+                    )
+                    references[identity] = published.topic.as_ref()
+                await lifecycle.set_unavailable_topics(connection, "scope-a", (references["a-withdrawn"],))
+
+            async with profile.database.transaction() as connection:
+                channels = await fts.search(
+                    connection,
+                    "scope-a",
+                    TopicMemorySearchRequest(
+                        query="evidence", analyzed_query="evidence", mode="fts", candidate_limit=1
+                    ),
+                )
+                assert [hit.artifact_ref.artifact_id for hit in channels.topic_fts] == ["z-supported"]
+                assert [hit.artifact_ref.artifact_id for hit in channels.detail_fts] == ["z-supported"]
+                if vectors is not None:
+                    channels = await vectors.search(
+                        connection,
+                        "scope-a",
+                        TopicMemorySearchRequest(
+                            query="evidence",
+                            mode="vector",
+                            candidate_limit=1,
+                            query_vector=(1.0, 0.0),
+                            embedding_profile=embedding_profile,
+                        ),
+                    )
+                    assert [hit.artifact_ref.artifact_id for hit in channels.topic_vector] == ["z-supported"]
+                    assert [hit.artifact_ref.artifact_id for hit in channels.detail_vector] == ["z-supported"]
+                # Exact reads and projection initialization retain the withdrawn revision.
+                assert (await repository.get_exact(connection, "scope-a", references["a-withdrawn"])).is_current
+                await repository.initialize(connection)
+                result = await repository.search(connection, "scope-a", "evidence", limit=1, mode="fts")
+                assert [hit.artifact_ref.artifact_id for hit in result.hits] == ["z-supported"]
+                assert [
+                    item.artifact_ref.artifact_id
+                    for item in await repository.browse_current(connection, "scope-a", limit=20)
+                ] == ["z-supported"]
+
+    asyncio.run(scenario())
+
+
+def test_topic_lifecycle_qualification_is_scope_and_revision_exact() -> None:
+    async def scenario() -> None:
+        index = _fts_index()
+        repository = TopicMemoryRepository(index=index)
+        lifecycle = SourceLifecycleRepository()
+        async with (
+            SQLiteProfile.open(SQLiteConfig(), tables=BUILTIN_TABLES + index.tables) as profile,
+            profile.database.transaction() as connection,
+        ):
+            await repository.initialize(connection)
+            content = _content("evidence", "needle")
+            first = await repository.publish_create(
+                connection, "scope-a", "same-topic", _draft(content), prepare_topic_memory_projection(content)
+            )
+            other = await repository.publish_create(
+                connection, "scope-b", "same-topic", _draft(content), prepare_topic_memory_projection(content)
+            )
+            await lifecycle.set_unavailable_topics(connection, "scope-a", (first.topic.as_ref(),))
+            assert (await repository.search(connection, "scope-a", "needle", limit=1)).hits == ()
+            visible = await repository.search(connection, "scope-b", "needle", limit=1)
+            assert [hit.artifact_ref for hit in visible.hits] == [other.topic.as_ref()]
+            updated = _content("updated evidence", "needle")
+            second = await repository.publish_revision(
+                connection, "scope-a", first.topic, _draft(updated), prepare_topic_memory_projection(updated)
+            )
+            visible = await repository.search(connection, "scope-a", "needle", limit=1)
+            assert [hit.artifact_ref for hit in visible.hits] == [second.topic.as_ref()]
+            historical = await repository.get_exact(connection, "scope-a", first.topic.as_ref())
+            assert historical.topic == first.topic
+            assert not historical.is_current
 
     asyncio.run(scenario())

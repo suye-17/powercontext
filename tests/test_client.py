@@ -654,3 +654,35 @@ def test_client_settings_hide_the_api_token(monkeypatch) -> None:
     assert settings.api_token is not None
     assert settings.api_token.get_secret_value() == "secret-token"
     assert "secret-token" not in repr(settings)
+
+
+def test_prepare_client_omits_disabled_evidence_selection() -> None:
+    async def scenario() -> None:
+        bodies = []
+
+        def respond(request: httpx.Request) -> httpx.Response:
+            bodies.append(json.loads(request.content))
+            return httpx.Response(
+                200,
+                json={
+                    "schema": "powercontext.prepared-context.v1",
+                    "status": "empty",
+                    "content": None,
+                    "content_bytes": 0,
+                },
+            )
+
+        async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as http_client:
+            client = PowerContextClient("https://memory.example", http_client=http_client)
+            await client.prepare_context(PrepareContextRequest(scope_id="scope", query="legacy"))
+            for enabled in (False, True):
+                await client.prepare_context(
+                    PrepareContextRequest(scope_id="scope", query="evidence", evidence_selection=enabled)
+                )
+        assert "evidence_selection" not in bodies[0]
+        assert "evidence_selection" not in bodies[1]
+        assert bodies[2]["evidence_selection"] is True
+        assert all("assembly" not in body for body in bodies)
+        assert all(set(body) <= {"scope_id", "query", "max_bytes", "include_code"} for body in bodies[:2])
+
+    asyncio.run(scenario())

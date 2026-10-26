@@ -190,6 +190,7 @@ from powercontext.builtin.runtime.protocols import (
 )
 from powercontext.builtin.runtime.recall import RelationalRecallTokenEstimator
 from powercontext.builtin.runtime.recurrence import RelationalRecurrenceLedger
+from powercontext.builtin.runtime.source_lifecycle import ScopedSourceLifecycle
 from powercontext.builtin.runtime.statistics import RelationalScopedStatistics
 from powercontext.builtin.scope import ScopeApplication
 from powercontext.builtin.scope.subject_sources import SubjectSourceService
@@ -246,6 +247,7 @@ logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:
+    from powercontext.builtin.runtime.application import BuiltinRuntime
     from powercontext.builtin.runtime.processing_execution import ScopeInvocation
 
 
@@ -1387,6 +1389,23 @@ class RelationalContexts:
             services=services,
             lock=self._experience_locks.setdefault(services.scope_id, asyncio.Lock()),
         ).flush(limit=limit, processing=processing, on_commit=on_commit)
+
+    def source_lifecycle(self, runtime: BuiltinRuntime, scope_id: str) -> ScopedSourceLifecycle:
+        services = self._services_for(scope_id)
+
+        def memory_service(connection: AsyncConnection) -> MemoryService:
+            _, catalog = services.sources(connection)
+            return services.memory(catalog, connection)
+
+        return ScopedSourceLifecycle(
+            runtime,
+            services.scope_id,
+            database=self.database,
+            sources=self.repositories.sources,
+            topics=self.repositories.topic_memories,
+            memory_service=memory_service,
+            memory_artifact_id=self._memory_artifact_id,
+        )
 
     async def get(
         self,
