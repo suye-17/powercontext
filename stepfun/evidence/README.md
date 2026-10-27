@@ -9,6 +9,7 @@
 | `benchmarks/benchmark-fp32-wasm.json` | FP32 基线 · WASM：Recall@5 80.0%、nDCG@5 58.5%、E2E 38.6 ms |
 | `benchmarks/benchmark-int8-wasm.json` | INT8 · WASM：Recall@5 84.0%、nDCG@5 63.2%、E2E 29.1 ms |
 | `benchmarks/benchmark-int8-webgpu.json` | INT8 · WebGPU（SwiftShader）：Recall@5 84.0%、nDCG@5 61.4%、E2E 205.4 ms |
+| `benchmarks/benchmark-int8-wasm-docker.json` | Docker seekdb（2882）INT8 · WASM：Recall@5 84.0%、nDCG@5 63.2%、E2E 30.1 ms，验证 Docker 启动路径 |
 | `benchmarks/benchmark-fp16-webgpu.log` | FP16 · WebGPU 失败记录：适配器不支持 `shader-f16` |
 | `benchmarks/*.log` | 每个配置的逐阶段运行日志 |
 | `model-sizes.json` | HF 文件 HEAD 实测体积，与 `MODEL_SIZES` 常量一致 |

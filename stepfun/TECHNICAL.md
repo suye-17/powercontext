@@ -59,4 +59,5 @@ INT8 在该演示集上没有质量下降；小集合上略高属于采样波动
 
 - 快速开始、基准命令与目录见 [README.md](README.md)；干净状态步骤见 [sample/steps.md](sample/steps.md)。
 - 基准原始 JSON / 日志：`evidence/benchmarks/`；截图：`evidence/screenshots/`；数据库配置：`evidence/db/`；重启对比：`evidence/persistence/`；网络来源：`evidence/network/`。
+- Docker seekdb（`oceanbase/seekdb:latest`，2882）已实跑 INT8 WASM 基准：Recall@5 84.0%、nDCG@5 63.2%、E2E 30.1 ms，与本地 2881 实例一致，证明 Docker 启动路径可用（`evidence/benchmarks/benchmark-int8-wasm-docker.json`）。
 - 语料来自 OceanBase seekDB 文档（Apache-2.0），每块保留来源路径；未使用答案或预解析正文作为运行时输入。
