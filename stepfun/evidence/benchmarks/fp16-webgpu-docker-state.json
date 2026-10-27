@@ -1,0 +1,29 @@
+{
+  "deployment": "Docker oceanbase/seekdb:latest on port 2882",
+  "api": "http://127.0.0.1:8788",
+  "note": "User browser loaded the sample corpus through the app; the collection name stepfun_kb_fp16 is selected only when the embedder precision is fp16, proving the hardware WebGPU FP16 path completed the import.",
+  "health": {
+    "ok": true,
+    "db": {
+      "host": "127.0.0.1",
+      "port": 2882,
+      "database": "test",
+      "dimension": 384
+    },
+    "collections": [
+      {
+        "collection": "stepfun_bench_int8_wasm",
+        "count": 70
+      },
+      {
+        "collection": "stepfun_kb_fp16",
+        "count": 70
+      }
+    ]
+  },
+  "fp16Collection": {
+    "collection": "stepfun_kb_fp16",
+    "exists": true,
+    "count": 70
+  }
+}
