@@ -32,14 +32,14 @@
 
 - 平台：Qoder 桌面端（个人账号）
 - UID：`01a177f6-8352-7dca-aad8-af82f8efed66`
-- 公开站点 URL：`https://paperdesk-u6gf1w4ntck.qoder.website/`
+- 公开站点 URL：`https://paperdesk-reading-u6gf1w4ntck.qoder.website/`
 - 发布方式：Qoder Sites，内容目录为站点根目录（含 `index.html` 与 `assets/`），可见范围设为「所有人可访问」
 - 开发周期：2026-10-26 至 2026-10-27
 - 提交材料中不得包含 `qoder/.env`、`.runtime/`、`.agents/` 或本地工作日志；凭据只保留在被忽略的本地文件中。
 
 ## 发布与访问核验
 
-- 2026-10-27 由个人账号通过 Qoder Sites 发布，站点内容目录为 `site/` 的根目录。
+- 2026-10-27 由个人账号通过 Qoder Sites 发布，发布内容为 `site/` 根目录的 `index.html` 与 `assets/`。
 - 无痕窗口（InPrivate）无需登录即可打开首页，导航、样式、截图和「Made with Qoder」标识正常，见 `screenshots/incognito.png`。
 - 已登录状态下的发布页见 `screenshots/published-home.png`。
 - 分享面板的可见范围显示「任何人都可访问」，见 `screenshots/visibility.png`。
