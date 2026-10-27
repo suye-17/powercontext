@@ -87,9 +87,10 @@ uv run --group dev python -m pytest tests/test_pdf_pages.py tests/e2e/test_pdf_p
 ## 五、提交信息
 
 - 仓库：<https://github.com/suye-17/powercontext>
-- 分支：`feat/source-03-pdf-retrieval`
-- 提交：`dbc093b5098fe7b08704855c47804d6129c1e038`
-- 本题两个提交：
+- 分支：`contest/base`；本题开发分支 `feat/source-03-pdf-retrieval` 已并入
+- 合并提交：`a4187fe49d516e0ac28e43db3d767637ccb0d315`（`merge: integrate challenge 04 PDF retrieval recall fix`）
+- 本题代码提交：
   - `c6298f2f918efc8c8ef7b3d8bc0b92a9d3b3b001` — 检索排序改为离线 BM25 + 标题加权 + 邻页扩展
   - `dbc093b5098fe7b08704855c47804d6129c1e038` — 邻页分组改用完整文档摘要，补跨文档回归
+- 合并后在 `contest/base` 上复验：仓库回归 `34 passed in 5.48s`，公开测试集 `6 passed in 60.16s`
 - 未推送、未开 PR、未对外提交。
