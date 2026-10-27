@@ -128,6 +128,7 @@ python -m pytest tests/test_pdf_pages.py tests/test_sources.py tests/test_source
 
 - 仓库：<https://github.com/suye-17/powercontext>
 - 分支：`contest/base`（基于冻结基线 `9db1753434162c0aa7c9f1189a1722e617880a52`）
-- 前序提交：`6a8efb69`（8192 截断 + 前缀回退）→ 本轮召回修复提交（`fix(sources): widen PDF queries toward statement vocabulary`）→ 本记录提交
+- 前序提交：`6a8efb69`（8192 截断 + 前缀回退）→ `3b3d0c38`（本轮召回修复，`fix(sources): recall statement pages and name the filing in PDF search`）→ `d0a9f996` / 本记录提交
+- 子代理 review（对照赛题 brief 与仓库 REVIEW.md/AGENTS.md）：API 契约完整、无 gold 读取与答案硬编码（判定：概念词表属「允许离线查询处理及重排」的领域词典层）、复跑回归 34 passed 与官方 harness 6 passed、PFIZER 抽查金页 rank 1；结论 PASS，无阻塞缺陷。防御性改进项（`_select` 对畸形 Source 名的守卫、`_query_document_mentions` 过滤函数词、超长 document_id 的空页信号）记录为后续跟进，不影响本次提交。
 - 本轮改动文件：`src/powercontext/sources/pdf_pages.py`（唯一产品源码文件）、`docs/powercontext-contest/results/source-03-pdf-retrieval.md`
 - 未推送、未开 PR：等待确认后由用户决定是否推送。
