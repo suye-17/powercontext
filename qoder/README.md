@@ -2,6 +2,8 @@
 
 一个面向科研阅读者的论文笔记工作台：用 **seekdb** 检索英文论文笔记，用 **PowerContext** 记住阅读目标、偏好、进度和会话摘要，让下一次打开工作台时能直接接着上次读。
 
+在线站点（Qoder Sites，公开）：<https://paperdesk-u6gf1w4ntck.qoder.website/>
+
 ## 解决的痛点
 
 阅读论文笔记时，信息往往散落在多个 Markdown 文件里：
@@ -108,9 +110,9 @@ qoder/
 
 | 验收项 | 落点 | 证据 |
 | --- | --- | --- |
-| 网站可访问 | `site/` 静态站点，待由发布者使用个人 Qoder 账号发布为公开站点 | 发布步骤见 [site/PUBLISH.md](site/PUBLISH.md)；URL 与无痕截图由发布者补充 |
+| 网站可访问 | `site/` 静态站点，已通过个人 Qoder 账号在 Qoder Sites 发布并设为公开 | 公开 URL：`https://paperdesk-u6gf1w4ntck.qoder.website/`；可见性与无痕截图见 [evidence/qoder/](evidence/qoder/README.md) |
 | 项目能够运行 | `uv.lock`、`.env.example`、`RUNBOOK.md`、一键场景脚本 | `sample/scenario/steps.md` 与 `evidence/` |
-| Qoder 开发可核对 | 需求拆解、实现、调试与验证均在 Qoder 中完成 | [evidence/qoder/README.md](evidence/qoder/README.md) 记录对话材料与 commit 对应关系；UID 与发布截图待发布者补充 |
+| Qoder 开发可核对 | 需求拆解、实现、调试与验证均在 Qoder 中完成 | [evidence/qoder/README.md](evidence/qoder/README.md) 记录对话截图、UID、发布核验与 commit 对应关系 |
 | 技术结合有效 | seekdb 检索进入计划/速读/综述；PowerContext 记忆跨重启复用 | `evidence/seekdb/`、`evidence/powercontext/`、`evidence/llm/` |
 
 ## 已知限制

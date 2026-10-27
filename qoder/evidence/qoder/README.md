@@ -2,7 +2,7 @@
 
 本目录用于存放「项目主要由 Qoder 完成」的可核对材料。代码、运行证据和发布站点分别在其他目录；这里只记录开发过程。
 
-## 需要发布者补充的材料
+## 提交材料清单
 
 | 材料 | 状态 | 放置位置 |
 | --- | --- | --- |
@@ -69,6 +69,7 @@
 | `4d24f7cf` | 综述证据必须带向量分；重跑时保留已捕获的截图 | `scripts/run_scenario.sh`、`evidence/README.md`、`README.md`、`site/index.html` |
 | `6686ef13` | Web 证据拒绝嵌入回退页：资料库页必须带向量分，失败自动重试 | `scripts/run_scenario.sh`、`sample/scenario/steps.md`、`evidence/README.md` |
 | `1692f7f9` | 最终一轮完整证据与截图（`6686ef13` 之后重跑） | `evidence/`、`site/assets/screenshots/` |
+| `255aad9c` | 记录公开站点 URL、UID 与发布/开发截图 | `evidence/qoder/` |
 
 本轮证据在 `6686ef13` 提交后由 `qoder/scripts/run_scenario.sh` 从空运行时重跑生成，`evidence/run-status.txt` 记录 `commit=6686ef13` 与 `status=complete`；综述证据的 6 条命中同时带 `fts_score` 与 `vector_score`，资料库页记录向量得分且无嵌入回退提示。此前 `305fd7e9` 及更早的证据轮次已被本轮取代。
 
