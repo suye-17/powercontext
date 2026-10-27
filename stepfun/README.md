@@ -106,7 +106,7 @@ npm run test:integration    # seekdb 实际写入 / 混合检索 / 刷新
 npm run test:e2e            # 构建后运行 Playwright 增量导入与检索
 ```
 
-本环境已执行：14 个单元测试通过、3 个 seekdb 集成测试通过、1 个端到端测试通过（两次增量导入、两次检索、混合检索与网络来源记录）；另在 Docker seekdb（2882）实例上复跑 INT8 WASM 基准通过。
+本环境已执行：14 个单元测试通过、3 个 seekdb 集成测试通过、1 个端到端测试通过（两次增量导入、两次检索、混合检索与网络来源记录）；另在 Docker seekdb（2882）实例上复跑 INT8 WASM 基准通过，并在该实例上完成硬件 WebGPU FP16 示例语料导入（70 条）。
 
 ## 基准
 
@@ -133,6 +133,7 @@ npm run bench -- --mode=webgpu --config=int8-webgpu
 | seekdb 重启前后对比 | `evidence/persistence/` |
 | 模型文件体积 HEAD 实测 | `evidence/model-sizes.json` |
 | Docker seekdb 实例基准 | `evidence/benchmarks/benchmark-int8-wasm-docker.json` |
+| 硬件 FP16 WebGPU 导入 | `evidence/benchmarks/fp16-webgpu-docker-state.json` |
 | 端到端测试日志 | `evidence/logs/e2e.log` |
 
 证据索引与环境说明见 [evidence/README.md](evidence/README.md)。

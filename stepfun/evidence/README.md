@@ -10,6 +10,7 @@
 | `benchmarks/benchmark-int8-wasm.json` | INT8 · WASM：Recall@5 84.0%、nDCG@5 63.2%、E2E 29.1 ms |
 | `benchmarks/benchmark-int8-webgpu.json` | INT8 · WebGPU（SwiftShader）：Recall@5 84.0%、nDCG@5 61.4%、E2E 205.4 ms |
 | `benchmarks/benchmark-int8-wasm-docker.json` | Docker seekdb（2882）INT8 · WASM：Recall@5 84.0%、nDCG@5 63.2%、E2E 30.1 ms，验证 Docker 启动路径 |
+| `benchmarks/fp16-webgpu-docker-state.json` | 用户硬件浏览器在 Docker seekdb（2882）实例上通过应用以 WebGPU FP16 导入示例语料，`stepfun_kb_fp16` 70 条 |
 | `benchmarks/benchmark-fp16-webgpu.log` | FP16 · WebGPU 失败记录：适配器不支持 `shader-f16` |
 | `benchmarks/*.log` | 每个配置的逐阶段运行日志 |
 | `model-sizes.json` | HF 文件 HEAD 实测体积，与 `MODEL_SIZES` 常量一致 |

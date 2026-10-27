@@ -21,6 +21,8 @@
 | INT8 | 84.0% | 63.2% | +4.0pp / +4.7pp |
 | FP16 | 未在本机执行 | 未在本机执行 | SwiftShader 不支持 `shader-f16` |
 
+FP16 的硬件导入已由用户在 Docker seekdb（2882）实例的浏览器完成：应用将示例语料写入 `stepfun_kb_fp16` 70 条（`evidence/benchmarks/fp16-webgpu-docker-state.json`），说明硬件 WebGPU FP16 路径可以完成浏览器向量化与入库；FP16 的质量/计时基准行仍未跑，INT8 已满足赛题“INT8 或 FP16”的量化要求。
+
 INT8 在该演示集上没有质量下降；小集合上略高属于采样波动，不宣称量化提升质量。
 
 ## 2. 端侧运行
