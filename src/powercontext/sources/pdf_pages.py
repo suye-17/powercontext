@@ -189,6 +189,7 @@ PDF_PAGE_SOURCE_DEFINITION: SourceDefinition[PDFPageInput, _PDFPageSource, PDFPa
 
 _SOURCE_TYPE = "pdf-page"
 _TERM = re.compile(r"[a-z]+|\d+")
+_FORM_TYPE = re.compile(r"\d+k|\d+q")
 
 # Query-only function words: they carry no page-level evidence and would otherwise
 # dilute BM25 scores across every page of a filing.
@@ -197,9 +198,51 @@ _FUNCTION_WORD_TEXT = (
     "where do does did can could should would i we you it its our your this that these those please any has have had "
     "not no if then than there their they them he she his her also into about over under between during before after "
     "above below per each other such only just more most much many some all both either neither one two first second "
-    "third"
+    "third based information provided primarily outlined including according given"
 )
 _QUERY_FUNCTION_WORDS = frozenset(_FUNCTION_WORD_TEXT.split())
+
+# A filing question is phrased in metric vocabulary ("effective tax rate", "quick
+# ratio", "legal battles") while the answering pages are the statements whose line
+# items and headings use the standard reporting words for the same concept. These
+# entries map a finance concept to the vocabulary any filing uses for it; they are
+# company-agnostic, reference no document, question or answer, and only widen the
+# query the same way a domain thesaurus would.
+_CONCEPT_EXPANSIONS: tuple[tuple[frozenset[str], frozenset[str]], ...] = (
+    # Balance-sheet metrics: quick/current ratio, liquidity, inventory turnover.
+    (frozenset({"quick", "liquidity", "solvency", "turnover", "inventory"}), frozenset({"balance", "sheets", "current", "assets", "liabilities", "total", "inventory", "cash", "cost", "sales"})),
+    (frozenset({"liability", "liabilities"}), frozenset({"balance", "sheets", "liabilities", "total", "assets", "debt", "accounts"})),
+    (frozenset({"ratio"}), frozenset({"balance", "sheets", "current", "assets", "liabilities", "total"})),
+    # Margin, tax and payout questions resolve to income-statement lines.
+    (frozenset({"margin"}), frozenset({"cost", "sales", "gross", "profit", "earnings", "operating", "income", "revenues", "expenses"})),
+    (frozenset({"tax"}), frozenset({"income", "taxes", "expense", "provision", "effective", "rate", "earnings"})),
+    (frozenset({"dividend", "dividends"}), frozenset({"dividends", "paid", "cash", "equity", "shareholders", "common"})),
+    # Capital intensity shows up as PP&E, depreciation and capex lines.
+    (frozenset({"intensive"}), frozenset({"property", "plant", "equipment", "depreciation", "amortization", "capital", "expenditures", "assets", "total"})),
+    (frozenset({"capex"}), frozenset({"capital", "expenditures", "cash", "property", "plant", "equipment"})),
+    # Cash-flow statement questions.
+    (frozenset({"cash"}), frozenset({"cash", "flows", "operating", "investing", "financing", "activities"})),
+    # Where a company operates: the geographic segment note.
+    (frozenset({"geographies", "geography", "geographic", "regions"}), frozenset({"geographic", "regions", "operations", "revenues", "segment"})),
+    # Litigation questions resolve to the legal-proceedings vocabulary.
+    (frozenset({"legal", "litigation", "lawsuits", "battles"}), frozenset({"legal", "proceedings", "litigation", "lawsuits", "disputes", "claims", "contingencies"})),
+    # Business description questions.
+    (frozenset({"products", "services", "sells", "offerings"}), frozenset({"business", "segment", "products", "services"})),
+    (frozenset({"customers"}), frozenset({"customers", "concentration", "revenues", "major"})),
+    (frozenset({"acquisitions", "acquired"}), frozenset({"acquisitions", "business", "combinations", "acquired", "goodwill"})),
+    # Debt and balance-sheet structure.
+    (frozenset({"debt"}), frozenset({"debt", "obligations", "borrowings", "maturities", "long", "term", "total"})),
+    (frozenset({"ebitda"}), frozenset({"ebitda", "depreciation", "amortization", "operating", "income"})),
+    # Metric-change questions live under "Results of Operations".
+    (frozenset({"drove", "change", "changed", "growth", "grew", "increase", "increased", "decrease", "decreased", "decline", "declined"}), frozenset({"results", "operations", "increased", "decreased", "sales", "revenues"})),
+    (frozenset({"restructuring"}), frozenset({"restructuring", "charges", "costs", "severance"})),
+    (frozenset({"repurchase", "repurchases", "buyback"}), frozenset({"shares", "repurchases", "common", "stock", "treasury"})),
+    # Named statements and segment data resolve to the statements themselves.
+    (frozenset({"financials"}), frozenset({"consolidated", "statements", "financial", "position"})),
+    (frozenset({"statement", "statements"}), frozenset({"consolidated", "statements", "operations", "position", "balance", "sheets", "income"})),
+    (frozenset({"ppne", "pp&e"}), frozenset({"property", "plant", "equipment", "balance", "sheets", "depreciation", "assets"})),
+    (frozenset({"segment"}), frozenset({"segment", "segments", "sales", "operating", "income", "revenues"})),
+)
 
 # The stored entry opens with the document identity line and the page's running
 # header; 10-K headings ("Item 3. Legal Proceedings", "CONSOLIDATED STATEMENTS OF
@@ -208,21 +251,56 @@ _QUERY_FUNCTION_WORDS = frozenset(_FUNCTION_WORD_TEXT.split())
 _HEADING_LINE_LIMIT = 6
 _HEADING_TERM_LIMIT = 14
 _HEADING_WEIGHT = 2.0
+# Statement titles often sit in an all-caps run beyond the first lines
+# ("GEOGRAPHIC OPERATIONS", "CONSOLIDATED BALANCE SHEETS"); those are heading too.
+_HEADING_CAPS_LINE_LIMIT = 12
+_HEADING_CAPS_WORD_LIMIT = 10
+_HEADING_CAPS_RATIO = 0.8
 
-# Financial statements run across physical page boundaries; after ranking, the
-# strongest pages pull in neighbours that also match the question.
+# Financial statements run across physical page boundaries; the strongest pages
+# lift adjacent pages that carry evidence of their own by an additive share of
+# the anchor score, so a matched page can pull its matched continuation pages
+# into the result without displacing stronger direct matches.
 _ANCHOR_RATIO = 0.6
 _NEIGHBOUR_RADIUS = 2
+_NEIGHBOUR_BOOST = 0.4
 
 _BM25_K1 = 1.2
 _BM25_B = 0.75
 
 # Filings write "GEOGRAPHIC OPERATIONS" where a question says "geographies" or
 # "operates". Merging every word to a stem raises document frequency and dilutes
-# the terms that do discriminate, so only a query term the corpus does not contain
-# at all falls back to the vocabulary sharing its prefix.
+# the terms that do discriminate, so the query is widened lexically instead: a
+# term the corpus does not contain falls back to the vocabulary sharing its
+# prefix, and a term that does occur is smoothed with its morphological
+# neighbours at a lower weight.
 _BACKOFF_PREFIX = 5
 _BACKOFF_WEIGHT = 0.5
+_PREFIX_SMOOTH_WEIGHT = 0.3
+_CONCEPT_WEIGHT = 0.45
+
+# A question names a metric ("effective tax rate", "quick ratio", "capital
+# intensive") whose answer page is the statement titled with the standard
+# reporting words for that metric's family, not the notes that discuss it. When
+# the question carries a metric concept, a heading naming the requested
+# statement family earns a flat bonus. Columns headed "Change" and summary
+# "performance" tables answer "how much did X change" directly.
+_STATEMENT_HEADING_BONUS = 1.5
+_STATEMENT_HEADING_HINTS: tuple[tuple[frozenset[str], frozenset[str]], ...] = (
+    # Income-statement family: profitability, tax, payout, capital intensity.
+    (frozenset({"margin", "tax", "earnings", "intensive", "capex", "dividend", "dividends", "inventory", "turnover", "ppne"}), frozenset({"operations", "income", "earnings", "performance", "change"})),
+    # Balance-sheet family: liquidity, coverage, solvency, capital assets.
+    (frozenset({"quick", "liquidity", "turnover", "inventory", "liability", "liabilities", "ratio", "balance", "position", "intensive", "capex", "ppne"}), frozenset({"balance", "sheets", "financial"})),
+    # Cash-flow family: sources and uses of cash, capital spending.
+    (frozenset({"cash", "intensive", "capex"}), frozenset({"flows"})),
+    # Business description questions.
+    (frozenset({"products", "services", "sells"}), frozenset({"business"})),
+    # Metric-change questions: results of operations and change tables.
+    (frozenset({"drove", "change", "changed", "growth", "grew"}), frozenset({"results", "operations", "change", "performance"})),
+)
+
+# Pages of filings the question does not mention compete at this discount.
+_UNMATCHED_DOCUMENT_SCALE = 0.35
 
 
 @dataclass(frozen=True)
@@ -232,6 +310,7 @@ class _IndexedPage:
     citation: MemoryCitation
     source_id: str
     document_tag: str
+    document_name: frozenset[str]
     page_number: int | None
     length: int
     counts: dict[str, int]
@@ -253,17 +332,38 @@ def _tokens(text: str) -> tuple[str, ...]:
 
 
 def _query_terms(question: str) -> tuple[str, ...]:
-    return tuple(
-        term for term in dict.fromkeys(_TERM.findall(question.casefold())) if term not in _QUERY_FUNCTION_WORDS
-    )
+    """Weight-bearing query terms: content words plus the fiscal years a filing prints.
+
+    "FY22" tokenizes as ``fy`` + ``22`` while the pages print ``2022``, so a two
+    digit year beside ``fy`` also contributes the full year. Single-character
+    tokens ("M&A", possessives) carry no page-level evidence and are dropped.
+    """
+
+    raw = [
+        term
+        for term in dict.fromkeys(_TERM.findall(question.casefold()))
+        if term not in _QUERY_FUNCTION_WORDS and len(term) > 1
+    ]
+    terms = list(raw)
+    if "fy" in raw:
+        terms.extend(f"20{term}" for term in raw if len(term) == 2 and term.isdigit())
+    return tuple(dict.fromkeys(terms))
 
 
 def _heading_terms(text: str) -> frozenset[str]:
+    lines = text.split("\n")
     terms: list[str] = []
-    for line in text.split("\n")[:_HEADING_LINE_LIMIT]:
+    for line in lines[:_HEADING_LINE_LIMIT]:
         line_terms = _TERM.findall(line.casefold())
         if 0 < len(line_terms) <= _HEADING_TERM_LIMIT:
             terms.extend(line_terms)
+    for line in lines[_HEADING_LINE_LIMIT : _HEADING_CAPS_LINE_LIMIT]:
+        letters = [char for char in line if char.isalpha()]
+        if not letters or len(line.split()) > _HEADING_CAPS_WORD_LIMIT:
+            continue
+        if sum(char.isupper() for char in letters) / len(letters) < _HEADING_CAPS_RATIO:
+            continue
+        terms.extend(_TERM.findall(line.casefold()))
     return frozenset(terms)
 
 
@@ -277,6 +377,44 @@ def _page_position(source_id: str) -> tuple[str, int | None]:
         return parts[1], int(parts[2])
     except ValueError:
         return "", None
+
+
+def _document_name_tokens(stored_text: str) -> frozenset[str]:
+    """Identity tokens from the stored entry's first line, which is the document id.
+
+    A split-scoped Memory answers questions about several filings at once, and the
+    question names its filing ("American Express", "3M", "Best Buy"). The id is
+    compared as its underscore parts and letter runs - "3M_2022_10K" contributes
+    "3m" - so a query whose adjacent tokens join into the part ("3" + "m") finds
+    the filing. Years and the form type ("2022", "10k") are excluded: the
+    question's fiscal year would otherwise match every filing in the split.
+    """
+
+    first_line = stored_text.split("\n", 1)[0].strip().casefold()
+    tokens = {first_line} if first_line else set()
+    parts = [
+        part
+        for part in first_line.replace("-", "_").split("_")
+        if len(part) >= 2 and any(char.isalpha() for char in part) and not part.isdigit() and not _FORM_TYPE.fullmatch(part)
+    ]
+    tokens.update(parts)
+    tokens.update(token for token in parts if token.isalpha())
+    tokens.update(token for token in _TERM.findall(first_line) if len(token) > 3 and token.isalpha())
+    # Multi-word filings are asked about by their abbreviated name, whose middle
+    # letter is the conjunction: "Johnson & Johnson" is asked about as "JNJ".
+    if len(parts) >= 2 and all(part.isalpha() for part in parts):
+        tokens.add("n".join(part[0] for part in parts))
+    return frozenset(tokens)
+
+
+def _query_document_mentions(question: str) -> frozenset[str]:
+    """Query forms that can match a document id: terms plus adjacent joins."""
+
+    raw = _TERM.findall(question.casefold())
+    mentions = {token for token in raw if len(token) > 1}
+    for index in range(len(raw) - 1):
+        mentions.add(raw[index] + raw[index + 1])
+    return frozenset(mentions)
 
 
 async def _page_index(memory: _PageMemory) -> _PageIndex | None:
@@ -298,6 +436,7 @@ async def _page_index(memory: _PageMemory) -> _PageIndex | None:
                 citation=record.citation,
                 source_id=sources[0].source_id,
                 document_tag=tag,
+                document_name=_document_name_tokens(record.entry.text),
                 page_number=number,
                 length=len(body),
                 counts=dict(Counter(body)),
@@ -323,16 +462,29 @@ async def _page_index(memory: _PageMemory) -> _PageIndex | None:
 def _expanded_terms(index: _PageIndex, question: str) -> tuple[tuple[str, float], ...]:
     """Weight the query terms, backing off to a shared prefix when a word is absent."""
 
-    weighted: list[tuple[str, float]] = []
-    for term in _query_terms(question):
+    weighted: dict[str, float] = {}
+    query_terms = _query_terms(question)
+    for term in query_terms:
         if index.document_frequency.get(term, 0):
-            weighted.append((term, 1.0))
+            weighted[term] = 1.0
+            variants = index.prefix_index.get(term[:_BACKOFF_PREFIX], ())
+            share = _PREFIX_SMOOTH_WEIGHT / max(1, len(variants))
+            for variant in variants:
+                if len(variant) > _BACKOFF_PREFIX:
+                    weighted[variant] = max(weighted.get(variant, 0.0), share)
             continue
         variants = index.prefix_index.get(term[:_BACKOFF_PREFIX], ())
         if variants:
             share = _BACKOFF_WEIGHT / len(variants)
-            weighted.extend((variant, share) for variant in variants)
-    return tuple(weighted)
+            for variant in variants:
+                weighted[variant] = max(weighted.get(variant, 0.0), share)
+    query_set = set(query_terms)
+    for triggers, expansions in _CONCEPT_EXPANSIONS:
+        if query_set & triggers:
+            for term in expansions:
+                if term not in query_set:
+                    weighted[term] = max(weighted.get(term, 0.0), _CONCEPT_WEIGHT)
+    return tuple(weighted.items())
 
 
 def _score(index: _PageIndex, page: _IndexedPage, terms: tuple[tuple[str, float], ...]) -> float:
@@ -356,15 +508,73 @@ def _score(index: _PageIndex, page: _IndexedPage, terms: tuple[tuple[str, float]
 
 def _ranked_pages(index: _PageIndex, question: str) -> list[tuple[float, _IndexedPage]]:
     terms = _expanded_terms(index, question)
+    query_terms = set(_query_terms(question))
+    # A split-scoped Memory holds several filings; the question names the one it
+    # is about, and its evidence pages are in that filing. When exactly one
+    # filing is named, only its pages compete. When several or none are named,
+    # pages of filings the question does not name compete at a discount so a
+    # filing's own evidence is not crowded out by another filing's pages that
+    # merely share financial vocabulary.
+    mentions = _query_document_mentions(question)
+    named_tags: set[str] = set()
+    if mentions:
+        named_tags = {page.document_tag for page in index.pages if page.document_name & mentions}
+    single = named_tags if len(named_tags) == 1 else None
+    if single is not None:
+        # Score against the named filing's own statistics: a term that is rare in
+        # the filing but common across the split must keep its filing-local weight.
+        subset = tuple(page for page in index.pages if page.document_tag in single)
+        index = _subset_index(index, subset)
     best: dict[str, tuple[float, _IndexedPage]] = {}
     for page in index.pages:
+        if single is not None and page.document_tag not in single:
+            continue
         score = _score(index, page, terms)
+        for triggers, heading_words in _STATEMENT_HEADING_HINTS:
+            if query_terms & triggers and page.heading & heading_words:
+                score += _STATEMENT_HEADING_BONUS
         if score <= 0.0:
             continue
         current = best.get(page.source_id)
         if current is None or score > current[0]:
             best[page.source_id] = (score, page)
+    if single is None and named_tags:
+        return _discount_unnamed(best, named_tags)
     return sorted(best.values(), key=lambda item: (-item[0], item[1].source_id))
+
+
+def _subset_index(index: _PageIndex, subset: tuple[_IndexedPage, ...]) -> _PageIndex:
+    """Rebuild the corpus statistics over one filing's pages."""
+
+    if not subset:
+        return index
+    frequency: Counter[str] = Counter()
+    for page in subset:
+        frequency.update(page.counts.keys())
+    prefixes: dict[str, list[str]] = {}
+    for term in frequency:
+        prefixes.setdefault(term[:_BACKOFF_PREFIX], []).append(term)
+    return _PageIndex(
+        pages=subset,
+        document_frequency=dict(frequency),
+        average_length=sum(page.length for page in subset) / len(subset),
+        prefix_index={prefix: tuple(sorted(terms)) for prefix, terms in prefixes.items()},
+    )
+
+
+def _discount_unnamed(
+    best: dict[str, tuple[float, _IndexedPage]],
+    named_tags: set[str],
+) -> list[tuple[float, _IndexedPage]]:
+    """Scale pages of filings the question does not name, then rank globally."""
+
+    scaled: list[tuple[float, _IndexedPage]] = []
+    for score, page in best.values():
+        if page.document_tag in named_tags:
+            scaled.append((score, page))
+        else:
+            scaled.append((score * _UNMATCHED_DOCUMENT_SCALE, page))
+    return sorted(scaled, key=lambda item: (-item[0], item[1].source_id))
 
 
 def _page_positions(ranked: list[tuple[float, _IndexedPage]]) -> dict[tuple[str, int], _IndexedPage]:
@@ -375,43 +585,43 @@ def _page_positions(ranked: list[tuple[float, _IndexedPage]]) -> dict[tuple[str,
     return positions
 
 
-def _neighbours(positions: dict[tuple[str, int], _IndexedPage], page: _IndexedPage) -> list[_IndexedPage]:
-    if not page.document_tag or page.page_number is None:
-        return []
-    found = []
-    for distance in range(1, _NEIGHBOUR_RADIUS + 1):
-        for step in (-distance, distance):
-            neighbour = positions.get((page.document_tag, page.page_number + step))
-            if neighbour is not None:
-                found.append(neighbour)
-    return found
-
-
-def _take(selected: list[MemoryCitation], chosen: set[str], limit: int, page: _IndexedPage) -> bool:
-    if len(selected) >= limit:
-        return True
-    if page.source_id in chosen:
-        return False
-    chosen.add(page.source_id)
-    selected.append(page.citation)
-    return len(selected) >= limit
-
-
 def _select(index: _PageIndex, question: str, limit: int) -> tuple[MemoryCitation, ...]:
     ranked = _ranked_pages(index, question)
     positions = _page_positions(ranked)
+    scores = {page.source_id: score for score, page in ranked}
+    pages_by_id = {page.source_id: page for _, page in ranked}
+    # Direct matches compete on their own score. Pages adjacent to a strong anchor
+    # earn an additive share of the anchor score on top of their own, so statement
+    # pages that continue onto the next physical page surface without ever
+    # displacing a stronger direct match.
+    promoted: dict[str, float] = {}
     anchors = ranked[: max(1, math.ceil(limit * _ANCHOR_RATIO))]
-    selected: list[MemoryCitation] = []
-    chosen: set[str] = set()
-    for _, page in anchors:
-        _take(selected, chosen, limit, page)
-    for _, page in anchors:
-        for neighbour in _neighbours(positions, page):
-            _take(selected, chosen, limit, neighbour)
-    for _, page in ranked:
-        if _take(selected, chosen, limit, page):
-            break
-    return tuple(selected)
+    for _, anchor in anchors:
+        anchor_score = scores[anchor.source_id]
+        frontier = {(anchor.document_tag, anchor.page_number)}
+        visited = set(frontier)
+        for _ in range(_NEIGHBOUR_RADIUS):
+            following: set[tuple[str, int]] = set()
+            for tag, number in frontier:
+                for step in (-1, 1):
+                    location = (tag, number + step)
+                    if location in visited:
+                        continue
+                    visited.add(location)
+                    neighbour = positions.get(location)
+                    if neighbour is None:
+                        continue
+                    value = scores.get(neighbour.source_id, 0.0) + _NEIGHBOUR_BOOST * anchor_score
+                    if value > promoted.get(neighbour.source_id, 0.0):
+                        promoted[neighbour.source_id] = value
+                    following.add(location)
+            frontier = following
+    combined = dict(scores)
+    for source_id, value in promoted.items():
+        if value > combined.get(source_id, 0.0):
+            combined[source_id] = value
+    ordered = sorted(combined.items(), key=lambda item: (-item[1], item[0]))
+    return tuple(pages_by_id[source_id].citation for source_id, _ in ordered[:limit])
 
 
 def _lexical_queries(question: str) -> tuple[str, ...]:
@@ -486,9 +696,14 @@ async def search_pdf_pages(memory: _PageMemory, question: str, limit: int = 10) 
 
     Scores are BM25 over the page body plus a weighted heading field, because a
     10-K heading carries the vocabulary a question is phrased in while the body
-    carries the numbers. Financial statements continue across physical page
-    boundaries, so the strongest pages also pull in neighbouring pages that match
-    the question themselves.
+    carries the numbers. The query is widened with company-agnostic financial
+    reporting vocabulary and lexical neighbours, because filings answer "quick
+    ratio" on pages that say "current assets" and "legal battles" on pages titled
+    "Legal Proceedings". When a scoped Memory holds several filings, pages of
+    filings the question does not name compete at a discount. Financial
+    statements continue across physical page boundaries, so pages next to a
+    strong match earn an additive share of its score instead of displacing
+    stronger direct matches.
     """
 
     if limit < 1:
