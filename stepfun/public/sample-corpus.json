@@ -1,0 +1,583 @@
+{
+  "name": "seekdb 文档混合检索样例",
+  "description": "OceanBase seekdb 官方文档摘录，覆盖 seekdb-js、集合、混合检索、全文查询与部署。",
+  "license": "Excerpted from OceanBase seekDB documentation (Apache-2.0, oceanbase/oceanbase-skills).",
+  "documents": [
+    {
+      "id": "deploy-systemd",
+      "title": "Deploy seekdb with package managers",
+      "source": "seekdb-docs/400.guides/400.deploy/700.server-mode/100.deploy-by-systemd.md",
+      "chunks": [
+        {
+          "id": "deploy-systemd:c00",
+          "text": "# Deploy seekdb with package managers\n\nThis topic describes how to deploy seekdb using your system's package manager.\n\n## Prerequisites\n\nBefore you begin, ensure that:\n\n* Your system is RPM-based. The following distributions are currently supported:\n\n* Anolis OS 8.x (Linux kernel 4.19 or later)\n\n* Anolis OS 23.x (Linux kernel 6.6 or later)\n\n* CentOS Linux 7.x and 9.x (Linux kernel 4.19 or later)\n\n* openEuler 22.03 and 24.03 (Linux kernel 5.10.0 or later)\n\n* You have at least 1 CPU core and 2 GB of available memory.\n\n* The `jq` command-line tool is installed, and systemd is configured as the system and service manager.\n\n* A MySQL client is installed for database connections.\n\n* Your user account has permission to run `sudo`.\n\n## Deploy seekdb\n\n### Step 1: Install seekdb\n\nChoose online or offline installation depending on whether the machine can reach the internet.\n\n#### Online installation\n\nObtain the install script's SHA-256 digest from an official OceanBase release channel independently of the script download URL. Then download, verify, review, and execute it:"
+        },
+        {
+          "id": "deploy-systemd:c01",
+          "text": "```shell\n    : \"${SEEKDB_INSTALL_SHA256:?Set this to the officially published SHA-256}\"\n    SEEKDB_INSTALL_SCRIPT=\"$(mktemp)\"\n    trap 'rm -f \"$SEEKDB_INSTALL_SCRIPT\"' EXIT\n    curl --proto '=https' --tlsv1.2 -fL \\\n      https://obportal.s3.ap-southeast-1.amazonaws.com/download-center/opensource/seekdb/seekdb_install.sh \\\n      -o \"$SEEKDB_INSTALL_SCRIPT\"\n    printf '%s  %s\\n' \"$SEEKDB_INSTALL_SHA256\" \"$SEEKDB_INSTALL_SCRIPT\" | sha256sum --check --strict\n    less \"$SEEKDB_INSTALL_SCRIPT\"\n    sudo bash \"$SEEKDB_INSTALL_SCRIPT\"\n    ```\n\nDo not continue if no official digest is available or checksum verification fails. Prefer offline installation for a version-pinned deployment.\n\n:::tip\n\nOnline installation always installs the latest version of seekdb. If you need to install a specific version, use offline installation.\n\n:::\n\n#### Offline installation\n\n1. Download the seekdb package for your desired version from the [seekdb Download Center](https://www.oceanbase.ai/download). Copy the package to the target machine. Use the latest version when possible.\n\n:::tip\n\nAs CentOS has ended maintenance for EL8, seekdb does not offer RPM packages for this platform. If you are running an EL8-based system, use the EL7 RPM package instead.\n\n:::\n\n2. In the directory containing the package, install seekdb with rpm:\n\n```shell\n       sudo rpm -ivh seekdb-*.rpm\n       ```\n\n### Step 2: Start seekdb"
+        },
+        {
+          "id": "deploy-systemd:c02",
+          "text": "After installation, start seekdb as follows.\n\n1. (Optional) Edit the configuration file.\n\nYou can adjust settings here. If you skip this step, deployment uses the defaults in the configuration file.\n\n```shell\n       sudo vim /etc/seekdb/seekdb.cnf\n       ```\n\nExample contents:\n\n```shell\n       port=2881\n       data-dir=/var/lib/oceanbase/store\n       redo-dir=/var/lib/oceanbase/store/redo\n       cpu_count=4\n       memory_limit=2G\n       ```\n\nConfiguration options are described in the following table:\n\n| Option | Required | Default | Description |\n       |--------|----------|---------|-------------|\n       | port | No | 2881 | SQL service port for seekdb. |\n       | redo_dir | No | /var/lib/oceanbase/store/redo | Directory for clog, ilog, and slog. Prefer a dedicated disk.<main id=\"notice\" type='explain'><h4>Note</h4><p>Ensure at least 15 GB free on the data disk (default: <code>/var/lib/oceanbase/</code>).</p></main> |\n       | data_dir | No | /var/lib/oceanbase/store | Directory for SSTable and other data. Prefer a dedicated disk.<main id=\"notice\" type='explain'><h4>Note</h4><p>Ensure at least 15 GB free on the data disk (default: <code>/var/lib/oceanbase/</code>).</p></main> |\n       | cpu_count | No | 4 | Number of CPUs seekdb can use. Set to 0 for auto-detection. |\n       | memory_limit | No | 2G | Maximum memory seekdb can use. |\n\n2. Start seekdb:"
+        },
+        {
+          "id": "deploy-systemd:c03",
+          "text": "```shell\n       sudo systemctl start seekdb\n       ```\n\n3. Verify that seekdb is running:\n\n```shell\n       sudo systemctl status seekdb\n       ```\n\nWhen the status shows `Service is ready`, seekdb has started successfully.\n\n### Step 3: Connect to seekdb\n\nExample connection using the MySQL client:\n\n```shell\n    mysql -h<IP> -uroot -P<Port> -p<Passwd> -A -Dtest\n    ```\n\nParameters:\n\n* **-h**: Host IP. For seekdb started via systemd on this machine, the default is `127.0.0.1`.\n    * **-u**: Username. The default seekdb user is `root`.\n    * **-P**: Port. Must match the `port` value in `/etc/oceanbase/seekdb.cnf` (default 2881).\n    * **-p**: Password. Default is empty.\n    * **-A**: Disable automatic loading of statistics in the MySQL client.\n    * **-D**: Database name. Replace `test` with your target database if needed.\n\n**Example:**\n\n```shell\n    mysql -h127.0.0.1 -uroot -P2881 -p****** -A -Dtest\n    ```\n\n## Manage seekdb\n\nseekdb is managed through systemd. Supported operations are start, stop, and status.\n\n### Check seekdb status\n\nRun:\n\n```shell\n    sudo systemctl status seekdb\n    ```\n\nInterpret the output as follows:\n\n* **Active: active (running)** and **Status: seekdb is ready and running** — seekdb is running correctly.\n    * **Active: inactive (dead)** — The service is stopped.\n    * **Active: failed** — An error occurred. Check the service logs to troubleshoot."
+        },
+        {
+          "id": "deploy-systemd:c04",
+          "text": "### Remove seekdb\n\nTo fully remove seekdb that was started with systemd:\n\n1. Stop seekdb:\n\n```shell\n       sudo systemctl stop seekdb\n       ```\n\n2. Uninstall the package and data:\n\n1. Remove the seekdb package.\n\nFor an online installation:\n\n```shell\n          sudo yum erase seekdb\n          ```\n\nReplace `seekdb` with the actual package name if different. List packages with `yum list | grep seekdb`.\n\nFor an offline installation:\n\n```shell\n          sudo rpm -e seekdb\n          ```\n\nReplace `seekdb` with the actual package name if different. List installed packages with `rpm -qa | grep seekdb`.\n\n2. Remove seekdb data.\n\nAfter uninstalling the package, the output may show: `To clean OceanBase : bash /var/lib/seekdb/seekdb_clean.sh`. Run that script to remove all seekdb data. After this step, seekdb is fully removed from the system.\n\n```shell\n          sudo bash /var/lib/seekdb/seekdb_clean.sh\n          ```\n\n## Prerequisites\n\nBefore you begin, ensure that:\n\n* Your system is DEB-based. The following distributions are currently supported:\n\n* Debian 11, 12, and 13 (Linux kernel 4.19 or later)\n  \n      * Ubuntu 20.04, 22.04, and 24.04 (Linux kernel 4.19 or later)\n\n* You have at least 1 CPU core and 2 GB of available memory.\n\n* The `jq` command-line tool is installed, and systemd is configured as the system and service manager.\n\n* A MySQL client is installed for database connections."
+        },
+        {
+          "id": "deploy-systemd:c05",
+          "text": "* Your user account has permission to run `sudo`.\n\n## Deploy seekdb\n\n### Step 1: Install seekdb\n\nChoose online or offline installation depending on whether the machine can reach the internet.\n\n#### Online installation\n\nDo not use an APT trust override; it disables repository signature verification. Until the official SeekDB documentation provides a signing-key URL and a `signed-by=` repository configuration, use the offline package workflow below. Do not invent or retrieve a signing key from an unofficial keyserver.\n\n#### Offline installation\n\n1. Download the seekdb package for your desired version from the [seekdb Download Center](https://www.oceanbase.ai/download). Obtain its SHA-256 digest from an official OceanBase release channel independently of the package URL, and copy the package to the target machine.\n\n2. Verify the package before using `sudo`:\n\n```shell\n       : \"${SEEKDB_DEB_SHA256:?Set this to the officially published SHA-256}\"\n       : \"${SEEKDB_DEB_FILE:?Set this to the exact downloaded .deb filename}\"\n       printf '%s  %s\\n' \"$SEEKDB_DEB_SHA256\" \"$SEEKDB_DEB_FILE\" | sha256sum --check --strict\n       ```\n\nStop if no official digest is available or verification fails.\n\n3. In the directory containing the verified package, install seekdb with dpkg:\n\n```shell\n       sudo dpkg -i \"$SEEKDB_DEB_FILE\"\n       ```\n\n### Step 2: Start seekdb"
+        }
+      ]
+    },
+    {
+      "id": "seekdb-js-client",
+      "title": "SeekdbClient",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/50.apis-of-seekdb-js/50.seekdbclient-of-seekdb-js.md",
+      "chunks": [
+        {
+          "id": "seekdb-js-client:c00",
+          "text": "# SeekdbClient\n\n`SeekdbClient` is a unified interface for connecting to seekdb. It supports both seekdb server mode and OceanBase mode.\n\nOceanBase Database is a fully self-developed, enterprise-level native distributed database provided by OceanBase. It achieves financial-grade high availability on ordinary hardware and sets a new standard for automatic, lossless disaster recovery at the city level with its \"five IDCs across three regions\" architecture. It has also set new records in TPC-C benchmark tests, with a single cluster size exceeding 1,500 nodes. OceanBase Database features cloud-native architecture, strong consistency, and high compatibility with Oracle and MySQL. For more information about OceanBase Database, see [OceanBase Database](https://en.oceanbase.com/docs/oceanbase-database).\n\n## Connect to a remote server\n\nYou can use `SeekdbClient` to connect to a remote server. This client supports connecting to the seekdb database and OceanBase Database."
+        },
+        {
+          "id": "seekdb-js-client:c01",
+          "text": "Before you connect to a remote server, make sure that you have deployed the server mode of seekdb or OceanBase Database.For information about how to deploy the server mode of seekdb, see [Deploy seekdb by using yum install](../../../../400.guides/400.deploy/700.server-mode/100.deploy-by-systemd.md).For information about how to deploy OceanBase Database, see [Overview](https://en.oceanbase.com/docs/common-oceanbase-database-10000000001970923).\n\nExample: Connect to the server mode of seekdb.\n\n```js\n\n// 1. Connect\nconst client = new SeekdbClient({\n  host: \"127.0.0.1\",\n  port: 2881,\n  user: \"root\",\n  password: \"\",\n  database: \"test\",\n});\n```\n\n**Parameters:**\n\n|Parameter|Value type|Required|Description|Example value|\n|---|---|---|---|---|\n|`host`|string|Yes|The IP address of the server where the instance resides. |`127.0.0.1`|\n|`port`|string|Yes|The port of the instance. The default value is 2881. |`2881`|\n|`database`|string|Yes|The name of the database. |`test`|\n|`user`|string|Yes|The username. The default value is root. |`root`|\n|`password`|string|Yes|The password of the user. If you do not specify the `password` parameter or specify an empty string, the system retrieves the password from the `SEEKDB_PASSWORD` environment variable.||\n\nExample: Connect to OceanBase Database.\n\n```js"
+        },
+        {
+          "id": "seekdb-js-client:c02",
+          "text": "const client = new SeekDBClient({\n  host: \"127.0.0.1\",      // The IP address of the server where the database resides.\n  port: 2881,              // The port of the database.\n  tenant: \"sys\",          // The name of the tenant. This parameter is required when you connect to OceanBase Database.\n  database: \"demo\",       // The name of the database.\n  user: \"root\",           // The username.\n  password: \"\",           // The password.\n});\n```\n\n**Parameters:**\n\n|Parameter|Value type|Required|Description|Example value|\n|---|---|---|---|---|\n|`host`|string|Yes|The IP address of the server where the database resides. |`127.0.0.1`|\n|`port`|string|Yes|The port of OceanBase Database. The default value is 2881. |`2881`|\n|`tenant`|string|No|The name of the tenant. This parameter is required when you connect to OceanBase Database. The default value is sys. |`sys`|\n|`database`|string|Yes|The name of the database. |`demo`|\n|`user`|string|Yes|The username of the tenant. The default value is root. |`root`|\n|`password`|string|Yes|The password of the user.||\n\n## Supported APIs for connecting to the database using SeekdbClient\n\nWhen connecting to the database using `SeekdbClient`, the following APIs are supported."
+        },
+        {
+          "id": "seekdb-js-client:c03",
+          "text": "| API | Description | Related document link |\n|---|---|---|\n| `createCollection()` | Creates a new collection. | [Documentation](200.collection-of-seekdb-js/100.create-collection-of-seekdb-js.md) |\n| `getCollection()` | Queries a specified collection. |[Documentation](200.collection-of-seekdb-js/200.get-collection-of-seekdb-js.md)|\n| `getOrCreateCollection()` | Queries a specified collection. If the collection does not exist, it will be created.|[Documentation](200.collection-of-seekdb-js/250.get-or-create-collection-of-seekdb-js.md)|\n| `fork()` | Copies a specified collection to create a new collection with the same data.|[Documentation](200.collection-of-seekdb-js/260.fork-collection-of-seekdb-js.md)|\n| `listCollections()`  | Lists all collections in the current database.|[Documentation](200.collection-of-seekdb-js/300.list-collection-of-seekdb-js.md)|\n| `countCollection()` | Queries the number of collections in the current database. |[Documentation](200.collection-of-seekdb-js/350.count-collection-of-seekdb-js.md)|\n| `hasCollection()`  | Checks if collections exist in the current database.|[Documentation](200.collection-of-seekdb-js/360.hascollection-collection-of-seekdb-js.md)|\n| `deleteCollection()`  | Deletes a specified collection.  |[Documentation](200.collection-of-seekdb-js/400.delete-collection-of-seekdb-js.md)|"
+        }
+      ]
+    },
+    {
+      "id": "create-collection",
+      "title": "createCollection - Create a collection",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/50.apis-of-seekdb-js/200.collection-of-seekdb-js/100.create-collection-of-seekdb-js.md",
+      "chunks": [
+        {
+          "id": "create-collection:c00",
+          "text": "# createCollection - Create a collection\n\nThe `createCollection()` method is used to create a new collection, which is equivalent to a table in the database.\n\nThis API can only be used when connected with `SeekdbClient`. For more information about `SeekdbClient`, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n## Prerequisites\n\n* You have installed seekdb-js. For more information, see [Quick start](../../10.seekdb-js-get-started.md).\n\n* You have installed the seekdb server mode. For more information, see [Deploy by using yum install](../../../../../400.guides/400.deploy/700.server-mode/100.deploy-by-systemd.md).\n\n* You have connected to the database. For more information, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n* The user to which you are connected has the `CREATE` permission. For more information about how to view the current user permissions, see [View user privileges](../../../../../400.guides/500.manage/300.security/300.access-control/200.user-and-permission/400.view-user-permissions.md). If the user does not have this permission, contact the administrator to grant it. For more information about how to directly grant permissions, see [Directly grant permissions](../../../../../400.guides/500.manage/300.security/300.access-control/200.user-and-permission/200.direct-authority.md)."
+        },
+        {
+          "id": "create-collection:c01",
+          "text": "* You have installed or created the embedding function (`embeddingFunction`) you intend to use. The embedding function is used for vectorization when adding to or querying the collection. If you do not specify an embedding function, the default embedding function is used. Before using the default, run the following command to install `@seekdb/default-embed`. For more information, see [Default embedding function](../../60.embedding-funcations-of-seekdb-js/100.default-embedding-function-of-seekdb-js.md).\n\n```bash\n    npm install @seekdb/default-embed\n    ```\n\n## Define a table name\n\nWhen creating a table, you must first define a table name. The following requirements must be met when defining a table name:\n\n* In seekdb, the name of each table must be unique within the database.\n\n* The table name can be between 64 and 512 characters in length.\n\n* We recommend that you use a meaningful name for the table instead of a generic name such as t1 or table1. For more information about table naming conventions, see [Table naming conventions](https://en.oceanbase.com/docs/common-oceanbase-database-10000000001971368).\n\n## Request parameters\n\n```js\ncreateCollection(options: CreateCollectionOptions)\n```"
+        },
+        {
+          "id": "create-collection:c02",
+          "text": "|Parameter|Type|Required|Description|Example value|\n|---|---|---|---|---|\n|`name`|string|Yes|The name of the collection to be created. |`my_collection`|\n|`configuration`| Configuration \\| HNSWConfiguration |No|The collection configuration, which contains the `HNSWConfiguration` and `FulltextAnalyzerConfig` attributes. |`{hnsw: {dimension: 384, distance: 'cosine'}, fulltextConfig: {analyzer: 'ik', ik_mode: 'smart'}}`|\n|`embeddingFunction`|EmbeddingFunction \\| null|No|The embedding function used to convert text to vectors. If you set the parameter to null, the embedding function is not used. |`DefaultEmbeddingFunction()`|\n\nThe `HNSWConfiguration` parameter is described as follows:\n\n|Parameter|Type|Required|Description|Example value|\n|---|---|---|---|---|\n|`dimension`|number|No|The vector dimension. If you specify the `embeddingFunction` parameter, the system automatically infers the value of this parameter from the `embeddingFunction`. |`dimension: 384,distance: 'cosine'`|\n|`distance`| DistanceMetric |No|The distance metric. Valid values: 'l2' (Euclidean distance), 'cosine' (cosine similarity), and 'inner_product' (inner product). |`dimension: 384, distance: 'cosine'`|"
+        },
+        {
+          "id": "create-collection:c03",
+          "text": "* If you specify the `embeddingFunction` parameter, the system automatically calculates the vector dimension by calling the function. If you also specify the `configuration.dimension` parameter, the value of `configuration.dimension` must match the dimension of the `embeddingFunction`, otherwise a ValueError will be returned.\n\n* `embeddingFunction` (EmbeddingFunction, optional): The function used to convert documents to vectors. If you specify this parameter, the system automatically calculates the dimension and verifies that it matches the value of the `configuration.dimension` parameter.\n\n## Request example\n\n```js\n\n// 1. Connect\nconst client = new SeekdbClient({\n  host: \"127.0.0.1\",\n  port: 2881,\n  user: \"root\",\n  password: \"\",\n  database: \"test\",\n});\n\n// 2. Create collection\nconst collection = await client.createCollection({ name: \"my_collection\" });\n```\n\n## Response parameters\n\nNone"
+        }
+      ]
+    },
+    {
+      "id": "get-or-create",
+      "title": "getOrCreateCollection - Create or query a collection",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/50.apis-of-seekdb-js/200.collection-of-seekdb-js/250.get-or-create-collection-of-seekdb-js.md",
+      "chunks": [
+        {
+          "id": "get-or-create:c00",
+          "text": "# getOrCreateCollection - Create or query a collection\n\n`getOrCreateCollection()` is used to create or query a collection. If the collection does not exist in the database, it will be created. If the collection exists, the corresponding result will be obtained.\n\nThis API can only be used when connected with `SeekdbClient`. For more information about `SeekdbClient`, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n## Prerequisites\n\n* You have installed seekdb-js. For more information, see [Quick start](../../10.seekdb-js-get-started.md).\n\n* You have installed the server mode of seekdb. For more information, see [Deploy by using yum install](../../../../../400.guides/400.deploy/700.server-mode/100.deploy-by-systemd.md).\n\n* You have connected to the database. For more information, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md)."
+        },
+        {
+          "id": "get-or-create:c01",
+          "text": "* Make sure that the user to which you have connected has the `CREATE` privilege. For more information about how to view the privileges of the current user, see [View user privileges](../../../../../400.guides/500.manage/300.security/300.access-control/200.user-and-permission/400.view-user-permissions.md). If the user does not have the privilege, contact the administrator to grant the privilege. For more information about how to directly grant privileges to a user, see [Directly grant privileges](../../../../../400.guides/500.manage/300.security/300.access-control/200.user-and-permission/200.direct-authority.md).\n\n## Define a table name\n\nBefore you create a table, you must define a table name. The following requirements must be met when you define a table name:\n\n* In seekdb, the name of each table must be unique in the database.\n\n* The length of a table name must be between 64 and 512 characters.\n\n* We recommend that you use a meaningful name for a table instead of a generic name such as t1 or table1. For more information about table naming conventions, see [Table naming conventions](https://en.oceanbase.com/docs/common-oceanbase-database-10000000001971368).\n\n## Request parameters\n\n```js\ngetOrCreateCollection(options: CreateCollectionOptions)\n```"
+        },
+        {
+          "id": "get-or-create:c02",
+          "text": "|Parameter|Type|Required|Description|Example Value|\n|---|---|---|---|---|\n|`name`|string|Yes|The name of the collection to be created. |`my_collection`|\n|`configuration`| Configuration \\| HNSWConfiguration |No|The collection configuration, which contains the `HNSWConfiguration` and `FulltextAnalyzerConfig` attributes.|`{hnsw: {dimension: 384, distance: 'cosine'}, fulltextConfig: {analyzer: 'ik', ik_mode: 'smart'}}`|\n|`embeddingFunction`|EmbeddingFunction \\| null|No|The embedding function used to convert text to a vector. If you pass null, the embedding function is not used. |DefaultEmbeddingFunction()|\n\n**HNSWConfiguration** parameters are described as follows:\n\n|Parameter|Type|Required|Description|Example Value|\n|---|---|---|---|---|\n|`dimension`|number|No|The dimension of the vector. If you provide the `embeddingFunction`, the system automatically infers the dimension from it. |`dimension: 384,distance: 'cosine'`|\n|`distance`| DistanceMetric |No|The distance metric. Valid values: 'l2' (Euclidean distance), 'cosine' (cosine similarity), and 'inner_product' (inner product). |`HNSWConfiguration(dimension=384, distance='cosine')`|"
+        },
+        {
+          "id": "get-or-create:c03",
+          "text": "* If you provide the `embeddingFunction`, the system automatically calculates the vector dimension by calling the function. If you also provide the `configuration.dimension`, it must match the dimension of the `embeddingFunction`. Otherwise, a ValueError is returned.\n\n* `embeddingFunction` (EmbeddingFunction, optional): The function used to convert a document to a vector. If you provide this parameter, the system automatically calculates the dimension and verifies that it matches the `configuration.dimension`.\n\n## Request example\n\n```js\n\n// 1. Connect\nconst client = new SeekdbClient({\n  host: \"127.0.0.1\",\n  port: 2881,\n  user: \"root\",\n  password: \"\",\n  database: \"test\",\n});\n\n// If the collection exists, get it. Otherwise, create it.\nconst collection = await client.getOrCreateCollection({\n  name: 'my_collection',\n  configuration: {\n    dimension: 768,\n    distance: 'cosine'\n  }\n});\n```\n\n## Response parameters\n\nNone"
+        }
+      ]
+    },
+    {
+      "id": "delete-collection",
+      "title": "deleteCollection - Delete a collection",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/50.apis-of-seekdb-js/200.collection-of-seekdb-js/400.delete-collection-of-seekdb-js.md",
+      "chunks": [
+        {
+          "id": "delete-collection:c00",
+          "text": "# deleteCollection - Delete a collection\n\nThe `deleteCollection()` method deletes a specified collection.\n\nThis API can only be used when connected with `SeekdbClient`. For more information about `SeekdbClient`, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n## Prerequisites\n\n* You have installed seekdb-js. For more information, see [Quick start](../../10.seekdb-js-get-started.md).\n\n* You have installed the server mode of seekdb. For more information, see [Deploy seekdb by using yum install](../../../../../400.guides/400.deploy/700.server-mode/100.deploy-by-systemd.md).\n\n* You are connected to the database. For more information, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n* The collection to be deleted exists. If the collection does not exist, an error will be returned.\n\n## Request parameters\n\n```js\ndeleteCollection(name: string)\n```\n\n|Parameter|Type|Required|Description|Example value|\n|---|---|---|---|---|\n|`name`|string|Yes|The name of the collection to be deleted. |my_collection|\n\n## Request example\n\n```js\n\n// 1. Connect\nconst client = new SeekdbClient({\n  host: \"127.0.0.1\",\n  port: 2881,\n  user: \"root\",\n  password: \"\",\n  database: \"test\",\n});\n\nawait client.deleteCollection('my_collection');\n```\n\n## Response parameters\n\nNone"
+        }
+      ]
+    },
+    {
+      "id": "count-collection",
+      "title": "countCollection - Count the number of collections",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/50.apis-of-seekdb-js/200.collection-of-seekdb-js/350.count-collection-of-seekdb-js.md",
+      "chunks": [
+        {
+          "id": "count-collection:c00",
+          "text": "# countCollection - Count the number of collections\n\nThe `countCollection()` method is used to count the number of collections in the database.\n\nThis API can only be used when connected with `SeekdbClient`. For more information about `SeekdbClient`, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n## Prerequisites\n\n* You have installed seekdb-js. For more information, see [Quick start](../../10.seekdb-js-get-started.md).\n\n* You have installed the server mode of seekdb. For more information, see [Deploy SEEK_DB_PLACEHOLDER_ab18301ff7254b488dbdea45f814224c by using yum install](../../../../../400.guides/400.deploy/700.server-mode/100.deploy-by-systemd.md).\n\n* You are connected to the database. For more information, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n* The collection you want to count exists. If the collection does not exist, an error will be returned.\n\n## Request parameters\n\n```js\ncountCollection()\n```\n\n## Request example\n\n```js\n\n// 1. Connect\nconst client = new SeekdbClient({\n  host: \"127.0.0.1\",\n  port: 2881,\n  user: \"root\",\n  password: \"\",\n  database: \"test\",\n});\n\nconst count = await client.countCollection();\nconsole.log(count);\n```\n\n## Response parameters\n\nNone\n\n## Response example\n\n```js\n2\n```"
+        }
+      ]
+    },
+    {
+      "id": "add-data",
+      "title": "add - Insert data",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/50.apis-of-seekdb-js/300.dml-of-seekdb-js/200.add-data-of-seekdb-js.md",
+      "chunks": [
+        {
+          "id": "add-data:c00",
+          "text": "# add - Insert data\n\nThe `add()` method is used to insert new data into a collection. When adding a record, if a record with the same ID already exists, an error will be returned.\n\nThis API can only be used when connected with `SeekdbClient`. For more information about `SeekdbClient`, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n## Prerequisites\n\n* You have installed seekdb-js. For more information, see [Quick start](../../10.seekdb-js-get-started.md).\n\n* You have installed the seekdb server mode. For more information, see [Deploy seekdb by using yum install](../../../../../400.guides/400.deploy/700.server-mode/100.deploy-by-systemd.md).\n\n* You are connected to the database. For more information, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n* The user to which you are connected has the `Insert` privilege. For more information about how to view the current user privileges, see [View user privileges](../../../../../400.guides/500.manage/300.security/300.access-control/200.user-and-permission/400.view-user-permissions.md). If the user does not have this privilege, contact the administrator to grant it. For more information about how to directly grant privileges, see [Directly grant privileges](../../../../../400.guides/500.manage/300.security/300.access-control/200.user-and-permission/200.direct-authority.md).\n\n## Request parameters"
+        },
+        {
+          "id": "add-data:c01",
+          "text": "```js\nadd(\n    ids: ids,\n    embeddings: embeddings,\n    documents: documents,\n    metadatas: metadatas\n)\n```\n\n|Parameter|Type|Required|Description|Example value|\n|---|---|---|---|---|\n|`ids`|string or string\\[\\] |Yes|The document ID, which can be a single ID or an array of IDs. |item1|\n|`embeddings`|number\\[\\] \\| number\\[\\]\\[\\] |No|A single vector or an array of vectors. If this parameter is not provided but the documents parameter is provided, the `embeddingFunction` will be used to generate the embeddings. |[0.1, 0.2, 0.3]|\n|`documents`|string \\| string\\[\\]|No|The document content, which can be a single string or an array of strings. |\"Hello world\", \"seekdb is fast\"|\n|`metadatas`|Metadata \\| Metadata\\[\\]|No|The metadata, which can be a single object or an array of objects. |`{ category: \"test\" }, { category: \"db\" }`|\n\n* If embeddings are provided: The vectors will be used directly, and the embeddingFunction will not be called (even if it is provided).\n\n* If embeddings are not provided but documents are provided:\n\n* If the collection has an embeddingFunction (set during creation or retrieval), vectors will be automatically generated from the documents.\n\n* If the collection does not have an embeddingFunction, a ValueError will be returned."
+        },
+        {
+          "id": "add-data:c02",
+          "text": "* If neither embeddings nor documents are provided: A `ValueError` will be returned.\n* All array parameters must have the same length.\n* IDs cannot be duplicated.\n\n## Request example\n\n```js\n\nconst client = new SeekdbClient({\n  host: \"127.0.0.1\",\n  port: 2881,\n  user: \"root\",\n  password: \"\",\n  database: \"test\",\n});\n\nconst collection = await client.createCollection({\n  name: \"my_collection\"\n});\n\nawait collection.add({\n  ids: [\"item1\", \"item2\"],\n  documents: [\"Hello world\", \"seekdb is fast\"],\n  metadatas: [{ category: \"test\" }, { category: \"db\" }]\n});\n```\n\n## Return parameters\n\nNone"
+        }
+      ]
+    },
+    {
+      "id": "upsert-data",
+      "title": "upsert - Update or insert data",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/50.apis-of-seekdb-js/300.dml-of-seekdb-js/400.upsert-data-of-seekdb-js.md",
+      "chunks": [
+        {
+          "id": "upsert-data:c00",
+          "text": "# upsert - Update or insert data\n\nThe `upsert()` method is used to insert new records or update existing records. If a record with the given ID exists, it will be updated; otherwise, a new record will be inserted.\n\nThis API can only be used when connected with `SeekdbClient`. For more information about `SeekdbClient`, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n## Prerequisites\n\n* You have installed seekdb-js. For more information, see [Quick start](../../10.seekdb-js-get-started.md).\n\n* You have installed the server mode of seekdb. For more information, see [Deploy seekdb by using yum install](../../../../../400.guides/400.deploy/700.server-mode/100.deploy-by-systemd.md).\n\n* You have connected to the database. For more information, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md)."
+        },
+        {
+          "id": "upsert-data:c01",
+          "text": "* The user to which you are connected has the `INSERT` and `UPDATE` privileges on the table to be operated. For more information about viewing the current user privileges, see [View user privileges](../../../../../400.guides/500.manage/300.security/300.access-control/200.user-and-permission/400.view-user-permissions.md). If the user does not have this privilege, contact the administrator to grant it. For more information about directly granting privileges, see [Directly grant privileges](../../../../../400.guides/500.manage/300.security/300.access-control/200.user-and-permission/200.direct-authority.md).\n\n## Request parameters\n\n```js\nupsert(\n    ids: ids,\n    embeddings: embeddings,\n    documents: documents,\n    metadatas: metadatas\n)\n```"
+        },
+        {
+          "id": "upsert-data:c02",
+          "text": "|Parameter|Type|Required|Description|Example Value|\n|---|---|---|---|---|\n|`ids`|string \\| string\\[\\] |Yes|The ID to be modified. It can be a single ID or an array of IDs. |item1|\n|`embeddings`|number\\[\\] \\| number\\[\\]\\[\\]|No|It can be a single vector or an array of vectors. If not provided but documents are provided, the embeddingFunction will be used to generate embeddings. |[0.1, 0.2, 0.3]|\n|`documents`|string \\| string\\[\\]|No|The document content, which can be a single string or an array of strings. |\"document text\"|\n|`metadatas`|Metadata \\| Metadata\\[\\]|No|The metadata, which can be a single object or an array of objects. |`{\"category\": \"AI\"}`|\n\n## Request example\n\n```js\n\nconst client = new SeekdbClient({\n  host: \"127.0.0.1\",\n  port: 2881,\n  user: \"root\",\n  password: \"\",\n  database: \"test\",\n});\n\nconst collection = await client.getCollection({\n  name: \"my_collection\"\n});\n\nawait collection.upsert({\n  ids: \"item1\",\n  documents: \"document text\",\n  metadatas: { category: \"AI\" }\n});\n```\n\n## Response parameters\n\nNone"
+        }
+      ]
+    },
+    {
+      "id": "query-api",
+      "title": "query - Vector query",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/50.apis-of-seekdb-js/400.dql-of-seekdb-js/200.query-interfaces-of-seekdb-js.md",
+      "chunks": [
+        {
+          "id": "query-api:c00",
+          "text": "# query - Vector query\n\n`query()` is used to execute vector similarity search to find documents most similar to the query vector.\n\nThis API can only be used when connected with `SeekdbClient`. For more information about `SeekdbClient`, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n## Prerequisites\n\n* You have installed seekdb-js. For more information, see [Quick start](../../10.seekdb-js-get-started.md).\n\n* You have installed the server mode of seekdb. For more information, see [Deploy seekdb by using yum install](../../../../../400.guides/400.deploy/700.server-mode/100.deploy-by-systemd.md).\n\n* You have connected to the database. For more information, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n* You have created a collection and inserted corresponding data. For more information, see [createCollection](../200.collection-of-seekdb-js/100.create-collection-of-seekdb-js.md) and [add](../300.dml-of-seekdb-js/200.add-data-of-seekdb-js.md).\n\n## Request parameters\n\n```js\nquery()\n```"
+        },
+        {
+          "id": "query-api:c01",
+          "text": "|Parameter|Type|Required|Description|Example Value|\n|---|---|---|---|---|\n|`queryEmbeddings`|number\\[\\] \\| number\\[\\]\\[\\] |Yes|A single vector or a list of vectors for batch queries. If provided, it will be used directly (ignoring the embeddingFunction). If not provided, `queryText` must be provided, and `collection` must have an `embeddingFunction`.|`[1.0, 2.0, 3.0]`|\n|`queryTexts`|string \\| string\\[\\]|No|A single vector or a list of vectors. If provided, it will be used directly (ignoring `embeddingFunction`). If not provided, `documents` must be provided, and `collection` must have an `embeddingFunction`.|`[\"my query text\"]`|\n|`nResults`|number|Yes|The number of similar results to return. Default value is 10|`3|\n|`where`|Where |No|Metadata filter conditions. |`{\"category\": {\"$eq\": \"AI\"}}`|\n|`whereDocument`|WhereDocument|No|Document filter conditions. |`{\"$contains\": \"machine\"}`|\n|`include`|readonly (\"documents\" \\| \"metadatas\" \\| \"embeddings\" \\| \"distances\")\\[\\][str]|No|A list of fields to include: `[\"documents\", \"metadatas\", \"embeddings\"]`.|`[\"documents\", \"metadatas\", \"embeddings\"]`|\n|`distance`|DistanceMetric|No|The distance metric. ||\n|`approximate`|boolean|No|Whether to use approximate search. | `true` |\n\n* The `embeddingFunction` used is associated with the collection (set during `createCollection()` or `getCollection()`). You cannot override it for each operation."
+        },
+        {
+          "id": "query-api:c02",
+          "text": "* If `queryEmbeddings` is provided: The vectors will be used directly without calling `embeddingFunction`.\n\n* If `queryEmbeddings` is not provided but `queryTexts` is:\n\n* If the collection has an `embeddingFunction`, the query vector will be automatically generated from the text.\n\n* If the collection does not have an `embeddingFunction`, a ValueError will be returned.\n\n* If neither `queryEmbeddings` nor `queryTexts` is provided, a ValueError will be returned.\n\n## Request example\n\n```js\n\n// 1. Connect\nconst client = new SeekdbClient({\n  host: \"127.0.0.1\",\n  port: 2881,\n  user: \"root\",\n  password: \"\",\n  database: \"test\",\n});\n\n// 2. Create collection\nconst collection = await client.createCollection({ name: \"my_collection\" });\n\n// 3. Add data (auto-vectorized)\nawait collection.add({\n  ids: [\"1\", \"2\"],\n  documents: [\"Hello world\", \"seekdb is fast\"],\n});\n\n// 4. Search\nconst results = await collection.query({\n  queryTexts: \"Hello\",\n  nResults: 5,\n});\nconsole.log(results);\n```\n\n## Response parameters"
+        },
+        {
+          "id": "query-api:c03",
+          "text": "|Parameter|Type|Required|Description|\n|---|---|---|---|\n|`ids`|readonly (readonly string\\[\\])\\[\\] |Yes|The ID to be added or modified. It can be a single ID or an array of IDs.|\n|`embeddings`|[List[List[List[float]]]]|No|Vectors. If provided, they will be used directly (ignoring `embeddingFunction`). If not provided, `documents` can be provided to automatically generate vectors.|\n|`documents`|[List[List[Dict]]]|No|Documents. If `vectors` are not provided, `documents` will be converted to vectors using the collection's `embeddingFunction`.|\n|`metadatas`|[List[List[Dict]]]|No| Metadata.|\n|`distances`|[List[List[Dict]]]|No| |\n\n## Response example\n\n```js\n{\n  ids: [ [ '1', '2' ] ],\n  distances: [ [ 0.24884326749104657, 0.9389671014508124 ] ],\n  documents: [ [ 'Hello world', 'seekdb is fast' ] ],\n  metadatas: [ [ null, null ] ],\n  embeddings: undefined\n}\n```"
+        }
+      ]
+    },
+    {
+      "id": "hybrid-api",
+      "title": "hybridSearch - Hybrid search",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/50.apis-of-seekdb-js/400.dql-of-seekdb-js/400.hybrid-search-of-seekdb-js.md",
+      "chunks": [
+        {
+          "id": "hybrid-api:c00",
+          "text": "# hybridSearch - Hybrid search\n\n`hybridSearch()` combines full-text search and vector similarity search with ranking.\n\nThis API can only be used when connected with `SeekdbClient`. For more information about `SeekdbClient`, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n## Prerequisites\n\n* You have installed seekdb-js. For more information, see [Quick start](../../10.seekdb-js-get-started.md).\n\n* You have installed the server mode of seekdb. For more information, see [Deploy seekdb by using yum install](../../../../../400.guides/400.deploy/700.server-mode/100.deploy-by-systemd.md).\n* You are connected to the database. For more information, see [SeekdbClient](../50.seekdbclient-of-seekdb-js.md).\n\n* You have created a collection and inserted corresponding data. For more information, see [createCollection](../200.collection-of-seekdb-js/100.create-collection-of-seekdb-js.md) and [add](../300.dml-of-seekdb-js/200.add-data-of-seekdb-js.md).\n\n## Request parameters\n\n```js\nhybrid_search(\n    query={\n        \"whereDocument\": ,\n        \"where\": ,\n        \"nResults\": \n    },\n    knn={\n        queryEmbeddings\n        \"queryTexts\": \n        \"where\":\n        \"nResults\": \n    },\n    rank=,  \n    nResults=,\n    include=\n)\n```\n\n* query: The full-text search configuration, which contains the following parameters:"
+        },
+        {
+          "id": "hybrid-api:c01",
+          "text": "|Parameter|Type|Required|Description|Example value|\n    |---|---|---|---|---|\n    |`where`|Where |No|The metadata filter condition. |`{\"category\": {\"$eq\": \"AI\"}}`|\n    |`whereDocument`|WhereDocument|No|The document content filter condition (full-text search). |`{\"$contains\": \"machine\"}`|\n    |`nResults`|number|No|The number of results returned by full-text search. ||\n\n* knn: The vector search configuration, which contains the following parameters:\n\n|Parameter|Type|Required|Description|Example value|\n    |---|---|---|---|---|\n    |`queryEmbeddings`|number\\[\\] \\| number\\[\\]\\[\\] |No|The single vector or vector list for batch queries. If provided, it will be used directly (ignoring embeddingFunction). If not provided, `query_text` must be provided, and `collection` must have `embeddingFunction`|[1.0, 2.0, 3.0]|\n    |`queryTexts`|string \\| string\\[\\]|No|The single vector0 or vector list. If provided, it will be used directly (ignoring `embeddingFunction`). If not provided, `documents` must be provided, and `collection` must have `embeddingFunction`.|[\"my query text\"]|\n    |`where`|Where |No|The metadata filter condition. |`{\"category\": {\"$eq\": \"AI\"}}`|\n    |`nResults`|number|No|The number of results returned by vector search. ||\n\n* Other parameters are as follows:"
+        },
+        {
+          "id": "hybrid-api:c02",
+          "text": "|Parameter|Type|Required|Description|Example value|\n    |`rank`|HybridSearchRank |No|The ranking configuration. For example: `{\"rrf\": {\"rank_window_size\": 60, \"rank_constant\": 60}}`|`{\"category\": {\"$eq\": \"AI\"}}`|\n    |`nResults`|number|Yes|The number of similar results to return. Default value: 10|3|\n    |`include`|readonly (\"documents\" \\| \"metadatas\" \\| \"embeddings\" \\| \"distances\")\\[\\]|No|The list of fields to include: `[\"documents\", \"metadatas\", \"embeddings\"]`.|[\"documents\", \"metadatas\", \"embeddings\"]|\n\n* The `embeddingFunction` used is associated with the collection (set during `createCollection()` or `getCollection()`). You cannot override it for each operation.\n* At least one of query or knn must be provided.\n* knn:\n  * If `queryEmbeddings` is provided, the dimensions will be validated against `collection.dimension`.\n  * `queryTexts`: string or string[]; the `embeddingFunction` of the collection is used to automatically embed (if the function is missing, a ValueError is returned).\n* If `knn.queryTexts` is provided, `embeddingFunction` must be configured.\n\n## Request example\n\n```js\n\nconst client = new SeekdbClient({\n  host: \"127.0.0.1\",\n  port: 2881,\n  user: \"root\",\n  password: \"\",\n  database: \"test\",\n});\n\nconst collection = await client.getCollection({name: 'my_collection'});"
+        },
+        {
+          "id": "hybrid-api:c03",
+          "text": "const results = await  collection.hybridSearch({\n    query: {\n        whereDocument: {$contains: \"machine learning\"},\n        nResults: 10\n    },\n        knn: {\n        queryTexts: 'documents',\n        nResults: 10\n    },\n    rank: {rrf: {}},\n    nResults: 10\n});\n\n```\n\n## Response parameters\n\nThe search result dictionary, which contains the ID, distances, metadatas, document, and embeddings."
+        }
+      ]
+    },
+    {
+      "id": "filter-operators",
+      "title": "Operators",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/50.apis-of-seekdb-js/400.dql-of-seekdb-js/500.filter-operators-of-seekdb-js.md",
+      "chunks": [
+        {
+          "id": "filter-operators:c00",
+          "text": "# Operators\n\nOperators are generally used to connect operands or parameters and return results. In terms of syntax, operators can appear before, after, or between operands.\n\n## Operator examples\n\n### Data filtering (where)\n\n#### Equal to\n\nUse `$eq` to indicate equal to, as follows:\n\n```js\nwhere: { category: { $eq: \"AI\" } }\n```\n\nYou can also use the shorthand form, as follows:\n\n```js\nwhere: { category: \"AI\" }\n```\n\n#### Not equal to\n\nUse `$ne` to indicate not equal to, as follows:\n\n```js\nwhere: { category: { $ne: \"ML\" } }\n```\n\n#### Greater than\n\nUse `$gt` to indicate greater than, as follows:\n\n```js\nwhere: { score: { $gt: 80 } }\n```\n\n#### Greater than or equal to\n\nUse `$gte` to indicate greater than or equal to, as follows:\n\n```js\nwhere: { score: { $gte: 90 } }\n```\n\n#### Less than\n\nUse `$lt` to indicate less than, as follows:\n\n```js\nwhere: { score: { $lt: 60 } }\n```\n\n#### Less than or equal to\n\nUse `$lte` to indicate less than or equal to, as follows:\n\n```js\nwhere: { score: { $lte: 50 } }\n```\n\n#### Contains\n\nUse `$in` to indicate contains, as follows:\n\n```js\nwhere: { tag: { $in: [\"ml\", \"python\", \"ai\"] } }\n```\n\n#### Does not contain\n\nUse `$nin` to indicate does not contain, as follows:\n\n```js\nwhere: { tag: { $nin: [\"deprecated\", \"obsolete\"] } }\n```\n\n#### Logical OR\n\nUse `$or` to indicate logical OR, as follows:"
+        },
+        {
+          "id": "filter-operators:c01",
+          "text": "```js\nwhere: {\n    $or: [\n      { category: \"AI\" },\n      { category: \"ML\" }\n    ]\n  }\n```\n\n#### Logical AND\n\nUse `$and` to indicate logical AND, as follows:\n\n```js\nwhere: {\n    $and: [\n      { category: { $eq: \"AI\" } },\n      { score: { $gte: 90 } }\n    ]\n  }\n```\n\n### Text filtering (where_document)\n\n#### Full-text search (contains substring)\n\nUse `$contains` to indicate full-text search, as follows:\n\n```js\nwhereDocument: { $contains: \"machine learning\" }\n```\n\n#### Regular expression\n\nUse `$regex` to indicate regular expression, as follows:\n\n```js\nwhereDocument: { $regex: \"AI|ML|DL\" }\n```\n\n#### Logical OR\n\nUse `$or` to indicate logical OR, as follows:\n\n```js\nwhereDocument: {\n    $or: [\n      { $contains: \"AI\" },\n      { $contains: \"artificial intelligence\" }\n    ]\n  }\n```\n\n#### Logical AND\n\nUse `$and` to indicate logical AND, as follows:\n\n```js\nwhereDocument: {\n    $and: [\n      { $contains: \"machine learning\" },\n      { $contains: \"deep learning\" }\n    ]\n  }\n```"
+        }
+      ]
+    },
+    {
+      "id": "hybrid-sample",
+      "title": "Hybrid search example",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/30.sdk-samples-of-seekdb-js/100.seekdb-js-hybrid-search-sample.md",
+      "chunks": [
+        {
+          "id": "hybrid-sample:c00",
+          "text": "# Hybrid search example\n\nThis example demonstrates the advantages of `hybridSearch()` over `query()`.\n\nThe main advantages of `hybridSearch()` are:\n\n* Supports executing full-text search and vector similarity search simultaneously.\n\n* Allows separate filtering conditions for full-text search and vector search.\n\n* Combines the ranked results of both searches using the Reciprocal Rank Fusion algorithm to improve relevance.\n\n* Handles complex scenarios that `query()` cannot handle.\n\n## Procedure\n\n1. Connect to seekdb.\n2. Create a collection with embedding functions.\n3. Add data using documents (vectors will be automatically generated).\n4. Query using both `query()` and `hybridSearch()` and compare the results.\n5. Print the results.\n\n## Example\n\n```js\n\nasync function main() {\n  const client = new SeekdbClient({\n    host: \"127.0.0.1\",\n    port: 2881,\n    database: \"test\",\n    user: \"root\",\n    password: \"\",\n  });\n\nconst collection = await client.getOrCreateCollection({\n    name: \"hybrid_search_demo\",\n  });"
+        },
+        {
+          "id": "hybrid-sample:c01",
+          "text": "const documents = [\n    \"Machine learning is revolutionizing artificial intelligence and data science\",\n    \"Python programming language is essential for machine learning developers\",\n    \"Deep learning neural networks enable advanced AI applications\",\n    \"Data science combines statistics, programming, and domain expertise\",\n    \"Natural language processing uses machine learning to understand text\",\n    \"Computer vision algorithms process images using deep learning techniques\",\n    \"Reinforcement learning trains agents through reward-based feedback\",\n    \"Python libraries like TensorFlow and PyTorch simplify machine learning\",\n    \"Artificial intelligence systems can learn from large datasets\",\n    \"Neural networks mimic the structure of biological brain connections\",\n  ];"
+        },
+        {
+          "id": "hybrid-sample:c02",
+          "text": "const metadatas = [\n    { category: \"AI\", topic: \"machine learning\", year: 2023, popularity: 95 },\n    { category: \"Programming\", topic: \"python\", year: 2023, popularity: 88 },\n    { category: \"AI\", topic: \"deep learning\", year: 2024, popularity: 92 },\n    {\n      category: \"Data Science\",\n      topic: \"data analysis\",\n      year: 2023,\n      popularity: 85,\n    },\n    { category: \"AI\", topic: \"nlp\", year: 2024, popularity: 90 },\n    { category: \"AI\", topic: \"computer vision\", year: 2023, popularity: 87 },\n    {\n      category: \"AI\",\n      topic: \"reinforcement learning\",\n      year: 2024,\n      popularity: 89,\n    },\n    { category: \"Programming\", topic: \"python\", year: 2023, popularity: 91 },\n    { category: \"AI\", topic: \"general ai\", year: 2023, popularity: 93 },\n    { category: \"AI\", topic: \"neural networks\", year: 2024, popularity: 94 },\n  ];\n\nconst ids = documents.map((_, i) => `doc_${i + 1}`);\n\n// Add documents without embeddings - they will be auto-generated\n  await collection.add({ ids, documents, metadatas });\n\nconsole.log(\"=\".repeat(100));\n  console.log(\"SCENARIO 1: Keyword + Semantic Search\");\n  console.log(\"=\".repeat(100));\n  console.log(\n    \"Goal: Find documents similar to 'AI research' AND containing 'machine learning'\\n\",\n  );"
+        },
+        {
+          "id": "hybrid-sample:c03",
+          "text": "// query() approach\n  const queryResult1 = await collection.query({\n    queryTexts: [\"AI research\"],\n    whereDocument: { $contains: \"machine learning\" },\n    nResults: 5,\n  });\n\n// hybrid_search() approach\n  try {\n    const hybridResult1 = await collection.hybridSearch({\n      query: { whereDocument: { $contains: \"machine learning\" }, nResults: 10 },\n      knn: { queryTexts: [\"AI research\"], nResults: 10 },\n      rank: { rrf: {} },\n      nResults: 5,\n    });\n\nconsole.log(\"query() Results:\");\n    for (let i = 0; i < queryResult1.ids[0].length; i++) {\n      const docId = queryResult1.ids[0][i];\n      const idx = ids.indexOf(docId);\n      console.log(`  ${i + 1}. ${documents[idx]}`);\n    }\n\nconsole.log(\"\\nhybridSearch() Results:\");\n    for (let i = 0; i < hybridResult1.ids[0].length; i++) {\n      const docId = hybridResult1.ids[0][i];\n      const idx = ids.indexOf(docId);\n      console.log(`  ${i + 1}. ${documents[idx]}`);\n    }"
+        },
+        {
+          "id": "hybrid-sample:c04",
+          "text": "console.log(\"\\nAnalysis:\");\n    console.log(\n      \"  query() ranks 'Deep learning neural networks...' first because it's semantically similar to 'AI research',\",\n    );\n    console.log(\n      \"  but 'machine learning' is not its primary focus. hybridSearch() correctly prioritizes documents that\",\n    );\n    console.log(\n      \"  explicitly contain 'machine learning' (from full-text search) while also being semantically relevant\",\n    );\n    console.log(\n      \"  to 'AI research' (from vector search). The RRF fusion ensures documents matching both criteria rank higher.\",\n    );\n  } catch (error) {\n    console.log(\n      \"Note: hybridSearch() is not supported on this database version\",\n    );\n  }\n\nconsole.log(\"\\n\" + \"=\".repeat(100));\n  console.log(\"SCENARIO 2: Independent Filters for Different Search Types\");\n  console.log(\"=\".repeat(100));\n  console.log(\n    \"Goal: Full-text='neural' (year=2024) + Vector='deep learning' (popularity>=90)\\n\",\n  );\n\nconst queryResult2 = await collection.query({\n    queryTexts: [\"deep learning\"],\n    where: { year: { $eq: 2024 }, popularity: { $gte: 90 } },\n    whereDocument: { $contains: \"neural\" },\n    nResults: 5,\n  });"
+        },
+        {
+          "id": "hybrid-sample:c05",
+          "text": "try {\n    const hybridResult2 = await collection.hybridSearch({\n      query: {\n        whereDocument: { $contains: \"neural\" },\n        where: { year: { $eq: 2024 } },\n        nResults: 10,\n      },\n      knn: {\n        queryTexts: [\"deep learning\"],\n        where: { popularity: { $gte: 90 } },\n        nResults: 10,\n      },\n      rank: { rrf: {} },\n      nResults: 5,\n    });\n\nconsole.log(\"query() Results (same filter for both):\");\n    for (let i = 0; i < queryResult2.ids[0].length; i++) {\n      const docId = queryResult2.ids[0][i];\n      const idx = ids.indexOf(docId);\n      console.log(`  ${i + 1}. ${documents[idx]}`);\n      console.log(`      ${JSON.stringify(metadatas[idx])}`);\n    }\n\nconsole.log(\"\\nhybridSearch() Results (independent filters):\");\n    for (let i = 0; i < hybridResult2.ids[0].length; i++) {\n      const docId = hybridResult2.ids[0][i];\n      const idx = ids.indexOf(docId);\n      console.log(`  ${i + 1}. ${documents[idx]}`);\n      console.log(`      ${JSON.stringify(metadatas[idx])}`);\n    }"
+        },
+        {
+          "id": "hybrid-sample:c06",
+          "text": "console.log(\"\\nAnalysis:\");\n    console.log(\n      \"  query() only returns 2 results because it requires documents to satisfy BOTH year=2024 AND popularity>=90\",\n    );\n    console.log(\n      \"  simultaneously. hybridSearch() returns 5 results by applying year=2024 filter to full-text search\",\n    );\n    console.log(\n      \"  and popularity>=90 filter to vector search independently, then fusing the results. This approach\",\n    );\n    console.log(\n      \"  captures more relevant documents that might satisfy one criterion strongly while meeting the other\",\n    );\n  } catch (error) {\n    console.log(\n      \"Note: hybridSearch() is not supported on this database version\",\n    );\n  }\n\nconsole.log(\"\\n\" + \"=\".repeat(100));\n  console.log(\"SUMMARY\");\n  console.log(\"=\".repeat(100));\n  console.log(`\nquery() limitations:\n  - Single search type (vector similarity)\n  - Filters applied after search (may miss relevant docs)\n  - Cannot combine full-text and vector search results\n  - Same filter criteria for all conditions\n\nhybridSearch() advantages:\n  - Simultaneous full-text + vector search\n  - Independent filters for each search type\n  - Intelligent result fusion using RRF\n  - Better recall for complex queries\n  - Handles scenarios requiring both keyword and semantic matching\n`);\n\nawait client.deleteCollection(\"hybrid_search_demo\");\n  await client.close();\n}\n\nmain().catch(console.error);\n```"
+        }
+      ]
+    },
+    {
+      "id": "simple-sample",
+      "title": "Simple example",
+      "source": "seekdb-docs/450.reference/900.sdk/20.seekdb-js/30.sdk-samples-of-seekdb-js/10.seekdb-js-simple-sample.md",
+      "chunks": [
+        {
+          "id": "simple-sample:c00",
+          "text": "# Simple example\n\nThis example uses the server mode of seekdb to demonstrate the basic operations of embedding functions, helping you understand how to use them quickly.\n\n1. Connect to seekdb.\n2. Create a collection with embedding functions.\n3. Add data using documents (vectors will be automatically generated).\n4. Query using query texts (vectors will be automatically generated).\n5. Print the query results.\n\n## Example\n\n```js\n\nasync function main() {\n  // ==================== Step 1: Create Client Connection ====================\n  // Server mode (connecting to seekdb server or OceanBase)\n  const client = new SeekdbClient({\n    host: \"127.0.0.1\",\n    port: 2881,\n    database: \"test\",\n    user: \"root\",\n    password: \"\",\n  });\n\n// ==================== Step 2: Create a Collection with Embedding Function ====================\n  // A collection is like a table that stores documents with vector embeddings\n  const collectionName = \"my_simple_collection\";\n\n// Create collection with default embedding function\n  // The embedding function will automatically convert documents to embeddings\n\n// Default embedding function is used if no embedding function is provided\n  const collection = await client.createCollection({\n    name: collectionName,\n  });"
+        },
+        {
+          "id": "simple-sample:c01",
+          "text": "console.log(\n    `Created collection '${collection.name}' with dimension: ${collection.dimension}`,\n  );\n  console.log(`Embedding function: ${collection.embeddingFunction?.name}`);\n\n// ==================== Step 3: Add Data to Collection ====================\n  // With embedding function, you can add documents directly without providing embeddings\n  // The embedding function will automatically generate embeddings from documents\n\nconst documents = [\n    \"Machine learning is a subset of artificial intelligence\",\n    \"Python is a popular programming language\",\n    \"Vector databases enable semantic search\",\n    \"Neural networks are inspired by the human brain\",\n    \"Natural language processing helps computers understand text\",\n  ];\n\nconst ids = [\"id1\", \"id2\", \"id3\", \"id4\", \"id5\"];\n\n// Add data with documents only - embeddings will be auto-generated by embedding function\n  await collection.add({\n    ids,\n    documents, // embeddings will be automatically generated\n    metadatas: [\n      { category: \"AI\", index: 0 },\n      { category: \"Programming\", index: 1 },\n      { category: \"Database\", index: 2 },\n      { category: \"AI\", index: 3 },\n      { category: \"NLP\", index: 4 },\n    ],\n  });\n\nconsole.log(`\\nAdded ${documents.length} documents to collection`);\n  console.log(\n    \"Note: Embeddings were automatically generated from documents using the embedding function\",\n  );"
+        },
+        {
+          "id": "simple-sample:c02",
+          "text": "// ==================== Step 4: Query the Collection ====================\n  // With embedding function, you can query using text directly\n  // The embedding function will automatically convert query text to query vector\n\n// Query using text - query vector will be auto-generated by embedding function\n  const queryText = \"artificial intelligence and machine learning\";\n\nconst results = await collection.query({\n    queryTexts: queryText, // Query text - will be embedded automatically\n    nResults: 3, // Return top 3 most similar documents\n    include: [\"documents\", \"metadatas\", \"distances\"],\n  });\n\nconsole.log(`\\nQuery: '${queryText}'`);\n  console.log(`Query results: ${results.ids[0].length} items found`);\n\n// ==================== Step 5: Print Query Results ====================\n  for (let i = 0; i < results.ids[0].length; i++) {\n    console.log(`\\nResult ${i + 1}:`);\n    console.log(`  ID: ${results.ids[0][i]}`);\n    console.log(`  Distance: ${results.distances?.[0][i]?.toFixed(4)}`);\n    if (results.documents) {\n      console.log(`  Document: ${results.documents[0][i]}`);\n    }\n    if (results.metadatas) {\n      console.log(`  Metadata: ${JSON.stringify(results.metadatas[0][i])}`);\n    }\n  }\n\n// ==================== Step 6: Cleanup ====================\n  await client.deleteCollection(collectionName);\n  console.log(`\\nDeleted collection '${collectionName}'`);"
+        },
+        {
+          "id": "simple-sample:c03",
+          "text": "await client.close();\n}\n\nmain().catch(console.error);\n```"
+        }
+      ]
+    },
+    {
+      "id": "fulltext-query",
+      "title": "Full-text query",
+      "source": "seekdb-docs/450.reference/200.sql/100.sql-syntax/500.queries-and-subqueries/400.full-text-query.md",
+      "chunks": [
+        {
+          "id": "fulltext-query:c00",
+          "text": "# Full-text query\n\nA full-text query is an operation that searches for text content containing specific keywords, phrases, or text expressions in text data. It allows for more comprehensive searching of the entire text and returns results that match the search criteria.\n\n## Syntax\n\nWhen using the following syntax for a full-text index query, you can specify columns and keywords or phrases to perform a full-text search. You can also use specific search modifiers to adjust the search mode (i.e., search conditions or rules).\n\n```sql\nMATCH (column_name [, column_name ...]) AGAINST (expr [search_modifier])\n\nsearch_modifier:\n    IN NATURAL LANGUAGE MODE\n    | IN BOOLEAN MODE\n```\n\n**The following table describes the related parameters:**\n\n* `column_name`: specifies the column to perform the full-text search on. If you want to specify multiple columns, separate them with commas.\n\n* `expr`: specifies the keyword or phrase to search for.\n\n* `search_modifier`: an optional parameter that specifies the search mode. Valid values are as follows:\n\n* `IN NATURAL LANGUAGE MODE`: the default value, which specifies to use the natural language search mode.\n\n* `IN BOOLEAN MODE`: specifies to use the boolean mode. The current version supports three most commonly used boolean operators and nested operations, as follows:\n\n* `+`: represents `AND`, which is the intersection."
+        },
+        {
+          "id": "fulltext-query:c01",
+          "text": "* `-`: represents negation, which is the difference set.\n\n* No operator: when used alone, it represents `OR`, which is the union. For example, `A B` represents `A OR B`. When used with other operators, it increases the relevance of the existing sentence but loses the `OR` semantics. For example, `+A B` means that A must be present, and the relevance of A and B in the sentence is calculated.\n\n* `()`: represents nested operations. When there is no operator outside the parentheses, it has the `OR` semantics. For example, `+A (nested clause)` means that A or the nested clause must be present.\n\n**Here are some examples:**\n\n1. Output sentences must contain the word \"computer\".\n\n```sql\n       SELECT * FROM my_table WHERE MATCH (doc) AGAINST (\"+computer\" IN BOOLEAN MODE);\n       ```\n\n2. Output sentences must contain the word \"computer\" and must not contain the word \"weather\".\n\n```sql\n       SELECT * FROM my_table WHERE MATCH (doc) AGAINST (\"+computer -weather\" IN BOOLEAN MODE);\n       ```\n\n3. Output sentences must contain the word \"computer\", and those containing \"oceanbase\" are more relevant.\n\n```sql\n       SELECT * FROM my_table WHERE MATCH (doc) AGAINST (\"+computer oceanbase\" IN BOOLEAN MODE);\n       ```\n\nFor more information about the `MATCH AGAINST` expression, see [MATCH AGAINST](../400.functions/1000.other-functions/2250.match-against.md).\n\n## Vectorized query"
+        },
+        {
+          "id": "fulltext-query:c02",
+          "text": "For queries involving full-text indexes, you can choose to use vectorized or non-vectorized queries. You can use the `/*+ opt_param('rowsets_enabled', '[true | false]')*/` hint to enable or disable vectorization.\n\nIf you do not specify the hint, whether to enable vectorization is determined by the system parameter configuration of the vectorization engine, which is enabled by default.\n\n**Here are some examples:**\n\n* Enable vectorized queries.\n\n```sql\n  SELECT /*+ opt_param('rowsets_enabled', 'true') */ title, body\n  FROM articles\n  WHERE MATCH(title, body) AGAINST('tutorial');\n  ```\n\n* Disable vectorized queries.\n\n```sql\n  SELECT /*+ opt_param('rowsets_enabled', 'false') */ title, body\n  FROM articles\n  WHERE MATCH(title, body) AGAINST('tutorial');\n  ```\n\n## Examples\n\n1. Create a table named `tbl1` and a full-text index named `full_idx1_tbl1`.\n\n```sql\n   CREATE TABLE tbl1(col1 INT PRIMARY KEY, col2 VARCHAR(100), col3 TEXT, FULLTEXT INDEX full_idx1_tbl1(col2, col3));\n   Query OK, 0 rows affected (0.101 sec)\n   ```\n\n2. Add test data to the `tbl1` table."
+        },
+        {
+          "id": "fulltext-query:c03",
+          "text": "```sql\n   INSERT INTO tbl1 (col1, col2, col3) VALUES (1, 'Hello World', 'This is a test'),\n       (2, 'seekdb', 'OceanBase seekdb (referred to as seekdb) is an AI-native search database. It unifies relational, vector, text, JSON and GIS in a single engine, enabling hybrid search and in-database AI workflows.'),\n       (3, 'Database Management', 'Learn about SQL and database administration'),\n       (4, 'Full Text Searching', 'Master the art of full text searching');\n   ```\n\nThe return result is as follows:\n\n```shell\n   Query OK, 4 rows affected (0.003 sec)\n   Records: 4  Duplicates: 0  Warnings: 0\n   ```\n\n3. Search for the keyword 'seekdb' in the `col2` and `col3` columns of the `tbl1` table. The search modifier `IN NATURAL LANGUAGE MODE` is used, indicating that the natural language search mode is to be used.\n\n```sql\nSELECT * FROM tbl1\nWHERE MATCH (col2, col3) AGAINST ('seekdb' IN NATURAL LANGUAGE MODE);\n```\n\nThe return result is as follows:"
+        },
+        {
+          "id": "fulltext-query:c04",
+          "text": "```shell\n+------+--------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n| col1 | col2   | col3                                                                                                                                                                                                 |\n+------+--------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n|    2 | seekdb | OceanBase seekdb (referred to as seekdb) is an AI-native search database. It unifies relational, vector, text, JSON and GIS in a single engine, enabling hybrid search and in-database AI workflows. |\n+------+--------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+\n1 row in set (0.002 sec)\n```\n\n## References\n\n* [Create an index](../../../../200.develop/200.design-database-schema/40.create-index-in-develop.md)\n* [Full-text index](../../../../200.develop/200.design-database-schema/35.multi-model/300.char-and-text/300.full-text-index.md)"
+        }
+      ]
+    },
+    {
+      "id": "match-against",
+      "title": "MATCH AGAINST",
+      "source": "seekdb-docs/450.reference/200.sql/100.sql-syntax/400.functions/1000.other-functions/2250.match-against.md",
+      "chunks": [
+        {
+          "id": "match-against:c00",
+          "text": "# MATCH AGAINST\n\n## Description\n\nThis expression is used for text retrieval on a full-text index. The `AGAINST` clause accepts a search string and searches the index based on the character set comparison. For each row in the table, the return value of `MATCH` represents the relevance between the search string and the data in the row, which is the similarity between the text in the search string and the text in the data table.\n\n## Syntax\n\n```sql\nMATCH (column_set) AGAINST (query_expr [mode_flag])\n\ncolumn_set:\n    column_name [, column_name ...]\n\nmode_flag:\n    IN NATURAL LANGUAGE MODE\n    | IN BOOLEAN MODE\n```\n\n## Parameters\n\n|  **Parameter**  | **Description** |\n|------------|----------|\n| column_set | Specifies the column to be searched. If multiple columns are specified, they must be separated by commas. The query must have a full-text index that exactly matches the `column_set` parameter to execute the `MATCH AGAINST` expression.|\n| query_expr | Specifies the keyword or phrase to be searched, which is the parameter to be matched. seekdb will tokenize `query_expr` using the tokenizer of the full-text index and then perform the search on the full-text index.|\n| mode_flag  | Optional. Specifies the mode of the full-text search. The default value is `IN NATURAL LANGUAGE MODE`. For more information, see [mode_flag](#mode_flag).|\n\n### mode_flag"
+        },
+        {
+          "id": "match-against:c01",
+          "text": "* `IN NATURAL LANGUAGE MODE`: The default value. This mode specifies that the search is performed in natural language mode. In this mode, the full-text search is performed by tokenizing the query expression (`query_expr`) to obtain a set of tokens (`token`), and then matching the tokens with those in the index. A match is considered successful if at least one token matches. Additionally, the relevance of the matched rows is ranked using the Okapi BM25 method based on term frequency.\n\nBy default, or when `IN NATURAL LANGUAGE MODE` is specified, the `MATCH AGAINST` expression uses the `NATURAL LANGUAGE` mode for full-text search. In this mode, `AGAINST` accepts a search string and searches the index based on the character set comparison. For each row in the table, the return value of `MATCH` represents the relevance between the search string and the data in the row, which is the similarity between the text in the search string and the text in the data table.\n\n* `IN BOOLEAN MODE`: This mode specifies that the search is performed in boolean mode. The current version supports three commonly used boolean operators and nested operations, as follows:\n\n* `+`: Represents the `AND` operator, which is used to find the intersection of sets.\n\n* `-`: Represents the negation operator, which is used to find the difference between sets."
+        },
+        {
+          "id": "match-against:c02",
+          "text": "* No operator: When used alone, it represents the `OR` operator, which is used to find the union of sets. For example, `A B` represents `A OR B`. When used with other operators, it can increase the relevance of the sentences but will lose the `OR` semantics. For example, `+A B` means that A must be present, and the relevance of A and B in the sentence is calculated.\n\n* `()`: Represents nested operations. When used without an operator, it has the `OR` semantics. For example, `+A (nested clause)` means that A or the nested clause must be present.\n\n**Examples:**\n\n1. The output sentence must contain the word \"computer\".\n\n```sql\n       SELECT * FROM my_table WHERE MATCH (doc) AGAINST (\"+computer\" IN BOOLEAN MODE);\n       ```\n\n2. The output sentence must contain the word \"computer\" and must not contain the word \"weather\".\n\n```sql\n       SELECT * FROM my_table WHERE MATCH (doc) AGAINST (\"+computer -weather\" IN BOOLEAN MODE);\n       ```\n\n3. The output sentence must contain the word \"computer\", and \"oceanbase\" is more relevant.\n\n```sql\n       SELECT * FROM my_table WHERE MATCH (doc) AGAINST (\"+computer oceanbase\" IN BOOLEAN MODE);\n       ```\n\n## Considerations\n\nThe `MATCH AGAINST` expression not only represents text matching but also has other semantics in different clauses of SQL:\n\n* Projection of relevance:"
+        },
+        {
+          "id": "match-against:c03",
+          "text": "* Full-text search supports ranking based on term frequency. The `MATCH AGAINST` expression can be used to project the relevance.\n  * Relevance represents the degree of match between the matched data rows and the query (Query) in the `MATCH AGAINST` expression.\n  * Relevance is a `DOUBLE` type data greater than or equal to 0. A value of 0 indicates that the data row is unrelated to the query. The higher the value, the stronger the relevance.\n\n* Filtering semantics:\n\n* If the `MATCH AGAINST` expression appears in the `WHERE` clause and is connected to other filtering conditions using `AND`, it has filtering semantics. This means that data rows that do not match the query will be filtered out.\n\n**Example:**\n\n```sql\n    SELECT id, digest, detail\n    FROM t1\n    WHERE MATCH (detail) AGAINST ('oceanbase');\n    ```\n\nThis is equivalent to:\n\n```sql\n    SELECT id, digest, detail\n    FROM t1\n    WHERE MATCH (detail) AGAINST ('oceanbase') > 0;\n    ```\n\n* Sorting semantics:"
+        },
+        {
+          "id": "match-against:c04",
+          "text": "* If the `MATCH AGAINST` expression appears in the `WHERE` clause and is connected to other filtering conditions using `AND`, it has sorting semantics.\n  * This means that the results of the full-text search will be sorted in descending order based on the relevance ranking of the `MATCH AGAINST` expression.\n  * When multiple `MATCH AGAINST` expressions are present, the sorting will be based on the relevance of the first `MATCH AGAINST` expression.\n\n**Example:**\n\n```sql\n  SELECT id, digest, MATCH (detail) AGAINST ('oceanbase') AS relevance\n  FROM t1\n  WHERE MATCH (detail) against ('oceanbase');\n  ```\n\nThis is equivalent to:\n\n```sql\n  SELECT id, digest, MATCH (detail) AGAINST ('oceanbase') AS relevance\n  FROM t1\n  WHERE MATCH (detail) AGAINST ('oceanbase')\n  ORDER BY relevance DESC;\n  ```\n\n### Execution method of text retrieval\n\n* When the `MATCH AGAINST` expression in the SQL statement has filtering semantics, seekdb can execute the query by scanning the full-text index, calculating the `MATCH AGAINST` expression, and then accessing the table.\n\n* When the `MATCH AGAINST` expression in the SQL statement does not have filtering semantics, seekdb can execute the query by scanning and filtering using other secondary indexes and then accessing the full-text index based on the primary key."
+        },
+        {
+          "id": "match-against:c05",
+          "text": "* When the `WHERE` clause of the SQL statement contains the `MATCH AGAINST` expression and multiple filtering conditions connected by `AND`, and other secondary indexes can be hit, seekdb will try to select the most suitable index based on the cost.\n\n* When scanning the full-text index to calculate the `MATCH AGAINST` expression, if the query contains a `LIMIT` clause, seekdb will try to push the top-k calculation down to the full-text index scan to improve performance.\n\n* When querying with `MATCH AGAINST` predicates connected by `OR`, an index merge plan will be automatically generated. Whether to use the index merge plan depends on the cost competition result.\n\n## Examples\n\n1. Create a table named `test_tbl1`, and create two full-text indexes named `ft_idx1_test_tbl1` and `ft_idx2_test_tbl1`, and an index named `idx_test_tbl1`.\n\n```sql\n   CREATE TABLE test_tbl1(id INT, ref_no INT, digest VARCHAR(512), detail VARCHAR(4096),\n       FULLTEXT INDEX ft_idx1_test_tbl1(detail),\n       FULLTEXT INDEX ft_idx2_test_tbl1(digest, detail),\n       INDEX idx_test_tbl1 (id));\n   ```\n\n2. Insert test data into the `test_tbl1` table."
+        },
+        {
+          "id": "match-against:c06",
+          "text": "```sql\n   INSERT INTO test_tbl1 VALUES\n       (1, 1234, 'fulltext', 'Try text retrieval with OceanBase fulltext index'),\n       (2, 2345, 'log', 'OceanBase can halp with log analysis'),\n       (3, 3456, 'order', 'Simple text retrieval scan will return result set in order of descending ranking in OceanBase'),\n       (4, 4567, 'ranking', 'OceanBase will ranking relevance to query for matched result set'),\n       (5, 5678, 'filter', 'Using text retrieval as a filter condition would be probably more efficient');\n   ```\n\n3. Project the relevance by using the `MATCH AGAINST` expression.\n\n```sql\n   SELECT id, digest, detail, MATCH (detail) AGAINST ('oceanbase') AS relevance\n   FROM test_tbl1;\n   ```\n\nThe return result is as follows:"
+        },
+        {
+          "id": "match-against:c07",
+          "text": "```shell\n   +------+----------+-----------------------------------------------------------------------------------------------+--------------------+\n   | id   | digest   | detail                                                                                        | relevance          |\n   +------+----------+-----------------------------------------------------------------------------------------------+--------------------+\n   |    1 | fulltext | Try text retrieval with OceanBase fulltext index                                              | 0.2989130434782609 |\n   |    2 | log      | OceanBase can halp with log analysis                                                          | 0.3142857142857143 |\n   |    3 | order    | Simple text retrieval scan will return result set in order of descending ranking in OceanBase |  0.240174672489083 |\n   |    4 | ranking  | OceanBase will ranking relevance to query for matched result set                              | 0.2849740932642488 |\n   |    5 | filter   | Using text retrieval as a filter condition would be probably more efficient                   |                  0 |\n   +------+----------+-----------------------------------------------------------------------------------------------+--------------------+\n   5 rows in set (0.003 sec)\n   ```\n\n4. Filter the data by using the `MATCH AGAINST` expression."
+        }
+      ]
+    },
+    {
+      "id": "create-index",
+      "title": "CREATE INDEX",
+      "source": "seekdb-docs/450.reference/200.sql/100.sql-syntax/600.sql-statement/2220.create-index.md",
+      "chunks": [
+        {
+          "id": "create-index:c00",
+          "text": "# CREATE INDEX\n\n## Description\n\nThis statement is used to create an index. An index is a structure created on a table to sort the values of one or more columns in the database table. Its main purpose is to improve query speed and reduce the performance overhead of the database system.\n\nIn the current version of seekdb, the supported index types include unique and non-unique indexes. When creating an index, you can use the `STORING(column_name,...)` clause to specify redundant columns in the index table. In addition to the user-specified columns, the index table will automatically include the primary key columns of the primary table (or the Hidden PK if no primary key exists). Storing additional columns in the index provides the database optimizer with more options.\n\n## Limitations and considerations\n\n* If all index columns in a table are deleted, the created index becomes invalid.\n* Full-text indexes can be created only on columns of the `CHAR`, `VARCHAR`, or `TEXT` type.\n* Only local (`LOCAL`) full-text indexes can be created in the current version.\n* The `UNIQUE` keyword cannot be specified when creating a full-text index.\n* To create a full-text index that involves multiple columns, ensure that these columns have the same character set.\n* Only when you create a full-text index can you use `WITH PARSER {SPACE | NGRAM | BENG | IK}` to specify a tokenizer.\n\n## Permissions"
+        },
+        {
+          "id": "create-index:c01",
+          "text": "To execute the `CREATE INDEX` statement, the current user must have the INDEX permission on the corresponding object. For more information about the seekdb permissions, see [seekdb permission classification](../../../../400.guides/500.manage/300.security/300.access-control/200.user-and-permission/100.permission-classification.md).\n\n## Syntax\n\n```sql\nCREATE [hint_options] [index_type] INDEX [IF NOT EXISTS] index_name\n    [USING BTREE] ON table_name (sort_column_key [, sort_column_key... ])\n    [WITH PARSER tokenizer_option]\n    [PARSER_PROPERTIES[=](parser_properties_list)]\n    [index_option...] [partition_option] [index_column_group_option]\n\nindex_type:\n    SPATIAL\n    | UNIQUE\n    | FULLTEXT\n\nsort_column_key:\n      column_name [(integer)] [ASC] [ID id]\n    | (index_expr) [ASC] [ID id]\n\ntokenizer_option:\n    SPACE\n    | NGRAM\n    | BENG\n    | IK\n    | NGRAM2\n\nparser_properties_list:\n    parser_properties, [parser_properties]\n\nparser_properties:\n    min_token_size = int_value\n    | max_token_size = int_value\n    | ngram_token_size = int_value\n    | ik_mode = 'char_value'\n    | min_ngram_size = int_value\n    | max_ngram_size = int_value"
+        },
+        {
+          "id": "create-index:c02",
+          "text": "index_option:\n      GLOBAL\n    | LOCAL\n    | BLOCK_SIZE integer\n    | COMMENT STRING_VALUE\n    | STORING (column_name [, column_name...])\n    | WITH_ROWID\n    | WITH PARSER STRING_VALUE\n    | index_using_algorithm\n    | visibility_option\n    | DATA_TABLE_ID data_table_id\n    | INDEX_TABLE_ID index_table_id\n    | VIRTUAL_COLUMN_ID virtual_column_id\n    | MAX_USED_PART_ID used_part_id\n\nindex_column_group_option:\n    WITH COLUMN GROUP([all columns, ]each column)\n```\n\n## Parameters"
+        },
+        {
+          "id": "create-index:c03",
+          "text": "| Parameter | Description |\n|--------|---------|\n| hint_options | The hint options. This parameter is optional. Currently, only the `parallel` option is supported, for example, `/*+ parallel(10) */`. |\n| index_type   | The type of the index. This parameter is optional. For more information about the index types, see [index_type](#index_type).|\n| IF NOT EXISTS | Indicates whether to create the index if it already exists. If the index exists and the `IF NOT EXISTS` option is not specified, an error is returned. |\n| index_name  | The name of the index to be created. |\n| USING BTREE | The index type. This parameter is optional. Currently, only `USING BTREE` is supported.|\n| table_name | The name of the table on which to create the index. You can specify the table name directly or use the `schema_name.table_name` format to specify the table name and the name of the database to which the table belongs. |\n| sort_column_key | The key of the sorting column. You can specify multiple sorting columns when you create an index. Separate the sorting columns with commas (`,`). For more information, see [sort_column_key](#sort_column_key). |\n| WITH PARSER tokenizer_option                 | The tokenizer for the full-text index. This parameter is optional."
+        },
+        {
+          "id": "create-index:c04",
+          "text": "For more information, see [tokenizer_option](#tokenizer_option).|\n| PARSER_PROPERTIES\\[=\\](parser_properties_list) | The properties of the tokenizer. This parameter is optional. For more information, see [parser_properties](#parser_properties). |\n| index_option | The index options. You can specify multiple index options when you create an index. Separate the index options with spaces. For more information, see [index_option](#index_option). |\n| partition_option | The options for creating index partitions. You can specify hash partitions, key partitions, range partitions, list partitions, or external table partitions. |\n| index_column_group_option | The index options. For more information, see [index_column_group_option](#index_column_group_option).|\n\n### index_type\n\n* `SPATIAL`: This keyword specifies to create a spatial index.\n* `UNIQUE`: This keyword specifies to create a unique index.\n* `FULLTEXT`: This keyword specifies to create a full-text index.\n\nFor more information about how to create indexes of different types, see [Create an index](https://www.oceanbase.com/docs/common-oceanbase-database-cn-1000000002015436).\n\n### sort_column_key\n\n* `column_name [(integer)] [ASC] [ID id]`: This option specifies a column name as the sort key.\n\n* `column_name`: The name of the column to be sorted.\n\n* `integer`: The length limit of the sort key. This option is optional."
+        },
+        {
+          "id": "create-index:c05",
+          "text": "* `ASC`: This option specifies to sort in ascending order. Currently, descending (DESC) order is not supported.\n\n* `ID id`: The ID of the sort key. This option is optional.\n\nFor example, create an index named `index3` on the `c1` column of the `t3` table and specify that the index is sorted in ascending order.\n\n```sql\n  CREATE INDEX index3 ON t3 (c1 ASC);\n  ```\n\n* `(index_expr) [ASC] [ID id]`: This option specifies an index expression as the sort key. An index expression can be defined by using an expression or a function. It can contain the following options:\n\n* `(index_expr)`: The index expression. It can be a Boolean expression, such as `c1=c1`. Currently, seekdb does not support creating function indexes on generated columns. For information about the expressions supported by function indexes, see [List of system functions supported by function indexes](https://www.oceanbase.com/docs/common-oceanbase-database-cn-1000000002015437).\n\n* `ASC`: This option specifies to sort in ascending order. Currently, descending (DESC) order is not supported.\n\n* `ID id`: The ID of the sort key. This option is optional.\n\nFor example, create an index named `index4` on the `t4` table, specify `c1+c2` as the index expression, and specify that the index is sorted in ascending order.\n\n```sql\n  CREATE INDEX index4 ON t4 ((c1 + c2) ASC);\n  ```"
+        },
+        {
+          "id": "create-index:c06",
+          "text": "You can specify multiple sort columns when you create an index. Separate the sort columns with commas (`,`). For example, create an index named `index5` on the `t5` table and specify that the index uses the `c1` column and the `c2+c3` expression as the sort keys.\n\n```sql\nCREATE INDEX index5 ON t5 (c1, (c2+c3));\n```\n\n### tokenizer_option\n\n* `SPACE`: The default value. This option specifies to tokenize by using spaces. You can specify the following properties:\n\n|        Property      | Value Range |\n  |------------------|---------|\n  | min_token_size   | [1, 16] |\n  | max_token_size   | [10, 84]|\n\n* `NGRAM`: This option specifies to tokenize by using the N-Gram (Chinese) tokenizer. You can specify the following properties:\n\n|        Property      | Value Range |\n  |------------------|---------|\n  | ngram_token_size | [1, 10] |\n\n* `NGRAM2`: This option specifies to split text into continuous characters in the `min_ngram_size` to `max_ngram_size` range. You can specify the following properties:\n\n|        Property      | Value Range |\n  |------------------|---------|\n  | min_ngram_size   | [1, 16] |\n  | max_ngram_size   | [1, 16] |\n\n:::info\n\nseekdb supports the `NGRAM2` tokenizer.\n\n:::\n\n* `BENG`: This option specifies to tokenize by using the Beng (basic English) tokenizer. You can specify the following properties:"
+        },
+        {
+          "id": "create-index:c07",
+          "text": "|        Property      | Value Range |\n  |------------------|---------|\n  | min_token_size   | [1, 16] |\n  | max_token_size   | [10, 84]|\n\n* `IK`: This option specifies to tokenize by using the IK (Chinese) tokenizer. Currently, only the `utf-8` character set is supported. You can specify the following property:\n\n|        Property      | Value Range |\n  |------------------|---------|\n  | ik_mode          | <ul><li>`smart`</li><li>`max_word`</li></ul>|\n\n:::info\n\nseekdb supports the `IK` tokenizer.\n\n:::\n\nYou can use the [TOKENIZE](https://www.oceanbase.com/docs/common-oceanbase-database-cn-1000000002017575) function to view the tokenization result of text in the specified tokenizer and JSON-formatted parameters.\n\n### parser_properties\n\n* `min_token_size`: The minimum token length. The default value is 3, and the value range is 1 to 16.\n\n* `max_token_size`: The maximum token length. The default value is 84, and the value range is 10 to 84.\n\n* `ngram_token_size`: The token length of the `NGRAM` tokenizer. This property is valid only for the `NGRAM` tokenizer. The default value is 2, and the value range is 1 to 10.\n\n* `ik_mode`: The tokenization mode of the `IK` tokenizer. Valid values:"
+        }
+      ]
+    },
+    {
+      "id": "refresh-index",
+      "title": "REFRESH_INDEX",
+      "source": "seekdb-docs/450.reference/300.pl/1000.pl-system-package/17850.dbms-vector/200.refresh-index.md",
+      "chunks": [
+        {
+          "id": "refresh-index:c00",
+          "text": "# REFRESH_INDEX\n\nThe `REFRESH_INDEX` procedure is used to incrementally refresh the vector index.\n\n## Syntax\n\n```sql\nPROCEDURE refresh_index(\n    IN     idx_name               VARCHAR(65535),               \n    IN     table_name             VARCHAR(65535),                \n    IN     idx_vector_col         VARCHAR(65535) DEFAULT NULL,   \n    IN     refresh_threshold      INT DEFAULT 10000,             \n    IN     refresh_type           VARCHAR(65535) DEFAULT NULL);   \n```\n\n## Parameters\n\n| Parameter | Description |\n| --- | --- |\n| idx_name | The name of the index. |\n| table_name | The name of the table. |\n| idx_vector_col | The name of the vector column. |\n| refresh_threshold | The number of incremental data entries. |\n| refresh_type | The type of refresh. The optional value is `FAST`. |\n\n## Examples\n\nCreate a test table.\n\n```sql\nCREATE TABLE vector_index_test(c1 INT, c2 VECTOR(3), PRIMARY KEY(c1), VECTOR INDEX idx1(c2) WITH (distance=l2, type=hnsw, lib=vsag));\n```\n\nWrite test data."
+        },
+        {
+          "id": "refresh-index:c01",
+          "text": "```sql\nINSERT INTO vector_index_test VALUES(1, '[0.203846,0.205289,0.880265]');\nINSERT INTO vector_index_test VALUES(2, '[0.484526,0.669954,0.986755]');\nINSERT INTO vector_index_test VALUES(3, '[0.327936,0.048756,0.084670]');\nINSERT INTO vector_index_test VALUES(4, '[0.148869,0.878546,0.028024]');\nINSERT INTO vector_index_test VALUES(5, '[0.334970,0.857377,0.886132]');\nINSERT INTO vector_index_test VALUES(6, '[0.117582,0.302352,0.471198]');\nINSERT INTO vector_index_test VALUES(7, '[0.551185,0.231134,0.075354]');\nINSERT INTO vector_index_test VALUES(8, '[0.185221,0.315131,0.558301]');\nINSERT INTO vector_index_test VALUES(9, '[0.928764,0.254038,0.272721]');\n```\n\nTrigger an update.\n\n```sql\n-- Trigger incremental update.\nCALL DBMS_VECTOR.REFRESH_INDEX('idx1', 'vector_index_test', 'c2', 1, 'FAST');\n```\n\n## References\n\n* [DBMS_VECTOR subprograms overview](100.dbms-vector-overview.md)\n* [REBUILD_INDEX](300.rebuild-index.md)"
+        }
+      ]
+    }
+  ],
+  "queries": [
+    {
+      "id": "q01",
+      "question": "What is the default SQL port for seekdb server mode?",
+      "relevant": [
+        "deploy-systemd:c02"
+      ]
+    },
+    {
+      "id": "q02",
+      "question": "Which configuration file controls the seekdb server port?",
+      "relevant": [
+        "deploy-systemd:c02"
+      ]
+    },
+    {
+      "id": "q03",
+      "question": "How do you connect seekdb-js to a seekdb server on localhost?",
+      "relevant": [
+        "seekdb-js-client:c01"
+      ]
+    },
+    {
+      "id": "q04",
+      "question": "What are the default user and database values when using seekdb-js?",
+      "relevant": [
+        "seekdb-js-client:c01"
+      ]
+    },
+    {
+      "id": "q05",
+      "question": "How do you create a collection with a vector dimension and cosine distance?",
+      "relevant": [
+        "create-collection:c02"
+      ]
+    },
+    {
+      "id": "q06",
+      "question": "Which full-text analyzer can be configured when creating a collection?",
+      "relevant": [
+        "create-collection:c02"
+      ]
+    },
+    {
+      "id": "q07",
+      "question": "How does hybridSearch combine full-text and vector search results?",
+      "relevant": [
+        "hybrid-sample:c00"
+      ]
+    },
+    {
+      "id": "q08",
+      "question": "How do you pass a precomputed query vector to hybridSearch?",
+      "relevant": [
+        "hybrid-api:c00"
+      ]
+    },
+    {
+      "id": "q09",
+      "question": "What happens when queryTexts is used without an embedding function?",
+      "relevant": [
+        "hybrid-api:c01"
+      ]
+    },
+    {
+      "id": "q10",
+      "question": "How do you insert documents with embeddings you computed yourself?",
+      "relevant": [
+        "add-data:c01"
+      ]
+    },
+    {
+      "id": "q11",
+      "question": "What is upsert used for when a record with the same ID exists?",
+      "relevant": [
+        "upsert-data:c00"
+      ]
+    },
+    {
+      "id": "q12",
+      "question": "How do you get an existing collection or create it when missing?",
+      "relevant": [
+        "get-or-create:c00"
+      ]
+    },
+    {
+      "id": "q13",
+      "question": "How do you delete a collection in seekdb-js?",
+      "relevant": [
+        "delete-collection:c00"
+      ]
+    },
+    {
+      "id": "q14",
+      "question": "How do you count the number of records in a collection?",
+      "relevant": [
+        "count-collection:c00"
+      ]
+    },
+    {
+      "id": "q15",
+      "question": "Which filter operator searches document content for a phrase?",
+      "relevant": [
+        "filter-operators:c01"
+      ]
+    },
+    {
+      "id": "q16",
+      "question": "How do you filter metadata with an equality condition?",
+      "relevant": [
+        "filter-operators:c00"
+      ]
+    },
+    {
+      "id": "q17",
+      "question": "How does MATCH AGAINST score full-text matches in seekdb?",
+      "relevant": [
+        "match-against:c00"
+      ]
+    },
+    {
+      "id": "q18",
+      "question": "How do you write a full-text query in seekdb SQL?",
+      "relevant": [
+        "fulltext-query:c00"
+      ]
+    },
+    {
+      "id": "q19",
+      "question": "How do you create a full-text index on a table?",
+      "relevant": [
+        "create-index:c01"
+      ]
+    },
+    {
+      "id": "q20",
+      "question": "How do you create an HNSW vector index in seekdb?",
+      "relevant": [
+        "refresh-index:c00"
+      ]
+    },
+    {
+      "id": "q25",
+      "question": "How does REFRESH_INDEX incrementally refresh a vector index?",
+      "relevant": [
+        "refresh-index:c00"
+      ]
+    },
+    {
+      "id": "q21",
+      "question": "How do you run a vector similarity query with queryEmbeddings?",
+      "relevant": [
+        "query-api:c01"
+      ]
+    },
+    {
+      "id": "q22",
+      "question": "How do you deploy seekdb as a systemd service?",
+      "relevant": [
+        "deploy-systemd:c00"
+      ]
+    },
+    {
+      "id": "q23",
+      "question": "How do you connect to OceanBase with a tenant using seekdb-js?",
+      "relevant": [
+        "seekdb-js-client:c02"
+      ]
+    },
+    {
+      "id": "q24",
+      "question": "What does the RRF rank configuration look like in hybridSearch?",
+      "relevant": [
+        "hybrid-api:c02"
+      ]
+    }
+  ]
+}

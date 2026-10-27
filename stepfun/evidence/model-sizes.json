@@ -1,0 +1,22 @@
+{
+  "modelId": "Xenova/all-MiniLM-L6-v2",
+  "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+  "measuredAt": "2026-10-27T04:12:34.362Z",
+  "files": [
+    {
+      "file": "onnx/model.onnx",
+      "bytes": 90387606,
+      "status": 200
+    },
+    {
+      "file": "onnx/model_fp16.onnx",
+      "bytes": 45297825,
+      "status": 200
+    },
+    {
+      "file": "onnx/model_quantized.onnx",
+      "bytes": 22972370,
+      "status": 200
+    }
+  ]
+}

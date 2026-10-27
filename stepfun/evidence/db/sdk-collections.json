@@ -1,0 +1,107 @@
+[
+  {
+    "collection_id": "143da09bd1b411f1841700155d06c9ef",
+    "collection_name": "stepfun_bench_int8_wasm",
+    "settings": {
+      "schema": {
+        "vectorIndex": {
+          "hnsw": {
+            "distance": "cosine",
+            "dimension": 384
+          }
+        },
+        "fulltextIndex": {
+          "analyzer": "space",
+          "properties": {}
+        }
+      },
+      "version": "v2"
+    },
+    "created_at": "2026-10-27T03:11:18.000Z",
+    "updated_at": "2026-10-27T03:11:18.000Z"
+  },
+  {
+    "collection_id": "1583a74ad1b511f1841700155d06c9ef",
+    "collection_name": "stepfun_bench_int8_webgpu",
+    "settings": {
+      "schema": {
+        "vectorIndex": {
+          "hnsw": {
+            "distance": "cosine",
+            "dimension": 384
+          }
+        },
+        "fulltextIndex": {
+          "analyzer": "space",
+          "properties": {}
+        }
+      },
+      "version": "v2"
+    },
+    "created_at": "2026-10-27T03:18:30.000Z",
+    "updated_at": "2026-10-27T03:18:30.000Z"
+  },
+  {
+    "collection_id": "55dbff5cd1b611f1841700155d06c9ef",
+    "collection_name": "stepfun_kb_int8",
+    "settings": {
+      "schema": {
+        "vectorIndex": {
+          "hnsw": {
+            "distance": "cosine",
+            "dimension": 384
+          }
+        },
+        "fulltextIndex": {
+          "analyzer": "space",
+          "properties": {}
+        }
+      },
+      "version": "v2"
+    },
+    "created_at": "2026-10-27T03:27:27.000Z",
+    "updated_at": "2026-10-27T03:27:27.000Z"
+  },
+  {
+    "collection_id": "6800f284d1b111f1841700155d06c9ef",
+    "collection_name": "stepfun_test_1793069529634",
+    "settings": {
+      "schema": {
+        "vectorIndex": {
+          "hnsw": {
+            "distance": "cosine",
+            "dimension": 384
+          }
+        },
+        "fulltextIndex": {
+          "analyzer": "space",
+          "properties": {}
+        }
+      },
+      "version": "v2"
+    },
+    "created_at": "2026-10-27T02:52:10.000Z",
+    "updated_at": "2026-10-27T02:52:10.000Z"
+  },
+  {
+    "collection_id": "78a4da8ed1b411f1841700155d06c9ef",
+    "collection_name": "stepfun_bench_fp32_wasm",
+    "settings": {
+      "schema": {
+        "vectorIndex": {
+          "hnsw": {
+            "distance": "cosine",
+            "dimension": 384
+          }
+        },
+        "fulltextIndex": {
+          "analyzer": "space",
+          "properties": {}
+        }
+      },
+      "version": "v2"
+    },
+    "created_at": "2026-10-27T03:14:07.000Z",
+    "updated_at": "2026-10-27T03:14:07.000Z"
+  }
+]

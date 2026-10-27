@@ -1,0 +1,14 @@
+开始 FP16 · WebGPU
+配置 FP16 · WebGPU：17 篇文档 / 70 个文本块 / 25 个查询
+模型 config.json 100%
+失败 FP16 · WebGPU: 模型加载失败：webgpu/fp16: The device (webgpu) does not support fp16.
+模型 tokenizer_config.json 100%
+模型 tokenizer.json 27%
+模型 tokenizer.json 35%
+模型 tokenizer.json 43%
+模型 tokenizer.json 51%
+模型 tokenizer.json 59%
+模型 tokenizer.json 67%
+模型 tokenizer.json 83%
+模型 tokenizer.json 91%
+模型 tokenizer.json 100%

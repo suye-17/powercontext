@@ -1,0 +1,8 @@
+{
+  "label": "after-restart-browser",
+  "timestamp": "2026-10-27T04:13:52.059Z",
+  "badge": "WASM INT8",
+  "stats": "集合 stepfun_kb_int8 文本块 2 模型 all-MiniLM-L6-v2 模型版本 751bff37182d",
+  "searchMeta": "全文 + 向量混合检索 · 7 ms · 关键词：long audit log kept 2 条结果",
+  "resultText": "#1\naudit.txt\n0.0328\n\nupload · chunk 0\n\nThe rotation policy keeps the audit log for ninety days. Audit records are immutable and can be exported by the compliance team.\n\n#2\ndemo.txt\n0.0161\n\nupload · chunk 0\n\nseekdb stores vectors and source text in one collection. The knowledge base writes embeddings from the browser and refreshes the index after import."
+}

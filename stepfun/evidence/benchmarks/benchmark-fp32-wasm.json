@@ -1,0 +1,1350 @@
+[
+  {
+    "config": {
+      "id": "fp32-wasm",
+      "backend": "wasm",
+      "precision": "fp32",
+      "label": "FP32 基线 · WASM"
+    },
+    "environment": {
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+      "platform": "Linux x86_64",
+      "hardwareConcurrency": 32,
+      "deviceMemory": 16,
+      "webgpuAvailable": false,
+      "webgpuAdapter": null
+    },
+    "model": {
+      "id": "Xenova/all-MiniLM-L6-v2",
+      "revision": "751bff37182d3f1213fa05d7196b954e230abad9",
+      "precision": "fp32",
+      "sizeBytes": 90387606,
+      "compressionRatio": 1,
+      "loadMs": 15616,
+      "downloadMs": 12936.599999979138,
+      "downloads": [
+        {
+          "name": "config.json",
+          "durationMs": 424.29999999701977,
+          "transferSize": 0
+        },
+        {
+          "name": "tokenizer_config.json",
+          "durationMs": 344.29999999701977,
+          "transferSize": 0
+        },
+        {
+          "name": "model.onnx",
+          "durationMs": 996.0999999940395,
+          "transferSize": 0
+        },
+        {
+          "name": "tokenizer.json",
+          "durationMs": 338.3999999910593,
+          "transferSize": 0
+        },
+        {
+          "name": "config.json",
+          "durationMs": 533.0999999940395,
+          "transferSize": 0
+        },
+        {
+          "name": "tokenizer.json",
+          "durationMs": 532.9000000059605,
+          "transferSize": 0
+        },
+        {
+          "name": "tokenizer_config.json",
+          "durationMs": 367.20000000298023,
+          "transferSize": 0
+        },
+        {
+          "name": "tokenizer.json",
+          "durationMs": 336.29999999701977,
+          "transferSize": 0
+        },
+        {
+          "name": "model.onnx",
+          "durationMs": 9064,
+          "transferSize": 0
+        }
+      ]
+    },
+    "corpus": {
+      "documents": 17,
+      "chunks": 70,
+      "queries": 25,
+      "batchSize": 16
+    },
+    "timings": {
+      "documentEmbeddingMs": 63180.60000000894,
+      "documentEmbeddingThroughput": 1.1079350306896436,
+      "importRefreshMs": 985.9000000059605,
+      "importServerMs": 916,
+      "queryEmbeddingMsMedian": 22.30000001192093,
+      "searchMsMedian": 15.5,
+      "searchServerMsMedian": 6,
+      "endToEndMsMedian": 38.6000000089407,
+      "searchModes": {
+        "hybrid": 25
+      }
+    },
+    "quality": {
+      "k": 5,
+      "recall": 0.8,
+      "ndcg": 0.5848356179017071,
+      "perQuery": [
+        {
+          "id": "q01",
+          "question": "What is the default SQL port for seekdb server mode?",
+          "relevant": [
+            "deploy-systemd:c02"
+          ],
+          "retrieved": [
+            "seekdb-js-client:c02",
+            "deploy-systemd:c03",
+            "seekdb-js-client:c01",
+            "deploy-systemd:c02",
+            "fulltext-query:c03"
+          ],
+          "recall": 1,
+          "ndcg": 0.43067655807339306,
+          "searchMs": 17.5,
+          "endToEndMs": 41,
+          "searchMode": "hybrid",
+          "fullTextQuery": "default sql port seekdb server mode",
+          "raw": {
+            "queryEmbeddingMs": [
+              30.099999994039536,
+              23.700000002980232,
+              22.5,
+              24,
+              22.100000008940697
+            ],
+            "searchMs": [
+              67.90000000596046,
+              18,
+              17.200000002980232,
+              16.80000001192093,
+              17.5
+            ],
+            "searchServerMs": [
+              56,
+              8,
+              6,
+              7,
+              7
+            ],
+            "endToEndMs": [
+              98.90000000596046,
+              44.599999994039536,
+              40,
+              41,
+              39.80000001192093
+            ]
+          }
+        },
+        {
+          "id": "q02",
+          "question": "Which configuration file controls the seekdb server port?",
+          "relevant": [
+            "deploy-systemd:c02"
+          ],
+          "retrieved": [
+            "deploy-systemd:c02",
+            "seekdb-js-client:c01",
+            "seekdb-js-client:c02",
+            "deploy-systemd:c03",
+            "upsert-data:c00"
+          ],
+          "recall": 1,
+          "ndcg": 1,
+          "searchMs": 16.599999994039536,
+          "endToEndMs": 36.20000000298023,
+          "searchMode": "hybrid",
+          "fullTextQuery": "configuration file controls seekdb server port",
+          "raw": {
+            "queryEmbeddingMs": [
+              19.80000001192093,
+              19.299999997019768,
+              19.5,
+              19.400000005960464,
+              19.5
+            ],
+            "searchMs": [
+              18.099999994039536,
+              16.700000002980232,
+              15.799999997019768,
+              16.299999997019768,
+              16.599999994039536
+            ],
+            "searchServerMs": [
+              6,
+              7,
+              6,
+              7,
+              6
+            ],
+            "endToEndMs": [
+              43.1000000089407,
+              36.20000000298023,
+              35.5,
+              36,
+              36.5
+            ]
+          }
+        },
+        {
+          "id": "q03",
+          "question": "How do you connect seekdb-js to a seekdb server on localhost?",
+          "relevant": [
+            "seekdb-js-client:c01"
+          ],
+          "retrieved": [
+            "seekdb-js-client:c01",
+            "seekdb-js-client:c02",
+            "get-or-create:c00",
+            "simple-sample:c00",
+            "upsert-data:c00"
+          ],
+          "recall": 1,
+          "ndcg": 1,
+          "searchMs": 17,
+          "endToEndMs": 50.79999999701977,
+          "searchMode": "hybrid",
+          "fullTextQuery": "connect seekdb js server localhost",
+          "raw": {
+            "queryEmbeddingMs": [
+              32.5,
+              32.29999999701977,
+              32.099999994039536,
+              33.599999994039536,
+              33.1000000089407
+            ],
+            "searchMs": [
+              16.799999997019768,
+              17.900000005960464,
+              17,
+              17,
+              17.69999998807907
+            ],
+            "searchServerMs": [
+              7,
+              7,
+              7,
+              7,
+              8
+            ],
+            "endToEndMs": [
+              55.599999994039536,
+              50.5,
+              49.29999999701977,
+              50.79999999701977,
+              50.900000005960464
+            ]
+          }
+        },
+        {
+          "id": "q04",
+          "question": "What are the default user and database values when using seekdb-js?",
+          "relevant": [
+            "seekdb-js-client:c01"
+          ],
+          "retrieved": [
+            "seekdb-js-client:c02",
+            "seekdb-js-client:c01",
+            "create-collection:c00",
+            "add-data:c00",
+            "create-collection:c01"
+          ],
+          "recall": 1,
+          "ndcg": 0.6309297535714575,
+          "searchMs": 17.700000002980232,
+          "endToEndMs": 48,
+          "searchMode": "hybrid",
+          "fullTextQuery": "default user database values seekdb js",
+          "raw": {
+            "queryEmbeddingMs": [
+              28.200000002980232,
+              28,
+              31.600000008940697,
+              29.299999997019768,
+              27.799999997019768
+            ],
+            "searchMs": [
+              17.200000002980232,
+              17.700000002980232,
+              21.200000002980232,
+              19.5,
+              17.700000002980232
+            ],
+            "searchServerMs": [
+              7,
+              7,
+              9,
+              7,
+              7
+            ],
+            "endToEndMs": [
+              48,
+              46.099999994039536,
+              53.30000001192093,
+              49.29999999701977,
+              45.79999999701977
+            ]
+          }
+        },
+        {
+          "id": "q05",
+          "question": "How do you create a collection with a vector dimension and cosine distance?",
+          "relevant": [
+            "create-collection:c02"
+          ],
+          "retrieved": [
+            "get-or-create:c02",
+            "create-collection:c02",
+            "get-or-create:c03",
+            "simple-sample:c01",
+            "create-collection:c03"
+          ],
+          "recall": 1,
+          "ndcg": 0.6309297535714575,
+          "searchMs": 15.599999994039536,
+          "endToEndMs": 42.900000005960464,
+          "searchMode": "hybrid",
+          "fullTextQuery": "collection vector dimension cosine distance",
+          "raw": {
+            "queryEmbeddingMs": [
+              30.700000002980232,
+              27.799999997019768,
+              27.700000002980232,
+              25.299999997019768,
+              25.700000002980232
+            ],
+            "searchMs": [
+              17.700000002980232,
+              15.599999994039536,
+              14.899999991059303,
+              16.099999994039536,
+              14.899999991059303
+            ],
+            "searchServerMs": [
+              6,
+              5,
+              7,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              55.80000001192093,
+              43.599999994039536,
+              42.900000005960464,
+              41.79999999701977,
+              40.8999999910593
+            ]
+          }
+        },
+        {
+          "id": "q06",
+          "question": "Which full-text analyzer can be configured when creating a collection?",
+          "relevant": [
+            "create-collection:c02"
+          ],
+          "retrieved": [
+            "get-or-create:c02",
+            "create-collection:c02",
+            "match-against:c00",
+            "fulltext-query:c00",
+            "hybrid-api:c01"
+          ],
+          "recall": 1,
+          "ndcg": 0.6309297535714575,
+          "searchMs": 16.299999997019768,
+          "endToEndMs": 40.29999999701977,
+          "searchMode": "hybrid",
+          "fullTextQuery": "full text analyzer configured creating collection",
+          "raw": {
+            "queryEmbeddingMs": [
+              22.700000002980232,
+              22.899999991059303,
+              22.799999997019768,
+              24,
+              22.69999998807907
+            ],
+            "searchMs": [
+              16.299999997019768,
+              17.200000002980232,
+              17.299999997019768,
+              16.200000002980232,
+              15.800000011920929
+            ],
+            "searchServerMs": [
+              7,
+              8,
+              7,
+              7,
+              6
+            ],
+            "endToEndMs": [
+              47.20000000298023,
+              40.29999999701977,
+              40.29999999701977,
+              40.400000005960464,
+              38.79999999701977
+            ]
+          }
+        },
+        {
+          "id": "q07",
+          "question": "How does hybridSearch combine full-text and vector search results?",
+          "relevant": [
+            "hybrid-sample:c00"
+          ],
+          "retrieved": [
+            "hybrid-sample:c00",
+            "hybrid-sample:c06",
+            "hybrid-api:c03",
+            "hybrid-sample:c04",
+            "hybrid-api:c01"
+          ],
+          "recall": 1,
+          "ndcg": 1,
+          "searchMs": 15.200000002980232,
+          "endToEndMs": 37.79999999701977,
+          "searchMode": "hybrid",
+          "fullTextQuery": "hybridsearch combine full text vector search results",
+          "raw": {
+            "queryEmbeddingMs": [
+              23,
+              23.099999994039536,
+              22.19999998807907,
+              22.200000002980232,
+              22.299999997019768
+            ],
+            "searchMs": [
+              18,
+              15.100000008940697,
+              15.300000011920929,
+              14.699999988079071,
+              15.200000002980232
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              6,
+              7,
+              6
+            ],
+            "endToEndMs": [
+              56.79999999701977,
+              38.400000005960464,
+              37.79999999701977,
+              37.29999999701977,
+              37.79999999701977
+            ]
+          }
+        },
+        {
+          "id": "q08",
+          "question": "How do you pass a precomputed query vector to hybridSearch?",
+          "relevant": [
+            "hybrid-api:c00"
+          ],
+          "retrieved": [
+            "hybrid-api:c03",
+            "hybrid-sample:c00",
+            "hybrid-sample:c04",
+            "hybrid-sample:c06",
+            "hybrid-api:c00"
+          ],
+          "recall": 1,
+          "ndcg": 0.38685280723454163,
+          "searchMs": 15.799999997019768,
+          "endToEndMs": 42.1000000089407,
+          "searchMode": "hybrid",
+          "fullTextQuery": "pass precomputed query vector hybridsearch",
+          "raw": {
+            "queryEmbeddingMs": [
+              23.5,
+              24.099999994039536,
+              24.600000008940697,
+              24.400000005960464,
+              28
+            ],
+            "searchMs": [
+              14.900000005960464,
+              15.799999997019768,
+              15.599999994039536,
+              17.5,
+              23.200000002980232
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              5,
+              8,
+              9
+            ],
+            "endToEndMs": [
+              48.6000000089407,
+              40.3999999910593,
+              40.5,
+              42.1000000089407,
+              51.400000005960464
+            ]
+          }
+        },
+        {
+          "id": "q09",
+          "question": "What happens when queryTexts is used without an embedding function?",
+          "relevant": [
+            "hybrid-api:c01"
+          ],
+          "retrieved": [
+            "simple-sample:c00",
+            "query-api:c02",
+            "create-collection:c02",
+            "simple-sample:c01",
+            "get-or-create:c02"
+          ],
+          "recall": 0,
+          "ndcg": 0,
+          "searchMs": 16.799999997019768,
+          "endToEndMs": 41.70000000298023,
+          "searchMode": "hybrid",
+          "fullTextQuery": "happens querytexts embedding function",
+          "raw": {
+            "queryEmbeddingMs": [
+              28.799999997019768,
+              24.299999997019768,
+              25.099999994039536,
+              27.799999997019768,
+              25.799999997019768
+            ],
+            "searchMs": [
+              17.200000002980232,
+              16.799999997019768,
+              15,
+              17.299999997019768,
+              15.700000002980232
+            ],
+            "searchServerMs": [
+              7,
+              6,
+              5,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              59.20000000298023,
+              41.29999999701977,
+              40.400000005960464,
+              45.3999999910593,
+              41.70000000298023
+            ]
+          }
+        },
+        {
+          "id": "q10",
+          "question": "How do you insert documents with embeddings you computed yourself?",
+          "relevant": [
+            "add-data:c01"
+          ],
+          "retrieved": [
+            "add-data:c01",
+            "simple-sample:c01",
+            "query-api:c03",
+            "upsert-data:c02",
+            "hybrid-api:c02"
+          ],
+          "recall": 1,
+          "ndcg": 1,
+          "searchMs": 15,
+          "endToEndMs": 37.900000005960464,
+          "searchMode": "hybrid",
+          "fullTextQuery": "documents embeddings computed yourself",
+          "raw": {
+            "queryEmbeddingMs": [
+              22.799999997019768,
+              24.700000002980232,
+              22.30000001192093,
+              22,
+              22
+            ],
+            "searchMs": [
+              15.700000002980232,
+              15,
+              15.399999991059303,
+              13.5,
+              14.900000005960464
+            ],
+            "searchServerMs": [
+              7,
+              6,
+              6,
+              5,
+              6
+            ],
+            "endToEndMs": [
+              47.599999994039536,
+              40,
+              37.900000005960464,
+              35.70000000298023,
+              37.20000000298023
+            ]
+          }
+        },
+        {
+          "id": "q11",
+          "question": "What is upsert used for when a record with the same ID exists?",
+          "relevant": [
+            "upsert-data:c00"
+          ],
+          "retrieved": [
+            "upsert-data:c00",
+            "upsert-data:c01",
+            "upsert-data:c02",
+            "add-data:c00",
+            "create-index:c03"
+          ],
+          "recall": 1,
+          "ndcg": 1,
+          "searchMs": 14.799999997019768,
+          "endToEndMs": 39.5,
+          "searchMode": "hybrid",
+          "fullTextQuery": "upsert record id exists",
+          "raw": {
+            "queryEmbeddingMs": [
+              23.400000005960464,
+              23.899999991059303,
+              23,
+              23.900000005960464,
+              24.30000001192093
+            ],
+            "searchMs": [
+              14.799999997019768,
+              14.799999997019768,
+              14.199999988079071,
+              16.599999994039536,
+              14.899999991059303
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              6,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              48.900000005960464,
+              39,
+              37.3999999910593,
+              40.79999999701977,
+              39.5
+            ]
+          }
+        },
+        {
+          "id": "q12",
+          "question": "How do you get an existing collection or create it when missing?",
+          "relevant": [
+            "get-or-create:c00"
+          ],
+          "retrieved": [
+            "seekdb-js-client:c03",
+            "get-or-create:c00",
+            "delete-collection:c00",
+            "upsert-data:c00",
+            "hybrid-api:c02"
+          ],
+          "recall": 1,
+          "ndcg": 0.6309297535714575,
+          "searchMs": 15.5,
+          "endToEndMs": 37.29999999701977,
+          "searchMode": "hybrid",
+          "fullTextQuery": "get existing collection missing",
+          "raw": {
+            "queryEmbeddingMs": [
+              21.399999991059303,
+              20.799999997019768,
+              21.399999991059303,
+              21.600000008940697,
+              20.69999998807907
+            ],
+            "searchMs": [
+              15.800000011920929,
+              15.200000002980232,
+              14.300000011920929,
+              15.5,
+              16.30000001192093
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              6,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              43.099999994039536,
+              36.29999999701977,
+              35.8999999910593,
+              37.30000001192093,
+              37.29999999701977
+            ]
+          }
+        },
+        {
+          "id": "q13",
+          "question": "How do you delete a collection in seekdb-js?",
+          "relevant": [
+            "delete-collection:c00"
+          ],
+          "retrieved": [
+            "seekdb-js-client:c03",
+            "delete-collection:c00",
+            "get-or-create:c00",
+            "query-api:c00",
+            "add-data:c02"
+          ],
+          "recall": 1,
+          "ndcg": 0.6309297535714575,
+          "searchMs": 16,
+          "endToEndMs": 40.099999994039536,
+          "searchMode": "hybrid",
+          "fullTextQuery": "collection seekdb js",
+          "raw": {
+            "queryEmbeddingMs": [
+              23.700000002980232,
+              22,
+              22.5,
+              23,
+              22.100000008940697
+            ],
+            "searchMs": [
+              14.700000002980232,
+              14.700000002980232,
+              17.399999991059303,
+              17.099999994039536,
+              16
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              8,
+              6,
+              7
+            ],
+            "endToEndMs": [
+              53.20000000298023,
+              36.900000005960464,
+              40.099999994039536,
+              40.29999999701977,
+              38.5
+            ]
+          }
+        },
+        {
+          "id": "q14",
+          "question": "How do you count the number of records in a collection?",
+          "relevant": [
+            "count-collection:c00"
+          ],
+          "retrieved": [
+            "count-collection:c00",
+            "seekdb-js-client:c03",
+            "query-api:c01",
+            "hybrid-api:c02",
+            "hybrid-api:c01"
+          ],
+          "recall": 1,
+          "ndcg": 1,
+          "searchMs": 14.799999997019768,
+          "endToEndMs": 34.599999994039536,
+          "searchMode": "hybrid",
+          "fullTextQuery": "count number records collection",
+          "raw": {
+            "queryEmbeddingMs": [
+              19.799999997019768,
+              20.400000005960464,
+              19.599999994039536,
+              19.400000005960464,
+              19.299999997019768
+            ],
+            "searchMs": [
+              15.400000005960464,
+              14.799999997019768,
+              14.599999994039536,
+              14.200000002980232,
+              15
+            ],
+            "searchServerMs": [
+              7,
+              6,
+              6,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              44,
+              35.6000000089407,
+              34.3999999910593,
+              33.900000005960464,
+              34.599999994039536
+            ]
+          }
+        },
+        {
+          "id": "q15",
+          "question": "Which filter operator searches document content for a phrase?",
+          "relevant": [
+            "filter-operators:c01"
+          ],
+          "retrieved": [
+            "hybrid-api:c01",
+            "fulltext-query:c00",
+            "match-against:c01",
+            "match-against:c07",
+            "query-api:c01"
+          ],
+          "recall": 0,
+          "ndcg": 0,
+          "searchMs": 15.099999994039536,
+          "endToEndMs": 33,
+          "searchMode": "hybrid",
+          "fullTextQuery": "filter operator searches document content phrase",
+          "raw": {
+            "queryEmbeddingMs": [
+              17.400000005960464,
+              17.099999994039536,
+              19.099999994039536,
+              17.700000002980232,
+              16.700000002980232
+            ],
+            "searchMs": [
+              15.599999994039536,
+              15.600000008940697,
+              14.100000008940697,
+              14.299999997019768,
+              15.099999994039536
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              5,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              44.900000005960464,
+              33,
+              33.599999994039536,
+              32.20000000298023,
+              32.099999994039536
+            ]
+          }
+        },
+        {
+          "id": "q16",
+          "question": "How do you filter metadata with an equality condition?",
+          "relevant": [
+            "filter-operators:c00"
+          ],
+          "retrieved": [
+            "hybrid-api:c01",
+            "query-api:c01",
+            "match-against:c07",
+            "hybrid-sample:c05",
+            "upsert-data:c02"
+          ],
+          "recall": 0,
+          "ndcg": 0,
+          "searchMs": 15.200000002980232,
+          "endToEndMs": 33.29999999701977,
+          "searchMode": "hybrid",
+          "fullTextQuery": "filter metadata equality condition",
+          "raw": {
+            "queryEmbeddingMs": [
+              16.900000005960464,
+              17.5,
+              17,
+              21.299999997019768,
+              17.100000008940697
+            ],
+            "searchMs": [
+              15.200000002980232,
+              15.5,
+              14.400000005960464,
+              15.200000002980232,
+              13.899999991059303
+            ],
+            "searchServerMs": [
+              7,
+              7,
+              6,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              35.400000005960464,
+              33.29999999701977,
+              31.80000001192093,
+              36.8999999910593,
+              31.400000005960464
+            ]
+          }
+        },
+        {
+          "id": "q17",
+          "question": "How does MATCH AGAINST score full-text matches in seekdb?",
+          "relevant": [
+            "match-against:c00"
+          ],
+          "retrieved": [
+            "match-against:c04",
+            "match-against:c03",
+            "match-against:c00",
+            "match-against:c01",
+            "match-against:c05"
+          ],
+          "recall": 1,
+          "ndcg": 0.5,
+          "searchMs": 15.799999997019768,
+          "endToEndMs": 38.20000000298023,
+          "searchMode": "hybrid",
+          "fullTextQuery": "match against score full text matches seekdb",
+          "raw": {
+            "queryEmbeddingMs": [
+              21.099999994039536,
+              20.900000005960464,
+              21.299999997019768,
+              21.200000002980232,
+              22.400000005960464
+            ],
+            "searchMs": [
+              16.200000002980232,
+              15.099999994039536,
+              16.799999997019768,
+              15.799999997019768,
+              15.599999994039536
+            ],
+            "searchServerMs": [
+              7,
+              6,
+              7,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              49.8999999910593,
+              36.30000001192093,
+              38.3999999910593,
+              37.20000000298023,
+              38.20000000298023
+            ]
+          }
+        },
+        {
+          "id": "q18",
+          "question": "How do you write a full-text query in seekdb SQL?",
+          "relevant": [
+            "fulltext-query:c00"
+          ],
+          "retrieved": [
+            "fulltext-query:c03",
+            "fulltext-query:c00",
+            "match-against:c00",
+            "match-against:c04",
+            "match-against:c06"
+          ],
+          "recall": 1,
+          "ndcg": 0.6309297535714575,
+          "searchMs": 15.299999997019768,
+          "endToEndMs": 37.29999999701977,
+          "searchMode": "hybrid",
+          "fullTextQuery": "write full text query seekdb sql",
+          "raw": {
+            "queryEmbeddingMs": [
+              25.799999997019768,
+              22,
+              22.400000005960464,
+              21.700000002980232,
+              21.600000008940697
+            ],
+            "searchMs": [
+              23.200000002980232,
+              14.399999991059303,
+              14.599999994039536,
+              15.299999997019768,
+              15.5
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              6,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              50.20000000298023,
+              36.69999998807907,
+              37.30000001192093,
+              37.20000000298023,
+              37.29999999701977
+            ]
+          }
+        },
+        {
+          "id": "q19",
+          "question": "How do you create a full-text index on a table?",
+          "relevant": [
+            "create-index:c01"
+          ],
+          "retrieved": [
+            "create-index:c00",
+            "match-against:c05",
+            "fulltext-query:c02",
+            "create-index:c04",
+            "match-against:c00"
+          ],
+          "recall": 0,
+          "ndcg": 0,
+          "searchMs": 14.599999994039536,
+          "endToEndMs": 36,
+          "searchMode": "hybrid",
+          "fullTextQuery": "full text index table",
+          "raw": {
+            "queryEmbeddingMs": [
+              20.900000005960464,
+              21.600000008940697,
+              20.799999997019768,
+              20.799999997019768,
+              20.700000002980232
+            ],
+            "searchMs": [
+              14.299999997019768,
+              14.599999994039536,
+              14.900000005960464,
+              14.300000011920929,
+              14.700000002980232
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              6,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              51.20000000298023,
+              36.5,
+              36,
+              35.5,
+              35.70000000298023
+            ]
+          }
+        },
+        {
+          "id": "q20",
+          "question": "How do you create an HNSW vector index in seekdb?",
+          "relevant": [
+            "refresh-index:c00"
+          ],
+          "retrieved": [
+            "create-index:c00",
+            "create-index:c05",
+            "refresh-index:c00",
+            "create-index:c04",
+            "fulltext-query:c04"
+          ],
+          "recall": 1,
+          "ndcg": 0.5,
+          "searchMs": 15,
+          "endToEndMs": 39.400000005960464,
+          "searchMode": "hybrid",
+          "fullTextQuery": "hnsw vector index seekdb",
+          "raw": {
+            "queryEmbeddingMs": [
+              21.799999997019768,
+              21.799999997019768,
+              21.799999997019768,
+              22.200000002980232,
+              24.599999994039536
+            ],
+            "searchMs": [
+              14.400000005960464,
+              14.399999991059303,
+              15,
+              17.299999997019768,
+              16.100000008940697
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              6,
+              8,
+              6
+            ],
+            "endToEndMs": [
+              39.400000005960464,
+              36.3999999910593,
+              37.900000005960464,
+              39.79999999701977,
+              40.900000005960464
+            ]
+          }
+        },
+        {
+          "id": "q25",
+          "question": "How does REFRESH_INDEX incrementally refresh a vector index?",
+          "relevant": [
+            "refresh-index:c00"
+          ],
+          "retrieved": [
+            "refresh-index:c00",
+            "refresh-index:c01",
+            "create-index:c00",
+            "create-index:c03",
+            "create-index:c05"
+          ],
+          "recall": 1,
+          "ndcg": 1,
+          "searchMs": 16,
+          "endToEndMs": 41.8999999910593,
+          "searchMode": "hybrid",
+          "fullTextQuery": "refresh_index incrementally refresh vector index",
+          "raw": {
+            "queryEmbeddingMs": [
+              27.599999994039536,
+              25,
+              24.5,
+              24.900000005960464,
+              28.799999997019768
+            ],
+            "searchMs": [
+              16.5,
+              14.599999994039536,
+              17.099999994039536,
+              14.599999994039536,
+              16
+            ],
+            "searchServerMs": [
+              7,
+              6,
+              7,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              44.8999999910593,
+              39.79999999701977,
+              41.8999999910593,
+              39.900000005960464,
+              45.099999994039536
+            ]
+          }
+        },
+        {
+          "id": "q21",
+          "question": "How do you run a vector similarity query with queryEmbeddings?",
+          "relevant": [
+            "query-api:c01"
+          ],
+          "retrieved": [
+            "hybrid-api:c01",
+            "query-api:c02",
+            "hybrid-sample:c00",
+            "query-api:c00",
+            "query-api:c01"
+          ],
+          "recall": 1,
+          "ndcg": 0.38685280723454163,
+          "searchMs": 15.599999994039536,
+          "endToEndMs": 38.6000000089407,
+          "searchMode": "hybrid",
+          "fullTextQuery": "run vector similarity query queryembeddings",
+          "raw": {
+            "queryEmbeddingMs": [
+              23.700000002980232,
+              22.80000001192093,
+              22.799999997019768,
+              23.799999997019768,
+              23.200000002980232
+            ],
+            "searchMs": [
+              15.899999991059303,
+              15.599999994039536,
+              16.200000002980232,
+              14.5,
+              14.700000002980232
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              6,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              49.8999999910593,
+              38.6000000089407,
+              39.29999999701977,
+              38.5,
+              38.20000000298023
+            ]
+          }
+        },
+        {
+          "id": "q22",
+          "question": "How do you deploy seekdb as a systemd service?",
+          "relevant": [
+            "deploy-systemd:c00"
+          ],
+          "retrieved": [
+            "deploy-systemd:c03",
+            "deploy-systemd:c00",
+            "get-or-create:c00",
+            "upsert-data:c00",
+            "deploy-systemd:c04"
+          ],
+          "recall": 1,
+          "ndcg": 0.6309297535714575,
+          "searchMs": 15,
+          "endToEndMs": 34.6000000089407,
+          "searchMode": "hybrid",
+          "fullTextQuery": "deploy seekdb systemd service",
+          "raw": {
+            "queryEmbeddingMs": [
+              19.299999997019768,
+              19.299999997019768,
+              19.5,
+              19.399999991059303,
+              19.700000002980232
+            ],
+            "searchMs": [
+              15.200000002980232,
+              15.299999997019768,
+              15,
+              14.800000011920929,
+              13.799999997019768
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              6,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              45.29999999701977,
+              34.8999999910593,
+              34.6000000089407,
+              34.599999994039536,
+              33.70000000298023
+            ]
+          }
+        },
+        {
+          "id": "q23",
+          "question": "How do you connect to OceanBase with a tenant using seekdb-js?",
+          "relevant": [
+            "seekdb-js-client:c02"
+          ],
+          "retrieved": [
+            "seekdb-js-client:c02",
+            "seekdb-js-client:c01",
+            "seekdb-js-client:c00",
+            "deploy-systemd:c03",
+            "deploy-systemd:c02"
+          ],
+          "recall": 1,
+          "ndcg": 1,
+          "searchMs": 15.099999994039536,
+          "endToEndMs": 41.20000000298023,
+          "searchMode": "hybrid",
+          "fullTextQuery": "connect oceanbase tenant seekdb js",
+          "raw": {
+            "queryEmbeddingMs": [
+              25.30000001192093,
+              25.600000008940697,
+              25.600000008940697,
+              25.299999997019768,
+              25.700000002980232
+            ],
+            "searchMs": [
+              15.099999994039536,
+              14.599999994039536,
+              15.399999991059303,
+              14.700000002980232,
+              21.19999998807907
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              7,
+              6,
+              7
+            ],
+            "endToEndMs": [
+              45.20000000298023,
+              40.5,
+              41.20000000298023,
+              40.20000000298023,
+              61.70000000298023
+            ]
+          }
+        },
+        {
+          "id": "q24",
+          "question": "What does the RRF rank configuration look like in hybridSearch?",
+          "relevant": [
+            "hybrid-api:c02"
+          ],
+          "retrieved": [
+            "hybrid-api:c03",
+            "hybrid-sample:c04",
+            "hybrid-api:c00",
+            "hybrid-sample:c00",
+            "hybrid-sample:c03"
+          ],
+          "recall": 0,
+          "ndcg": 0,
+          "searchMs": 14.099999994039536,
+          "endToEndMs": 35.900000005960464,
+          "searchMode": "hybrid",
+          "fullTextQuery": "rrf rank configuration look like hybridsearch",
+          "raw": {
+            "queryEmbeddingMs": [
+              21.900000005960464,
+              21.5,
+              21.5,
+              21.299999997019768,
+              21.599999994039536
+            ],
+            "searchMs": [
+              14.099999994039536,
+              14.299999997019768,
+              14,
+              14.099999994039536,
+              14
+            ],
+            "searchServerMs": [
+              6,
+              6,
+              5,
+              6,
+              6
+            ],
+            "endToEndMs": [
+              49.70000000298023,
+              36,
+              35.900000005960464,
+              35.70000000298023,
+              35.79999999701977
+            ]
+          }
+        }
+      ]
+    }
+  }
+]

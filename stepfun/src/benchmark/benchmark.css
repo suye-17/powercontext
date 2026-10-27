@@ -1,0 +1,126 @@
+.bench-hero {
+  padding: 1.5rem 1.8rem;
+}
+
+.bench-controls {
+  margin-top: 1.25rem;
+}
+
+.bench-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin: 0.9rem 0 0.2rem;
+}
+
+.bench-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.55rem 0.75rem;
+  background: #fbfcfe;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.bench-check.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.bench-check input {
+  accent-color: var(--accent);
+}
+
+.bench-log {
+  margin: 0.6rem 0 0;
+  max-height: 260px;
+  overflow: auto;
+  border-radius: 12px;
+  background: #0b1220;
+  color: #d1fae5;
+  padding: 0.9rem 1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.bench-result {
+  margin-top: 1.25rem;
+}
+
+.bench-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 0.7rem;
+  margin: 1rem 0;
+}
+
+.bench-metrics div {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.65rem 0.8rem;
+  background: #fbfcfe;
+}
+
+.bench-metrics span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bench-metrics strong {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.98rem;
+}
+
+.bench-result details {
+  margin-top: 0.4rem;
+}
+
+.bench-result summary {
+  cursor: pointer;
+  color: var(--accent);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.bench-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.7rem;
+  font-size: 0.78rem;
+}
+
+.bench-table th,
+.bench-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.5rem 0.4rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.bench-table th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bench-table td:first-child {
+  max-width: 420px;
+}
+
+@media (max-width: 560px) {
+  .bench-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

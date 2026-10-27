@@ -1,0 +1,9 @@
+{
+  "collection": "stepfun_kb_int8",
+  "exists": true,
+  "metadata": {
+    "name": "stepfun_kb_int8",
+    "dimension": 384,
+    "distance": "cosine"
+  }
+}

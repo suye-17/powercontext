@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.runtime/
+models/
+test-results/
+playwright-report/
+coverage/
+.env
+*.log
+!evidence/**/*.log
