@@ -37,6 +37,17 @@ def test_parser_preserves_all_physical_pages_and_full_byte_digest() -> None:
     assert {page.document_sha256 for page in pages} == {hashlib.sha256(content).hexdigest()}
 
 
+def test_dense_pages_are_trimmed_to_fit_one_memory_entry() -> None:
+    dense = " ".join(["revenue"] * 2000)
+    pages = api.parse_pdf_document(api.PDFDocumentInput(document_id="dense", content=make_pdf(dense)))
+    assert len(pages) == 1
+    assert pages[0].text
+    assert len(f"dense\n{pages[0].text}".encode()) <= 8192
+
+    short = api.parse_pdf_document(api.PDFDocumentInput(document_id="small", content=make_pdf("Revenue 123")))
+    assert short[0].text.strip() == "Revenue 123"
+
+
 @pytest.mark.parametrize("content", [b"", b"not a PDF", b"%PDF-1.7\ntruncated"])
 def test_invalid_documents_raise_value_error(content: bytes) -> None:
     with pytest.raises(ValueError):
