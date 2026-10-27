@@ -1,0 +1,14 @@
+{
+  "step": "10-remember-kind-too-long",
+  "method": "POST",
+  "path": "/v1/memory/remember",
+  "payload": {
+    "scope_id": "scp_5bja64j8pvrx5c050nhqmdjfrh",
+    "kind": "kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk",
+    "text": "x",
+    "reason": "边界"
+  },
+  "status": 422,
+  "request_id": "337619868cb2dbfb",
+  "body": "{\"error\":{\"code\":\"invalid_request\",\"message\":\"The request violates the API contract.\",\"details\":{\"errors\":[{\"type\":\"string_too_long\",\"loc\":[\"body\",\"kind\"],\"msg\":\"String should have at most 128 characters\"}]}}}"
+}

@@ -1,0 +1,32 @@
+{
+  "path": "/v1/memory/entries/list",
+  "payload": {
+    "scope_id": "scp_35me67bye9xftz61nzzrg4hwzg"
+  },
+  "response": {
+    "memory": {
+      "family": "memory",
+      "artifact_id": "memory",
+      "revision": 1
+    },
+    "entries": [
+      {
+        "citation": {
+          "memory_ref": {
+            "family": "memory",
+            "artifact_id": "memory",
+            "revision": 1
+          },
+          "entry_id": "mem_ent_f37b67b6149d413faec06313555cbbe1",
+          "entry_version_id": "mem_ver_b8224270c18f4c67aec6fa11c94652b5"
+        },
+        "version": 1,
+        "kind": "ledger",
+        "text": "前科：自称「我从没离开过这座城」，同日又说「客人十年前曾在东京学习剑术」，并自称「是我失散多年的师兄」。",
+        "state": "active",
+        "source_refs": [],
+        "artifact_refs": []
+      }
+    ]
+  }
+}

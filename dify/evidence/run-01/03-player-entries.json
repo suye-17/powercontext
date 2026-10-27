@@ -1,0 +1,117 @@
+{
+  "path": "/v1/memory/entries/list",
+  "payload": {
+    "scope_id": "scp_1k7gxmym02ns91z28w7qwbfrf9"
+  },
+  "response": {
+    "memory": {
+      "family": "memory",
+      "artifact_id": "memory",
+      "revision": 6
+    },
+    "entries": [
+      {
+        "citation": {
+          "memory_ref": {
+            "family": "memory",
+            "artifact_id": "memory",
+            "revision": 6
+          },
+          "entry_id": "mem_ent_7b55b1524bd742659f7e58387d9535ca",
+          "entry_version_id": "mem_ver_4940822704fe44c19694ae29ddd07a07"
+        },
+        "version": 1,
+        "kind": "contradiction",
+        "text": "「我从没离开过这座城」与「客人十年前曾在东京学习剑术」相互抵牾：去东京学习必然离开这座城。；「我从没离开过这座城」与「客人自称是我失散多年的师兄」相互抵牾：失散多年意味着曾经离开、分离。；「客人十年前曾在东京学习剑术」与登记档案「除代号外，档案一片空白——这个人的过去，只存在于它即将说出的三句话里」相互抵牾：档案无过去，却已有十年前的经历。；「客人自称是我失散多年的师兄」与登记档案「代号青梧。除代号外，档案一片空白」相互抵牾：师兄是关系身份，档案中却没有任何可对应的关系记录。",
+        "state": "active",
+        "source_refs": [],
+        "artifact_refs": []
+      },
+      {
+        "citation": {
+          "memory_ref": {
+            "family": "memory",
+            "artifact_id": "memory",
+            "revision": 6
+          },
+          "entry_id": "mem_ent_885bd58bd764408c934ac12383b7138e",
+          "entry_version_id": "mem_ver_eae52ae1e0914e7fae555bcfb01c90cf"
+        },
+        "version": 1,
+        "kind": "claim",
+        "text": "我从没离开过这座城",
+        "state": "active",
+        "source_refs": [],
+        "artifact_refs": []
+      },
+      {
+        "citation": {
+          "memory_ref": {
+            "family": "memory",
+            "artifact_id": "memory",
+            "revision": 6
+          },
+          "entry_id": "mem_ent_8e171118dbb0431d8ac0093db3384be4",
+          "entry_version_id": "mem_ver_6bb66e911ae547cdbbf8fca5bb57be71"
+        },
+        "version": 1,
+        "kind": "claim",
+        "text": "客人十年前曾在东京学习剑术。",
+        "state": "active",
+        "source_refs": [],
+        "artifact_refs": []
+      },
+      {
+        "citation": {
+          "memory_ref": {
+            "family": "memory",
+            "artifact_id": "memory",
+            "revision": 6
+          },
+          "entry_id": "mem_ent_b02e183a6282437998a55e1914087e4f",
+          "entry_version_id": "mem_ver_17e46590d198454a9b664250f0dc74ac"
+        },
+        "version": 1,
+        "kind": "verdict",
+        "text": "对账结论：代号 青梧，今日主张 2 条，记录矛盾 4 条。「我从没离开过这座城」与「客人十年前曾在东京学习剑术」相互抵牾：去东京学习必然离开这座城。；「我从没离开过这座城」与「客人自称是我失散多年的师兄」相互抵牾：失散多年意味着曾经离开、分离。；「客人十年前曾在东京学习剑术」与登记档案「除代号外，档案一片空白——这个人的过去，只存在于它即将说出的三句话里」相互抵牾：档案无过去，却已有十年前的经历。；「客人自称是我失散多年的师兄」与登记档案「代号青梧。除代号外，档案一片空白」相互抵牾：师兄是关系身份，档案中却没有任何可对应的关系记录。",
+        "state": "active",
+        "source_refs": [],
+        "artifact_refs": []
+      },
+      {
+        "citation": {
+          "memory_ref": {
+            "family": "memory",
+            "artifact_id": "memory",
+            "revision": 6
+          },
+          "entry_id": "mem_ent_d7884fb5953640f1af788f50ecefe76f",
+          "entry_version_id": "mem_ver_9f4a8cc59d33458590c95da048be3a6e"
+        },
+        "version": 1,
+        "kind": "truth",
+        "text": "登记档案：代号 青梧。除代号外，档案一片空白——这个人的过去，只存在于它即将说出的三句话里。",
+        "state": "active",
+        "source_refs": [],
+        "artifact_refs": []
+      },
+      {
+        "citation": {
+          "memory_ref": {
+            "family": "memory",
+            "artifact_id": "memory",
+            "revision": 6
+          },
+          "entry_id": "mem_ent_dee08a865a2b4ea08acd3192f07c5fb1",
+          "entry_version_id": "mem_ver_0d76090b002540d2b6a8ec0517260f1a"
+        },
+        "version": 1,
+        "kind": "claim",
+        "text": "客人自称是我失散多年的师兄。",
+        "state": "active",
+        "source_refs": [],
+        "artifact_refs": []
+      }
+    ]
+  }
+}

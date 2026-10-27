@@ -1,0 +1,11 @@
+{
+  "step": "07-entries-list-player",
+  "method": "POST",
+  "path": "/v1/memory/entries/list",
+  "payload": {
+    "scope_id": "scp_5bja64j8pvrx5c050nhqmdjfrh"
+  },
+  "status": 200,
+  "request_id": "519a03111ca3086e",
+  "body": "{\"memory\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":2},\"entries\":[{\"citation\":{\"memory_ref\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":2},\"entry_id\":\"mem_ent_2692855922e8461fad7e763412f3fca3\",\"entry_version_id\":\"mem_ver_c3fb65aec9274e728316a40aeb234975\"},\"version\":1,\"kind\":\"claim\",\"text\":\"玩家自述：我从没离开过这座城。\",\"state\":\"active\",\"source_refs\":[],\"artifact_refs\":[]},{\"citation\":{\"memory_ref\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":2},\"entry_id\":\"mem_ent_c2cc6e8dfbc443b692874949d16bb252\",\"entry_version_id\":\"mem_ver_c562d1ea5cd64825a3d94e19c8bdab3a\"},\"version\":1,\"kind\":\"claim\",\"text\":\"玩家自述：我是你失散多年的师兄，十年前在东京学剑。\",\"state\":\"active\",\"source_refs\":[],\"artifact_refs\":[]}]}"
+}

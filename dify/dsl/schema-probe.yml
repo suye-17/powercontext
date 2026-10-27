@@ -1,0 +1,332 @@
+app:
+  description: 记忆伪造师·schema 探针：校准自由文本的 JSON body 传递方式与 sys.query 读取。运行一次即可判定主应用应采用哪种请求体写法。
+  icon: 🧪
+  icon_background: '#E4FBCC'
+  mode: advanced-chat
+  name: 记忆伪造师·schema 探针
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.4.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: PowerContext 服务地址（评审填写自己的地址，结尾不带斜杠）
+    id: 4c1d2e3f-5a6b-4c7d-8e9f-0a1b2c3d4e5f
+    name: POWERCONTEXT_BASE_URL
+    selector:
+    - env
+    - POWERCONTEXT_BASE_URL
+    value: http://127.0.0.1:8000
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods:
+      - local_file
+      enabled: false
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+      number_limits: 3
+    opening_statement: '这是《记忆伪造师》的 schema 探针（T1 校准用）。发送一句**含双引号、换行和表情**的话，例如：我说的是"月亮"，
+
+      第二行还有 🎭 和反斜杠 \ 以及单引号''。运行后请把回复内容原样发回。'
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: http-request
+      id: 2100000000001-source-2100000000002-target
+      source: '2100000000001'
+      sourceHandle: source
+      target: '2100000000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 2100000000002-source-2100000000003-target
+      source: '2100000000002'
+      sourceHandle: source
+      target: '2100000000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 2100000000003-source-2100000000004-target
+      source: '2100000000003'
+      sourceHandle: source
+      target: '2100000000004'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 2100000000004-source-2100000000005-target
+      source: '2100000000004'
+      sourceHandle: source
+      target: '2100000000005'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 2100000000005-source-2100000000006-target
+      source: '2100000000005'
+      sourceHandle: source
+      target: '2100000000006'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables: []
+      height: 54
+      id: '2100000000001'
+      position:
+        x: 60
+        y: 300
+      positionAbsolute:
+        x: 60
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"title":"探针·记忆伪造师","summary":"schema 探针专用的账本 scope","idempotency_key":"memory-forgery:probe"}'
+          type: json
+        desc: 幂等创建探针 scope
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 创建探针 scope
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/scopes'
+        variables: []
+      height: 95
+      id: '2100000000002'
+      position:
+        x: 360
+        y: 300
+      positionAbsolute:
+        x: 360
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\n\n\ndef main(arg1: str, arg2: str) -> dict:\n    \"\"\"arg1=创建 scope 的响应原文；arg2=玩家本轮输入的原始文本。\"\"\"\n\
+          \    scope_id = json.loads(arg1)[\"scope_id\"]\n    marker = \"固定标记A\"\n    payload_text = \"探针文本：\" + marker + \"｜用户原文：\" + arg2\n\
+          \    remember_body = json.dumps(\n        {\"scope_id\": scope_id, \"kind\": \"probe\", \"text\": payload_text, \"reason\": \"schema 探针\"},\n\
+          \        ensure_ascii=False,\n    )\n    return {\n        \"remember_body\": remember_body,\n        \"scope_id\": scope_id,\n\
+          \        \"sent_text\": payload_text,\n    }\n"
+        code_language: python3
+        desc: pattern A：整段 JSON 由代码节点生成，HTTP 节点以空 key 原样发送
+        outputs:
+          remember_body:
+            children: null
+            type: string
+          scope_id:
+            children: null
+            type: string
+          sent_text:
+            children: null
+            type: string
+        selected: false
+        title: 组装请求体
+        type: code
+        variables:
+        - value_selector:
+          - '2100000000002'
+          - body
+          value_type: string
+          variable: arg1
+        - value_selector:
+          - sys
+          - query
+          value_type: string
+          variable: arg2
+      height: 53
+      id: '2100000000003'
+      position:
+        x: 660
+        y: 300
+      positionAbsolute:
+        x: 660
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{{#2100000000003.remember_body#}}'
+          type: json
+        desc: pattern A：空 key + 原样 JSON
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 1
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 写入探针文本（pattern A）
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/remember'
+        variables: []
+      height: 95
+      id: '2100000000004'
+      position:
+        x: 960
+        y: 300
+      positionAbsolute:
+        x: 960
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: scope_id
+            type: text
+            value: '{{#2100000000003.scope_id#}}'
+          type: json
+        desc: pattern B：独立 key + 文本值
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 1
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 回读账本（pattern B）
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/entries/list'
+        variables: []
+      height: 95
+      id: '2100000000005'
+      position:
+        x: 1260
+        y: 300
+      positionAbsolute:
+        x: 1260
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: "探针运行完毕。请把下面整段内容原样发回，用于校验。\n\n【1】我发出的文本（含用户原文）\n{{#2100000000003.sent_text#}}\n\n【2】写入接口返回（__HTTP__\n{{#2100000000004.status_code#}}）\n{{#2100000000004.body#}}\n\n【3】回读接口返回（__HTTP__\n{{#2100000000005.status_code#}}）\n{{#2100000000005.body#}}"
+        desc: ''
+        selected: false
+        title: 探针结果
+        type: answer
+        variables: []
+      height: 104
+      id: '2100000000006'
+      position:
+        x: 1560
+        y: 300
+      positionAbsolute:
+        x: 1560
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242

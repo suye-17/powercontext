@@ -1,0 +1,10 @@
+{
+  "path": "/v1/memory/entries/list",
+  "payload": {
+    "scope_id": "scp_77vba857gg753myr2h3h3srze2"
+  },
+  "response": {
+    "memory": null,
+    "entries": []
+  }
+}

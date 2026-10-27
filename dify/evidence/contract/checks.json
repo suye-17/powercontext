@@ -1,0 +1,10 @@
+{
+  "scope idempotent same id": true,
+  "scope conflict 409": true,
+  "entries contain claims": true,
+  "entries no pagination field": true,
+  "prepare ready with marker": true,
+  "prepare recalled claim1": true,
+  "text too long 422": true,
+  "kind too long 422": true
+}

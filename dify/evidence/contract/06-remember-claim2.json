@@ -1,0 +1,14 @@
+{
+  "step": "06-remember-claim2",
+  "method": "POST",
+  "path": "/v1/memory/remember",
+  "payload": {
+    "scope_id": "scp_5bja64j8pvrx5c050nhqmdjfrh",
+    "kind": "claim",
+    "text": "玩家自述：我从没离开过这座城。",
+    "reason": "玩家第二句"
+  },
+  "status": 200,
+  "request_id": "bd597efa346cd7b0",
+  "body": "{\"memory\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":2},\"entry\":null}"
+}

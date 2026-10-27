@@ -1,0 +1,14 @@
+{
+  "step": "05-remember-claim1",
+  "method": "POST",
+  "path": "/v1/memory/remember",
+  "payload": {
+    "scope_id": "scp_5bja64j8pvrx5c050nhqmdjfrh",
+    "kind": "claim",
+    "text": "玩家自述：我是你失散多年的师兄，十年前在东京学剑。",
+    "reason": "玩家第一句"
+  },
+  "status": 200,
+  "request_id": "f07f9f5c8b9aafc6",
+  "body": "{\"memory\":{\"family\":\"memory\",\"artifact_id\":\"memory\",\"revision\":2},\"entry\":null}"
+}

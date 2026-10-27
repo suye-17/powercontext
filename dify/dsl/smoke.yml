@@ -1,0 +1,163 @@
+app:
+  description: 记忆伪造师·连通性冒烟：验证 Dify 能访问 PowerContext HTTP API（幂等创建冒烟 scope，可重复运行）。
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: 记忆伪造师·连通性冒烟
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.4.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: PowerContext 服务地址（评审填写自己的地址；本地为 http://127.0.0.1:8000，Dify 云端需填公网隧道地址，结尾不带斜杠）
+    id: 3f2a7c1e-8b4d-4e6a-9c1f-2d5b7a9e4c10
+    name: POWERCONTEXT_BASE_URL
+    selector:
+    - env
+    - POWERCONTEXT_BASE_URL
+    value: http://127.0.0.1:8000
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods:
+      - local_file
+      enabled: false
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+      number_limits: 3
+    opening_statement: '这是《记忆伪造师》的连通性冒烟应用。把环境变量 POWERCONTEXT_BASE_URL 改为你的 PowerContext 地址后，
+      发送任意一条消息：若回复里出现 scope_id，说明 Dify 已连通 PowerContext，可以继续导入主应用。'
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: http-request
+      id: 1751000000001-source-1751000000002-target
+      source: '1751000000001'
+      sourceHandle: source
+      target: '1751000000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1751000000002-source-1751000000003-target
+      source: '1751000000002'
+      sourceHandle: source
+      target: '1751000000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables: []
+      height: 54
+      id: '1751000000001'
+      position:
+        x: 80
+        y: 282
+      positionAbsolute:
+        x: 80
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"title":"冒烟·记忆伪造师","summary":"Dify 连通性冒烟（幂等创建）","idempotency_key":"memory-forgery:smoke"}'
+          type: json
+        desc: 幂等创建冒烟 scope；重复运行返回同一个 scope_id
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: PowerContext 冒烟
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/scopes'
+        variables: []
+      height: 95
+      id: '1751000000002'
+      position:
+        x: 395
+        y: 282
+      positionAbsolute:
+        x: 395
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: 'PowerContext 连通成功。响应体：
+
+
+          {{#1751000000002.body#}}'
+        desc: ''
+        selected: false
+        title: 冒烟结果
+        type: answer
+        variables: []
+      height: 104
+      id: '1751000000003'
+      position:
+        x: 710
+        y: 282
+      positionAbsolute:
+        x: 710
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242

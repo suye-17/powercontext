@@ -1,0 +1,17 @@
+{
+  "path": "/v1/scopes",
+  "payload": {
+    "title": "记忆伪造师·玩家账本：青梧",
+    "summary": "代号 青梧 的人生归档账本",
+    "idempotency_key": "memory-forgery:player:青梧"
+  },
+  "response": {
+    "scope_id": "scp_1k7gxmym02ns91z28w7qwbfrf9",
+    "title": "记忆伪造师·玩家账本：青梧",
+    "summary": "代号 青梧 的人生归档账本",
+    "parent_scope_id": null,
+    "context_references": [],
+    "external_references": [],
+    "version": 1
+  }
+}

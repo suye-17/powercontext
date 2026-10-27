@@ -1,0 +1,13 @@
+{
+  "step": "03-scope-world-conflict",
+  "method": "POST",
+  "path": "/v1/scopes",
+  "payload": {
+    "title": "改了标题",
+    "summary": "所有访客的归档总账",
+    "idempotency_key": "memory-forgery:world"
+  },
+  "status": 409,
+  "request_id": "9ddf08e640a9cc8f",
+  "body": "{\"error\":{\"code\":\"scope_idempotency_conflict\",\"message\":\"The Scope creation key identifies different parameters.\",\"details\":null}}"
+}

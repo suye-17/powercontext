@@ -1,0 +1,1729 @@
+app:
+  description: 用三句话伪造你的人生：一本会当真、会对账、还会记前科的记忆账本（Dify 编排 × PowerContext 记忆）。
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: advanced-chat
+  name: 记忆伪造师
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.4.0
+workflow:
+  conversation_variables: []
+  environment_variables:
+  - description: PowerContext 服务地址（本地 http://127.0.0.1:8000；Dify 云端需公网隧道地址；末尾不带斜杠）
+    id: e9e8d547-42ee-47ac-be0e-71e8ce409fd4
+    name: POWERCONTEXT_BASE_URL
+    selector:
+    - env
+    - POWERCONTEXT_BASE_URL
+    value: http://127.0.0.1:8000
+    value_type: string
+  features:
+    file_upload:
+      allowed_file_extensions: []
+      allowed_file_types: []
+      allowed_file_upload_methods:
+      - local_file
+      enabled: false
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+      number_limits: 3
+    opening_statement: '欢迎，客人。我是这间小店的记忆修复师，专替人归档一生。
+
+
+      报上你的代号，然后用三句话告诉我——你是谁。三句话之后，我会翻开账本，和你对一对。'
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions:
+    - 我叫阿澈，我其实是你失散多年的师兄
+    - 我十年前在东京学剑，从没离开过这座城
+    - 账本上写的，都是真的吗
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: code
+      id: 1761100000001-source-1761100000002-target
+      source: '1761100000001'
+      sourceHandle: source
+      target: '1761100000002'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1761100000002-source-1761100000003-target
+      source: '1761100000002'
+      sourceHandle: source
+      target: '1761100000003'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 1761100000003-source-1761100000004-target
+      source: '1761100000003'
+      sourceHandle: source
+      target: '1761100000004'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1761100000003-fail-branch-1761100000029-target
+      source: '1761100000003'
+      sourceHandle: fail-branch
+      target: '1761100000029'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1761100000004-source-1761100000005-target
+      source: '1761100000004'
+      sourceHandle: source
+      target: '1761100000005'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1761100000004-fail-branch-1761100000029-target
+      source: '1761100000004'
+      sourceHandle: fail-branch
+      target: '1761100000029'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1761100000005-source-1761100000006-target
+      source: '1761100000005'
+      sourceHandle: source
+      target: '1761100000006'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 1761100000006-source-1761100000007-target
+      source: '1761100000006'
+      sourceHandle: source
+      target: '1761100000007'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1761100000006-fail-branch-1761100000029-target
+      source: '1761100000006'
+      sourceHandle: fail-branch
+      target: '1761100000029'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1761100000007-source-1761100000008-target
+      source: '1761100000007'
+      sourceHandle: source
+      target: '1761100000008'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1761100000007-fail-branch-1761100000029-target
+      source: '1761100000007'
+      sourceHandle: fail-branch
+      target: '1761100000029'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1761100000008-source-1761100000009-target
+      source: '1761100000008'
+      sourceHandle: source
+      target: '1761100000009'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+      id: 1761100000009-true-1761100000010-target
+      source: '1761100000009'
+      sourceHandle: 'true'
+      target: '1761100000010'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+      id: 1761100000009-false-1761100000011-target
+      source: '1761100000009'
+      sourceHandle: 'false'
+      target: '1761100000011'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 1761100000010-source-1761100000011-target
+      source: '1761100000010'
+      sourceHandle: source
+      target: '1761100000011'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 1761100000010-fail-branch-1761100000011-target
+      source: '1761100000010'
+      sourceHandle: fail-branch
+      target: '1761100000011'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1761100000011-source-1761100000012-target
+      source: '1761100000011'
+      sourceHandle: source
+      target: '1761100000012'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: code
+      id: 1761100000011-fail-branch-1761100000013-target
+      source: '1761100000011'
+      sourceHandle: fail-branch
+      target: '1761100000013'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1761100000012-source-1761100000014-target
+      source: '1761100000012'
+      sourceHandle: source
+      target: '1761100000014'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: if-else
+      id: 1761100000013-source-1761100000014-target
+      source: '1761100000013'
+      sourceHandle: source
+      target: '1761100000014'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: if-else
+      id: 1761100000014-true-1761100000020-target
+      source: '1761100000014'
+      sourceHandle: 'true'
+      target: '1761100000020'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1761100000014-false-1761100000015-target
+      source: '1761100000014'
+      sourceHandle: 'false'
+      target: '1761100000015'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1761100000015-source-1761100000016-target
+      source: '1761100000015'
+      sourceHandle: source
+      target: '1761100000016'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1761100000016-source-1761100000018-target
+      source: '1761100000016'
+      sourceHandle: source
+      target: '1761100000018'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1761100000018-source-1761100000019-target
+      source: '1761100000018'
+      sourceHandle: source
+      target: '1761100000019'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1761100000018-fail-branch-1761100000019-target
+      source: '1761100000018'
+      sourceHandle: fail-branch
+      target: '1761100000019'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1761100000020-true-1761100000021-target
+      source: '1761100000020'
+      sourceHandle: 'true'
+      target: '1761100000021'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: llm
+      id: 1761100000020-false-1761100000022-target
+      source: '1761100000020'
+      sourceHandle: 'false'
+      target: '1761100000022'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: code
+      id: 1761100000022-source-1761100000023-target
+      source: '1761100000022'
+      sourceHandle: source
+      target: '1761100000023'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: code
+        targetType: http-request
+      id: 1761100000023-source-1761100000025-target
+      source: '1761100000023'
+      sourceHandle: source
+      target: '1761100000025'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 1761100000025-source-1761100000024-target
+      source: '1761100000025'
+      sourceHandle: source
+      target: '1761100000024'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 1761100000025-fail-branch-1761100000024-target
+      source: '1761100000025'
+      sourceHandle: fail-branch
+      target: '1761100000024'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: if-else
+      id: 1761100000024-source-1761100000017-target
+      source: '1761100000024'
+      sourceHandle: source
+      target: '1761100000017'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: if-else
+      id: 1761100000024-fail-branch-1761100000017-target
+      source: '1761100000024'
+      sourceHandle: fail-branch
+      target: '1761100000017'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: http-request
+      id: 1761100000017-true-1761100000026-target
+      source: '1761100000017'
+      sourceHandle: 'true'
+      target: '1761100000026'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: if-else
+        targetType: answer
+      id: 1761100000017-false-1761100000028-target
+      source: '1761100000017'
+      sourceHandle: 'false'
+      target: '1761100000028'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 1761100000026-source-1761100000027-target
+      source: '1761100000026'
+      sourceHandle: source
+      target: '1761100000027'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: http-request
+      id: 1761100000026-fail-branch-1761100000027-target
+      source: '1761100000026'
+      sourceHandle: fail-branch
+      target: '1761100000027'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1761100000027-source-1761100000028-target
+      source: '1761100000027'
+      sourceHandle: source
+      target: '1761100000028'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: http-request
+        targetType: answer
+      id: 1761100000027-fail-branch-1761100000028-target
+      source: '1761100000027'
+      sourceHandle: fail-branch
+      target: '1761100000028'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 你的代号
+          max_length: 64
+          options: []
+          required: true
+          type: text-input
+          variable: player_code
+      height: 70
+      id: '1761100000001'
+      position:
+        x: 60
+        y: 300
+      positionAbsolute:
+        x: 60
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\n\ndef escape(value: str) -> str:\n    return json.dumps(value or \"\", ensure_ascii=False)[1:-1]\n\n\ndef main(player_code: str, dialogue_count: float, user_text: str) -> dict:\n    code = (player_code or \"\").strip()[:64]\n    if not code:\n        code = \"无名氏\"\n    try:\n        turn = int(dialogue_count)\n    except (TypeError, ValueError):\n        turn = 1\n    phase = min(max(turn, 1), 3)\n\n    player_key = \"memory-forgery:player:\" + code\n    player_title = \"记忆伪造师·玩家账本：\" + code\n    player_summary = \"代号 \" + code + \" 的人生归档账本\"\n    truth = (\n        \"登记档案：代号 \" + code + \"。除代号外，档案一片空白——\"\n        \"这个人的过去，只存在于它即将说出的三句话里。\"\n    )\n    query = (user_text or \"\").strip()[:2000]\n\n    return {\n        \"code_display\": code,\n        \"code_json\": escape(code),\n        \"player_key_json\": escape(player_key),\n        \"player_title_json\": escape(player_title),\n        \"player_summary_json\": escape(player_summary),\n        \"truth_json\": escape(truth),\n        \"player_scope_note\": player_title,\n        \"phase\": phase,\n        \"query_text\": query,\n        \"query_json\": escape(query),\n    }\n"
+        code_language: python3
+        desc: 规范化代号、生成两个账本的幂等键与请求字段、计算轮次（1-3）
+        outputs:
+          code_display:
+            children: null
+            type: string
+          code_json:
+            children: null
+            type: string
+          player_key_json:
+            children: null
+            type: string
+          player_title_json:
+            children: null
+            type: string
+          player_summary_json:
+            children: null
+            type: string
+          truth_json:
+            children: null
+            type: string
+          player_scope_note:
+            children: null
+            type: string
+          phase:
+            children: null
+            type: number
+          query_text:
+            children: null
+            type: string
+          query_json:
+            children: null
+            type: string
+        selected: false
+        title: 代号与轮次
+        type: code
+        variables:
+        - value_selector:
+          - '1761100000001'
+          - player_code
+          value_type: string
+          variable: player_code
+        - value_selector:
+          - sys
+          - dialogue_count
+          value_type: number
+          variable: dialogue_count
+        - value_selector:
+          - sys
+          - query
+          value_type: string
+          variable: user_text
+      height: 90
+      id: '1761100000002'
+      position:
+        x: 340
+        y: 300
+      positionAbsolute:
+        x: 340
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"title":"记忆伪造师·总账本","summary":"所有访客的归档总账","idempotency_key":"memory-forgery:world"}'
+          type: json
+        desc: 幂等创建世界账本；失败则提示账本翻不开
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 建账本·世界
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/scopes'
+        variables: []
+      height: 95
+      id: '1761100000003'
+      position:
+        x: 620
+        y: 300
+      positionAbsolute:
+        x: 620
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"title":"{{#1761100000002.player_title_json#}}","summary":"{{#1761100000002.player_summary_json#}}","idempotency_key":"{{#1761100000002.player_key_json#}}"}'
+          type: json
+        desc: 幂等创建玩家账本（同代号恒得同一 scope）
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 建账本·玩家
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/scopes'
+        variables: []
+      height: 95
+      id: '1761100000004'
+      position:
+        x: 900
+        y: 300
+      positionAbsolute:
+        x: 900
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\n\ndef main(world_body: str, player_body: str) -> dict:\n    def scope_id(raw: str) -> str:\n        try:\n            data = json.loads(raw or \"{}\")\n        except (TypeError, ValueError):\n            return \"\"\n        if not isinstance(data, dict):\n            return \"\"\n        return str(data.get(\"scope_id\") or \"\")\n\n    return {\n        \"world_scope_id\": scope_id(world_body),\n        \"player_scope_id\": scope_id(player_body),\n    }\n"
+        code_language: python3
+        desc: 从两个建账响应里取出 scope_id
+        outputs:
+          world_scope_id:
+            children: null
+            type: string
+          player_scope_id:
+            children: null
+            type: string
+        selected: false
+        title: 解析两个 scope
+        type: code
+        variables:
+        - value_selector:
+          - '1761100000003'
+          - body
+          value_type: string
+          variable: world_body
+        - value_selector:
+          - '1761100000004'
+          - body
+          value_type: string
+          variable: player_body
+      height: 90
+      id: '1761100000005'
+      position:
+        x: 1180
+        y: 300
+      positionAbsolute:
+        x: 1180
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"scope_id":"{{#1761100000005.world_scope_id#}}"}'
+          type: json
+        desc: 读世界账本全部条目（前任档案）
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 读账本·世界
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/entries/list'
+        variables: []
+      height: 95
+      id: '1761100000006'
+      position:
+        x: 1460
+        y: 300
+      positionAbsolute:
+        x: 1460
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"scope_id":"{{#1761100000005.player_scope_id#}}"}'
+          type: json
+        desc: 读玩家账本全部条目（主张/登记档案/是否已对账）
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 读账本·玩家
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/entries/list'
+        variables: []
+      height: 95
+      id: '1761100000007'
+      position:
+        x: 1740
+        y: 300
+      positionAbsolute:
+        x: 1740
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\n\ndef main(world_body: str, player_body: str) -> dict:\n    def entries(raw: str) -> list:\n        try:\n            data = json.loads(raw or \"{}\")\n        except (TypeError, ValueError):\n            return []\n        if not isinstance(data, dict):\n            return []\n        items = data.get(\"entries\")\n        return items if isinstance(items, list) else []\n\n    def texts(items: list, kind: str) -> list:\n        return [str(e.get(\"text\") or \"\").strip() for e in items if e.get(\"kind\") == kind]\n\n    world_items = [e for e in entries(world_body) if isinstance(e, dict)]\n    player_items = [e for e in entries(player_body) if isinstance(e, dict)]\n\n    ledger = texts(world_items, \"ledger\")[:5]\n    claims = texts(player_items, \"claim\")\n    truth = texts(player_items, \"truth\")\n    verdicts = texts(player_items, \"verdict\")\n    conflicts = texts(player_items, \"contradiction\")\n\n    return {\n        \"world_ledger\": \"；\".join(t for t in ledger if t)[:1200],\n        \"truth_text\": truth[0][:600] if truth else \"\",\n        \"claims_text\": \"\\n\".join(\"- \" + t for t in reversed(claims) if t)[:2200],\n        \"claims_count\": len(claims),\n        \"recent_claims\": \"；\".join(claims[:2])[:500],\n        \"has_truth\": \"yes\" if truth else \"no\",\n        \"has_verdict\": \"yes\" if verdicts else \"no\",\n        \"contradiction_text\": conflicts[0][:800] if conflicts else \"\",\n    }\n"
+        code_language: python3
+        desc: 按 kind 分类：前任档案、登记档案、主张、是否已对账
+        outputs:
+          world_ledger:
+            children: null
+            type: string
+          truth_text:
+            children: null
+            type: string
+          claims_text:
+            children: null
+            type: string
+          claims_count:
+            children: null
+            type: number
+          recent_claims:
+            children: null
+            type: string
+          has_truth:
+            children: null
+            type: string
+          has_verdict:
+            children: null
+            type: string
+          contradiction_text:
+            children: null
+            type: string
+        selected: false
+        title: 整理账本
+        type: code
+        variables:
+        - value_selector:
+          - '1761100000006'
+          - body
+          value_type: string
+          variable: world_body
+        - value_selector:
+          - '1761100000007'
+          - body
+          value_type: string
+          variable: player_body
+      height: 90
+      id: '1761100000008'
+      position:
+        x: 2020
+        y: 300
+      positionAbsolute:
+        x: 2020
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: b0732552-db5f-4ba3-a7a5-900e27ed3192
+            value: 'no'
+            varType: string
+            variable_selector:
+            - '1761100000008'
+            - has_truth
+          id: 'true'
+          logical_operator: and
+        desc: 玩家账本没有登记档案时，补写一张空白登记档案
+        selected: false
+        title: 首访？
+        type: if-else
+      height: 140
+      id: '1761100000009'
+      position:
+        x: 2300
+        y: 300
+      positionAbsolute:
+        x: 2300
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"scope_id":"{{#1761100000005.player_scope_id#}}","kind":"truth","text":"{{#1761100000002.truth_json#}}","reason":"首次来访登记档案"}'
+          type: json
+        desc: 首次来访写入登记档案（终局对账的底牌）
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 登记档案
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/remember'
+        variables: []
+      height: 95
+      id: '1761100000010'
+      position:
+        x: 2580
+        y: 300
+      positionAbsolute:
+        x: 2580
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"scope_id":"{{#1761100000005.player_scope_id#}}","query":"{{#1761100000002.query_json#}}","max_bytes":4000}'
+          type: json
+        desc: 用本轮话语召回相关记忆（无模型时走全文匹配）
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 按话语召回
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/context/prepare'
+        variables: []
+      height: 95
+      id: '1761100000011'
+      position:
+        x: 2860
+        y: 300
+      positionAbsolute:
+        x: 2860
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\n\n\ndef main(prepared_body: str) -> dict:\n    try:\n        data = json.loads(prepared_body or \"{}\")\n    except (TypeError, ValueError):\n        return {\"context_text\": \"\"}\n    if not isinstance(data, dict):\n        return {\"context_text\": \"\"}\n    content = data.get(\"content\")\n    if not isinstance(content, str):\n        content = \"\"\n    return {\"context_text\": content[:3000]}\n"
+        code_language: python3
+        desc: 从 prepare 响应里取出 content（去掉前后干扰字段由提示词自行处理）
+        outputs:
+          context_text:
+            children: null
+            type: string
+        selected: false
+        title: 取召回上下文
+        type: code
+        variables:
+        - value_selector:
+          - '1761100000011'
+          - body
+          value_type: string
+          variable: prepared_body
+      height: 90
+      id: '1761100000012'
+      position:
+        x: 3140
+        y: 300
+      positionAbsolute:
+        x: 3140
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "def main() -> dict:\n    return {\"context_text\": \"\"}\n"
+        code_language: python3
+        desc: prepare 失败时使用空上下文，保证对话继续
+        outputs:
+          context_text:
+            children: null
+            type: string
+        selected: false
+        title: 召回降级
+        type: code
+        variables: []
+      height: 90
+      id: '1761100000013'
+      position:
+        x: 3140
+        y: 560
+      positionAbsolute:
+        x: 3140
+        y: 560
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: '='
+            id: 5175f0a0-bd57-41ec-be1d-f1cd80a17cbf
+            value: '3'
+            varType: number
+            variable_selector:
+            - '1761100000002'
+            - phase
+          id: 'true'
+          logical_operator: and
+        desc: 轮次到达第三句时进入对账
+        selected: false
+        title: 第三句？
+        type: if-else
+      height: 140
+      id: '1761100000014'
+      position:
+        x: 3420
+        y: 300
+      positionAbsolute:
+        x: 3420
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 记忆修复师扮演 + 身世主张抽取（结构化 JSON）
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        prompt_template:
+        - id: 7563da88-bf5a-4cc5-9652-03ea70e55115
+          role: system
+          text: '你是「记忆修复师」，一位退休的老技师，经营一间替人归档人生的小店。你的账本记性极好，从不质疑客人说的话：只要客人说了，你就相信，并从此按那个身份与对方相处。
+
+
+            本轮任务：客人正在用三句话讲述自己的过去，这是第 {{#1761100000002.phase#}} 句。
+
+            1. 用两三句话回应客人，自然地把刚刚听到的说法当成事实（客人自称师兄，就改口称对方师兄；客人说去过东京，就自然地提到东京）。
+
+            2. 从这句话里提炼出他的身世主张，压成一句话。
+
+            3. 只输出一个 JSON 对象，不要输出任何其他文字。'
+        - id: ff88c438-992c-4e16-9bf4-bac6a15119cf
+          role: user
+          text: '代号：{{#1761100000002.code_display#}}
+
+            轮次：第 {{#1761100000002.phase#}} 句（共三句）
+
+
+            客人这句话：
+
+            {{#1761100000002.query_text#}}
+
+
+            PowerContext 按当前话语召回的相关记忆（可能为空）：
+
+            {{#1761100000012.context_text#}}
+
+
+            客人此前的主张（可能为空）：
+
+            {{#1761100000008.recent_claims#}}
+
+
+            账本上的前任访客档案（店里的旧记录，和这位客人无关）：
+
+            {{#1761100000008.world_ledger#}}
+
+
+            输出 JSON：{"reply": "对客人说的两三句话", "claim": "提炼出的身世主张（一句话）；若这句话没有涉及身份或过去，则为空字符串"}'
+        selected: false
+        title: 修复师归档
+        type: llm
+        variables: []
+      height: 120
+      id: '1761100000015'
+      position:
+        x: 3700
+        y: 120
+      positionAbsolute:
+        x: 3700
+        y: 120
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\nFENCE = re.compile(r\"```(?:json)?\", re.IGNORECASE)\n\n\ndef clean(text: str) -> str:\n    return FENCE.sub(\"\", text or \"\").strip()\n\n\ndef main(forge_text: str, query_text: str) -> dict:\n    \"\"\"reply 取自模型输出；账本里的主张一律照抄玩家原话。\"\"\"\n    raw = clean(forge_text)\n    reply = \"\"\n    claim = \"\"\n    start = raw.find(\"{\")\n    end = raw.rfind(\"}\")\n    if start != -1 and end > start:\n        try:\n            data = json.loads(raw[start : end + 1])\n        except (TypeError, ValueError):\n            data = None\n        if isinstance(data, dict):\n            reply = str(data.get(\"reply\") or \"\").strip()\n            claim = str(data.get(\"claim\") or \"\").strip()\n    if not reply:\n        reply = raw[:800] or \"……嗯，我在听。请接着说。\"\n    claim = (query_text or \"\").strip()[:400] or claim[:400]\n    return {\n        \"reply\": reply[:2000],\n        \"claim_text\": claim,\n        \"claim_json\": json.dumps(claim, ensure_ascii=False)[1:-1],\n    }\n"
+        code_language: python3
+        desc: 回复取自模型输出；主张以玩家原话为准，模型没给 JSON 也不影响记账
+        outputs:
+          reply:
+            children: null
+            type: string
+          claim_text:
+            children: null
+            type: string
+          claim_json:
+            children: null
+            type: string
+        selected: false
+        title: 解析归档
+        type: code
+        variables:
+        - value_selector:
+          - '1761100000015'
+          - text
+          value_type: string
+          variable: forge_text
+        - value_selector:
+          - '1761100000002'
+          - query_text
+          value_type: string
+          variable: query_text
+      height: 90
+      id: '1761100000016'
+      position:
+        x: 3980
+        y: 120
+      positionAbsolute:
+        x: 3980
+        y: 120
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"scope_id":"{{#1761100000005.player_scope_id#}}","kind":"claim","text":"{{#1761100000016.claim_json#}}","reason":"玩家自述（第{{#1761100000002.phase#}}句）"}'
+          type: json
+        desc: 把本轮主张写进玩家账本
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 记下主张
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/remember'
+        variables: []
+      height: 95
+      id: '1761100000018'
+      position:
+        x: 4540
+        y: 120
+      positionAbsolute:
+        x: 4540
+        y: 120
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1761100000016.reply#}}'
+        desc: ''
+        selected: false
+        title: 回复·归档
+        type: answer
+        variables: []
+      height: 110
+      id: '1761100000019'
+      position:
+        x: 4820
+        y: 120
+      positionAbsolute:
+        x: 4820
+        y: 120
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: 0aa9e6d6-ead6-4e57-846c-ca9723678a07
+            value: 'yes'
+            varType: string
+            variable_selector:
+            - '1761100000008'
+            - has_verdict
+          id: 'true'
+          logical_operator: and
+        desc: 玩家账本已有对账结论时，只重复收场话术，不再结算
+        selected: false
+        title: 已对过账？
+        type: if-else
+      height: 140
+      id: '1761100000020'
+      position:
+        x: 3700
+        y: 700
+      positionAbsolute:
+        x: 3700
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: 账本已经合上了，客人。要重新开始，就在新会话里报一个代号——或者，换一个代号。
+        desc: ''
+        selected: false
+        title: 回复·已合上
+        type: answer
+        variables: []
+      height: 110
+      id: '1761100000021'
+      position:
+        x: 3700
+        y: 1000
+      positionAbsolute:
+        x: 3700
+        y: 1000
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: 收下最后一句，逐条念出账本里互相抵牾的地方
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: deepseek-chat
+          provider: langgenius/deepseek/deepseek
+        prompt_template:
+        - id: 1c1e1df8-cd66-493b-a90d-16af89dd66f1
+          role: system
+          text: '你是「记忆修复师」。三句话已经说完，你合上笔，翻开账本，和客人对账。
+
+
+            本轮任务：
+
+            1. 先收下客人最后这句话（照常归档，不质疑）。
+
+            2. 只有客人的主张彼此之间打架时才算矛盾，例如：一处说去过东京、另一处说从没离开过这座城；或身份前后对不上。地点、时间、身份、经历互相冲突都算。
+
+            3. 登记档案本身只是"档案原来一片空白"的设定，不要把它列成矛盾；它只用来点明"你档案里没有这些经历"。
+
+            4. 最后用一句"你到底是谁"收尾。
+
+            5. 只输出一个 JSON 对象，不要输出任何其他文字。'
+        - id: ec958772-e5e6-4fab-ad7a-f362c2012bac
+          role: user
+          text: '代号：{{#1761100000002.code_display#}}
+
+            客人最后这一句：
+
+            {{#1761100000002.query_text#}}
+
+
+            登记档案（账本第一页）：
+
+            {{#1761100000008.truth_text#}}
+
+
+            客人今天说过的全部主张：
+
+            {{#1761100000008.claims_text#}}
+
+
+            PowerContext 按当前话语召回的相关记忆（可能为空）：
+
+            {{#1761100000012.context_text#}}
+
+
+            前任访客档案（店里的旧记录）：
+
+            {{#1761100000008.world_ledger#}}
+
+
+            输出 JSON：{"reply": "对账全文（中文，4-8 句，先收下最后一句再逐条对账，最后问一句你到底是谁）", "contradictions": ["矛盾点（尽量引用客人的原话，最多 3 条；没有矛盾就给空数组）"], "final_claim": "从最后这句话提炼的主张；没有则为空字符串", "precedent_line": "写给下一位客人的一行前科档案（以「前科：」开头，引用这位客人的原话）"}'
+        selected: false
+        title: 终局对账
+        type: llm
+        variables: []
+      height: 120
+      id: '1761100000022'
+      position:
+        x: 3980
+        y: 700
+      positionAbsolute:
+        x: 3980
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        code: "import json\nimport re\n\nFENCE = re.compile(r\"```(?:json)?\", re.IGNORECASE)\n\n\ndef clean(text: str) -> str:\n    return FENCE.sub(\"\", text or \"\").strip()\n\n\ndef main(confront_text: str, code_display: str, claims_text: str, query_text: str) -> dict:\n    \"\"\"reply 与矛盾点取自模型输出；末句主张与对账结论始终由账本自己记下。\"\"\"\n    raw = clean(confront_text)\n    reply = \"\"\n    precedent = \"\"\n    final_claim = \"\"\n    contradictions = []\n    start = raw.find(\"{\")\n    end = raw.rfind(\"}\")\n    if start != -1 and end > start:\n        try:\n            data = json.loads(raw[start : end + 1])\n        except (TypeError, ValueError):\n            data = None\n        if isinstance(data, dict):\n            reply = str(data.get(\"reply\") or \"\").strip()\n            final_claim = str(data.get(\"final_claim\") or \"\").strip()\n            precedent = str(data.get(\"precedent_line\") or \"\").strip()\n            items = data.get(\"contradictions\")\n            if isinstance(items, list):\n                contradictions = [str(i).strip()[:120] for i in items if str(i).strip()][:4]\n    if not reply:\n        reply = raw[:1500] or \"……账本合上了。你今天说的话，我都记下来了。你到底是谁？\"\n\n    lines = [line[2:].strip() for line in (claims_text or \"\").split(\"\\n\") if line.startswith(\"- \")]\n    name = (code_display or \"\").strip() or \"无名氏\"\n    final_claim = (final_claim or (query_text or \"\").strip())[:400]\n\n    total = len(lines) + (1 if final_claim else 0)\n    if contradictions:\n        contradiction_text = \"；\".join(contradictions)[:800]\n        audit = \"对账结论：代号 \" + name + \"，今日共收下主张 \" + str(total) + \" 条，记录矛盾 \" + str(\n            len(contradictions)\n        ) + \" 条。\" + contradiction_text\n        if not precedent:\n            precedent = \"前科：客人「\" + name + \"」说过「\" + contradictions[0][:40] + \"」，账本对不上。\"\n    else:\n        contradiction_text = \"\"\n        audit = \"对账结论：代号 \" + name + \"，今日共收下主张 \" + str(total) + \" 条，未记录到明确矛盾。\"\n\n    return {\n        \"reply\": reply[:2000],\n        \"audit_json\": json.dumps(audit[:800], ensure_ascii=False)[1:-1],\n        \"has_contradiction\": \"yes\" if contradictions else \"no\",\n        \"contradiction_json\": json.dumps(contradiction_text, ensure_ascii=False)[1:-1],\n        \"precedent_json\": json.dumps(precedent[:400], ensure_ascii=False)[1:-1],\n        \"final_claim_json\": json.dumps(final_claim, ensure_ascii=False)[1:-1],\n    }\n"
+        code_language: python3
+        desc: 回复与矛盾点取自模型输出；末句主张与对账结论始终由账本自己记下
+        outputs:
+          reply:
+            children: null
+            type: string
+          audit_json:
+            children: null
+            type: string
+          has_contradiction:
+            children: null
+            type: string
+          contradiction_json:
+            children: null
+            type: string
+          precedent_json:
+            children: null
+            type: string
+          final_claim_json:
+            children: null
+            type: string
+        selected: false
+        title: 整理对账
+        type: code
+        variables:
+        - value_selector:
+          - '1761100000022'
+          - text
+          value_type: string
+          variable: confront_text
+        - value_selector:
+          - '1761100000002'
+          - code_display
+          value_type: string
+          variable: code_display
+        - value_selector:
+          - '1761100000008'
+          - claims_text
+          value_type: string
+          variable: claims_text
+        - value_selector:
+          - '1761100000002'
+          - query_text
+          value_type: string
+          variable: query_text
+      height: 90
+      id: '1761100000023'
+      position:
+        x: 4260
+        y: 700
+      positionAbsolute:
+        x: 4260
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"scope_id":"{{#1761100000005.player_scope_id#}}","kind":"verdict","text":"{{#1761100000023.audit_json#}}","reason":"终局对账结论"}'
+          type: json
+        desc: 把本轮对账结论写进玩家账本（也是「已对过账」的判定依据）
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 记下对账结论
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/remember'
+        variables: []
+      height: 95
+      id: '1761100000024'
+      position:
+        x: 4820
+        y: 700
+      positionAbsolute:
+        x: 4820
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        cases:
+        - case_id: 'true'
+          conditions:
+          - comparison_operator: is
+            id: 5ea7704f-244f-459e-afe1-f3e99a60baaa
+            value: 'yes'
+            varType: string
+            variable_selector:
+            - '1761100000023'
+            - has_contradiction
+          id: 'true'
+          logical_operator: and
+        desc: 模型指出了明确矛盾时，才记矛盾与前任档案
+        selected: false
+        title: 有矛盾？
+        type: if-else
+      height: 140
+      id: '1761100000017'
+      position:
+        x: 5100
+        y: 700
+      positionAbsolute:
+        x: 5100
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"scope_id":"{{#1761100000005.player_scope_id#}}","kind":"claim","text":"{{#1761100000023.final_claim_json#}}","reason":"玩家自述（第3句）"}'
+          type: json
+        desc: 写入第三句的主张
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 记下末句主张
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/remember'
+        variables: []
+      height: 95
+      id: '1761100000025'
+      position:
+        x: 4540
+        y: 700
+      positionAbsolute:
+        x: 4540
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"scope_id":"{{#1761100000005.player_scope_id#}}","kind":"contradiction","text":"{{#1761100000023.contradiction_json#}}","reason":"终局对账确认的矛盾"}'
+          type: json
+        desc: 把确认的矛盾写进玩家自己的账本
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 记下矛盾
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/remember'
+        variables: []
+      height: 95
+      id: '1761100000026'
+      position:
+        x: 5380
+        y: 700
+      positionAbsolute:
+        x: 5380
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        authorization:
+          config: null
+          type: no-auth
+        body:
+          data:
+          - id: key-value-0
+            key: ''
+            type: text
+            value: '{"scope_id":"{{#1761100000005.world_scope_id#}}","kind":"ledger","text":"{{#1761100000023.precedent_json#}}","reason":"访客前科（终局结算）"}'
+          type: json
+        desc: 把前科写进世界账本，下一位客人看得见
+        error_strategy: fail-branch
+        headers: ''
+        method: post
+        params: ''
+        retry_config:
+          max_retries: 2
+          retry_enabled: true
+          retry_interval: 1000
+        selected: false
+        ssl_verify: true
+        timeout:
+          connect: 10
+          max_connect_timeout: 0
+          max_read_timeout: 0
+          max_write_timeout: 0
+          read: 30
+          write: 30
+        title: 记下前科
+        type: http-request
+        url: '{{#env.POWERCONTEXT_BASE_URL#}}/v1/memory/remember'
+        variables: []
+      height: 95
+      id: '1761100000027'
+      position:
+        x: 5660
+        y: 700
+      positionAbsolute:
+        x: 5660
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: '{{#1761100000023.reply#}}'
+        desc: ''
+        selected: false
+        title: 回复·对账
+        type: answer
+        variables: []
+      height: 110
+      id: '1761100000028'
+      position:
+        x: 5940
+        y: 700
+      positionAbsolute:
+        x: 5940
+        y: 700
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
+    - data:
+        answer: 账本一时翻不开……请确认 PowerContext 服务地址（环境变量 POWERCONTEXT_BASE_URL）可以访问，然后开一个新会话再试。
+        desc: ''
+        selected: false
+        title: 回复·账本翻不开
+        type: answer
+        variables: []
+      height: 110
+      id: '1761100000029'
+      position:
+        x: 2020
+        y: 1000
+      positionAbsolute:
+        x: 2020
+        y: 1000
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 242
