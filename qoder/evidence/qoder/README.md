@@ -6,21 +6,44 @@
 
 | 材料 | 状态 | 放置位置 |
 | --- | --- | --- |
-| Qoder 账号 UID | 待填写 | 本文件「账号」一节 |
-| 需求拆解与方案对话截图 | 待补充 | `evidence/qoder/screenshots/` |
-| 关键实现对话截图 | 待补充 | `evidence/qoder/screenshots/` |
-| 调试与验证对话截图 | 待补充 | `evidence/qoder/screenshots/` |
-| 站点发布与无痕访问截图 | 待补充 | `evidence/qoder/screenshots/` |
+| Qoder 账号 UID | 已填写 | 本文件「账号」一节 |
+| 需求拆解与方案对话截图 | 已补充 | `evidence/qoder/screenshots/develop-1-requirements.png` |
+| 关键实现截图 | 已补充 | `evidence/qoder/screenshots/develop-2-coding.png` |
+| 调试与验证对话截图 | 已补充 | `evidence/qoder/screenshots/develop-3-debugging.png`、`develop-4-verification.png` |
+| 站点公开可见性截图 | 已补充 | `evidence/qoder/screenshots/visibility.png` |
+| 已发布站点截图 | 已补充 | `evidence/qoder/screenshots/published-home.png` |
+| 无痕访问截图 | 已补充 | `evidence/qoder/screenshots/incognito.png` |
 
-截图要求：能看到 Qoder 界面、对话内容与时间；不要包含 API 密钥、令牌、个人信息或与项目无关的聊天。
+截图内容对应：
+
+| 文件 | 内容 |
+| --- | --- |
+| `develop-1-requirements.png` | 需求拆解、5 点确认与技术选型对比（生成式综述 + 确定性回退） |
+| `develop-2-coding.png` | Qoder 编辑器中的实现工作与 `app/src/paperdesk/` 源码结构 |
+| `develop-3-debugging.png` | seekdb 卡死、503 导致 revision 漂移、完整场景跑通与子代理复核 |
+| `develop-4-verification.png` | 复核补漏与最终验证结果（59 项测试、场景断言、证据一致性） |
+| `visibility.png` | Qoder Sites 分享面板显示「任何人都可访问」 |
+| `published-home.png` | 已登录状态打开已发布站点首页 |
+| `incognito.png` | InPrivate 无痕窗口打开同一 URL，无登录墙 |
+
+截图要求：能看到 Qoder 界面与对话内容；不要包含 API 密钥、令牌、个人信息或与项目无关的聊天。开发时间以本文件的开发周期与下方 commit 对应关系为准。
 
 ## 账号
 
 - 平台：Qoder 桌面端（个人账号）
-- UID：`待填写`
-- 公开站点 URL：`待填写`
-- 开发周期：2026-10-26
+- UID：`01a177f6-8352-7dca-aad8-af82f8efed66`
+- 公开站点 URL：`https://paperdesk-u6gf1w4ntck.qoder.website/`
+- 发布方式：Qoder Sites，内容目录为站点根目录（含 `index.html` 与 `assets/`），可见范围设为「所有人可访问」
+- 开发周期：2026-10-26 至 2026-10-27
 - 提交材料中不得包含 `qoder/.env`、`.runtime/`、`.agents/` 或本地工作日志；凭据只保留在被忽略的本地文件中。
+
+## 发布与访问核验
+
+- 2026-10-27 由个人账号通过 Qoder Sites 发布，站点内容目录为 `site/` 的根目录。
+- 无痕窗口（InPrivate）无需登录即可打开首页，导航、样式、截图和「Made with Qoder」标识正常，见 `screenshots/incognito.png`。
+- 已登录状态下的发布页见 `screenshots/published-home.png`。
+- 分享面板的可见范围显示「任何人都可访问」，见 `screenshots/visibility.png`。
+- 评审结束前不暂停或删除站点；发布后修改内容需再次发布才会更新线上版本。
 
 ## 开发过程与可核对位置
 
@@ -31,7 +54,7 @@
 | 实现 | 生成解析器、seekdb 存取与混合检索、嵌入客户端、PowerContext 客户端、FastAPI 页面、CLI 与测试 | `app/src/paperdesk/`、`app/tests/` |
 | 调试 | 修复 Jinja `TemplateResponse` 调用、继续卡片排序、记忆测试中的可变 payload、RRF 权重与评测期望；定位 seekdb 重复 DDL 导致查询挂起，以及 503 重试导致的 progress 修订漂移 | 对应测试与 `app/src/paperdesk/` 的最终实现 |
 | 验证 | 运行 59 项测试，执行完整场景脚本，检查 Web 页面、记忆重启复用与引用映射 | `evidence/` 全部目录 |
-| 发布（待执行） | 使用个人 Qoder 账号发布 `site/`，设置公开可见并在无痕窗口核验 | `site/PUBLISH.md`、本目录截图 |
+| 发布 | 使用个人 Qoder 账号发布 `site/`，可见范围设为「所有人可访问」，并用无痕窗口核验 | `site/PUBLISH.md`、`evidence/qoder/screenshots/` |
 
 ## 代码对应关系
 
