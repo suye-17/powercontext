@@ -34,7 +34,8 @@ class PowerContextClient:
             raise PowerContextError(f"{method} {path} failed: HTTP {error.code}: {body[:300]}") from error
         except urllib.error.URLError as error:
             raise PowerContextError(
-                f"PowerContext server unreachable at {self.server_url}: {error.reason}"
+                f"PowerContext server unreachable at {self.server_url}: {error.reason}. "
+                "请先启动 PowerContext server（见 sample/steps.md 步骤 2），并等待 /health/live 返回 OK。"
             ) from error
 
     def ensure_scope(self) -> str:

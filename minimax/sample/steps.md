@@ -30,6 +30,8 @@ PYTHONDONTWRITEBYTECODE=1 .venv/bin/powercontext server run --env-file .runtime/
 curl -fsS http://127.0.0.1:8010/health/live
 ```
 
+> ⚠️ **务必等待 `/health/live` 返回 OK 再执行后续带状态的命令**（步骤 6、7、8），否则会报 `PowerContext server unreachable`。`server run` 是前台进程，请另开终端执行后续步骤；启动时打印的「未配置推理模型」告警是正常现象，本任务只用显式 Memory + FTS，不依赖生成/embedding 模型，可忽略。
+
 ## 3. 导入 before 工程到 seekdb
 
 ```bash
@@ -57,6 +59,8 @@ cd ../../..
 
 预期：`6 failed, 7 passed`，退出码 1。失败原因是目标行为缺失（断言失败 / `DID NOT RAISE`），不是环境错误。
 
+> ⚠️ **退出码 1 是预期结果**：这 6 个失败正是第 6 项「代码修改有效」所需的修改前失败证据，请勿据此判为不通过。失败项是 `test_list_tasks_filters_by_min_priority` 与 `test_add_task_rejects_invalid_priority` 的 5 个参数化用例（断言失败 / `DID NOT RAISE`），不是缺依赖或无法启动。
+
 ## 6. 写入 PowerContext 状态
 
 ```bash
@@ -82,6 +86,8 @@ uv run --extra dev sdd-context state read > evidence/powercontext/read-after-res
 diff -u evidence/powercontext/read-before-restart.json evidence/powercontext/read-after-restart.json
 uv run --extra dev sdd-context build --task "$TASK" --top-k 3 --output evidence/context/context-after-restart.json
 ```
+
+> ⚠️ **必须先停止旧的 server 再用同一 env 文件重启**（Ctrl+C 停止，不要直接开第二个），否则端口 8010 冲突会导致重启失败。重启后同样等待 `/health/live` 返回 OK 再继续。
 
 预期：`diff` 无输出（状态一致）；`context-after-restart.json` 的 `state.task_id` 为 `tasklite-min-priority`。
 
@@ -139,3 +145,18 @@ cat evidence/context/spec-update-comparison.txt
 ```bash
 ./sample/reset.sh
 ```
+
+> ⚠️ 重置会删除 `.runtime/` 下的 seekdb 与 SQLite 文件，请务必先停止 server 再执行，避免 SQLite 被占用。
+
+## 13. 常见问题排查（FAQ）
+
+| 现象 | 原因 | 处理 |
+| --- | --- | --- |
+| `PowerContext server unreachable at http://127.0.0.1:8010` | 未启动 server 或未就绪 | 先执行步骤 2 启动 server，等 `/health/live` 返回 OK |
+| `uv sync` 报网络错误 | 离线或 PyPI 不可达 | 需要联网；`powercontext==1.4.0`、`pylibseekdb==1.4.0.post1` 版本已锁定在 `uv.lock` |
+| `pylibseekdb` 安装失败 | 平台不是 Linux/macOS x86_64 | 嵌入式 seekdb 仅支持 Linux/macOS，请在符合平台的环境执行 |
+| 启动时打印「未配置推理模型」 | 未配置 generation/embedding 模型 | 正常现象，本任务只用显式 Memory + FTS，忽略即可 |
+| 步骤 5 出现 `6 failed, 7 passed`、退出码 1 | 目标行为尚未实现 | 预期结果，是「代码修改有效」的修改前证据，不是失败 |
+| 端口 8010 被占用 | 已有进程占用 | 释放端口，或改用其它端口并同步设置 `POWERCONTEXT_SERVER_URL` |
+| `state read` 输出 `{}` | 尚未写入状态，或顺序颠倒 | 先 `state write` 再 `state read`，严格按步骤 6→7→8 顺序 |
+| 步骤 8 `diff` 有差异 | 重启用了不同的 env/SQLite 文件 | 用同一个 `.runtime/powercontext.env` 重启 |

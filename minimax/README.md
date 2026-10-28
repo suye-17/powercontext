@@ -67,6 +67,20 @@ minimax/
 | pymysql | 1.2.0 |
 | pytest | 8.4.2 |
 
+## 评审执行须知（重要，请先阅读）
+
+以下事项直接关系六项验收能否通过，请评审在干净环境复现前留意，避免因操作或环境误判：
+
+1. **环境前提**：Python 3.11+、`uv`、Linux 或 macOS（x86_64）。嵌入式 `pylibseekdb` 仅提供 Linux/macOS 的 manylinux wheel，Windows 或 ARM 平台无法安装。
+2. **依赖下载需要联网**：`uv sync --extra dev --extra server` 需从 PyPI 拉取 `powercontext==1.4.0` 与 `pylibseekdb==1.4.0.post1`（版本已在 `uv.lock` 锁定）。离线环境请提前准备依赖缓存或本地 wheel，否则第 1 项「能够运行」无法验证。
+3. **启动顺序**：所有涉及任务状态/数据库的命令（`build` 不带 `--skip-state`、`state write`、`state read`）依赖运行中的 PowerContext server。请**先启动 server 并等待 `curl -fsS http://127.0.0.1:8010/health/live` 返回 OK**，再执行这些命令；否则会报 `PowerContext server unreachable` 并返回退出码 1。
+4. **server 是前台进程**：`powercontext server run` 会占用当前终端并持续输出日志，请**另开一个终端**执行后续命令，不要在同一终端顺序粘贴全部命令。
+5. **"未配置推理模型"告警是正常现象**：server 启动时可能打印 `未配置或未完整配置 PowerContext Server 推理模型`。本任务只使用显式 Memory 写入与 FTS 检索，**不依赖生成/embedding 模型**，该告警不影响任何验收项，可忽略。
+6. **before 测试退出码 1 是预期结果**：`snapshots/before/tasklite` 的 `pytest -q` 输出 `6 failed, 7 passed` 且退出码为 1，失败原因是目标行为尚未实现（断言失败 / `DID NOT RAISE`），这**正是第 6 项「代码修改有效」要求的修改前失败证据**，不是环境错误，请勿据此判为不通过。
+7. **端口占用**：PowerContext 默认端口 8010。若被占用，改用其它端口并同步设置 `POWERCONTEXT_SERVER_URL`（见「上下文模块调用入口」），或先释放 8010。
+8. **停止 / 重启 / 重置**：验证状态复用前，先停止当前 server（Ctrl+C 或 `kill`），再用**同一个** `.runtime/powercontext.env` 重启；执行 `./sample/reset.sh` 前同样先停止 server，避免 SQLite 文件被占用导致清理失败。
+9. **严格按顺序执行**：`sample/steps.md` 的步骤顺序即验收顺序，请从步骤 1 依次执行；尤其要先 `state write` 再 `state read`，否则读到的将是空状态 `{}`。
+
 ## 快速开始
 
 ```bash
